@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ngine</title>
+    <script type="module" src="modules/main.mjs"></script>
+    <!-- <script type="module" src="modules/ui.mjs"></script> -->
+    <!-- <script src="lib/p5/p5.js"></script> -->
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="main.css">
+
+    <!-- --- templates --- -->
+    <template id="scriptEditorCard">
+        <section class="card scriptEditor">
+            <div class="inner-card">
+                <h3><input type="text" value="new_script"><button class="closeWindow">🞩</button></h3>
+                <p><button title="run" class="play">▶</button></p>
+                <textarea cols="40" rows="10"></textarea>
+            </div>
+        </section>
+    </template>
+    <template id="objectEditorCard">
+        <section class="card obj-editor">
+            <div class="inner-card">
+            <h3>obj_player <button class="closeWindow">🞩</button></h3>
+            <div class="flex-row">
+                <div class="subsection settings">
+                    <h4>settings</h4>
+                    <button class="event start">start</button>
+                    <br>
+                    <button onclick="cloneFromTemplate('#scriptEditorCard')">new script</button>
+                    <br>
+                    <button onclick="cloneFromTemplate('#logCard')">new log</button>
+                </div>
+                <div class="subsection events">
+                    <h4>events</h4>
+                    <ul class="events">
+                        <li>start</li>
+                        <li>tick</li>
+                        <li>draw</li>
+                        <li>destroy</li>
+                    </ul>
+                </div>
+                <div class="subsection actions">
+                    <h4>event actions</h4>
+                    <template id="eventsList">
+                        <ul class="actions">
+                            <!-- <li>action 1</li> -->
+                        </ul>
+                    </template>
+                </div>
+                <div class="subsection action-palette">
+                    <h4>main</h4>
+                    <ul class="action-select">
+                        <li>move</li>
+                        <li>jump</li>
+                        <li>teleport</li>
+                        <li>reverse</li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </section>
+    </template>
+</head>
+<body>
+    
+</body>
+</html>

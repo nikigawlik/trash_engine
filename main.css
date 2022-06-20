@@ -1,0 +1,350 @@
+* {
+    margin: 0;
+}
+
+html {
+    --bg-color: #fdfdfd;
+    --main-color: #111;
+    --corner-image: url("/engineAssets/corners.png");
+    
+    --neutral-color: #888;
+}
+
+html[data-dark="true"] {
+    --bg-color: #111;
+    --main-color: #fdfdfd;
+    --corner-image: url("/engineAssets/corners_inverted.png");
+} 
+
+body {
+    background-color: var(--bg-color);
+    color: var(--main-color);
+    overflow: hidden;
+    font-family: sans-serif;
+}
+
+textarea {
+    background-color: var(--bg-color);
+    color: var(--main-color);
+}
+
+button {
+    background-color: var(--bg-color);
+    color: var(--main-color);
+    border-radius: 1px;
+    border: 1px solid var(--main-color);
+    box-shadow: 2px 2px var(--main-color);
+}
+
+button:hover {
+    background-color: #aaa;
+    /* color: var(--bg-color); */
+}
+
+button:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px;
+    color: var(--bg-color);
+    background-color: var(--main-color);
+}
+
+header div {
+    display: flex;
+    flex-direction: row;
+    padding: 4px;
+    /* vertical-align: middle; */
+    font-family: sans-serif;
+}
+
+header img {
+    margin-right: 8px;
+}
+
+ul.topbar {
+    display: flex;
+    flex-direction: row;
+
+    border-bottom: 1px solid var(--main-color);
+    background-color: var(--bg-color);
+    /* padding: 8px; */
+
+    margin-bottom: 4px;;
+}
+
+ul.topbar > li {
+    /* border-right: 1px solid var(--main-color); */
+    padding: 4px;
+}
+
+main {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+canvas {
+    display: block;
+    margin: auto;
+    /* image-rendering: crisp-edges; */
+    image-rendering: pixelated;
+}
+
+
+.card {
+    position: absolute;
+    user-select: none;
+
+    resize: both;
+    overflow: hidden;
+    /* min-width: fit-content;
+    min-height: fit-content; */
+}
+
+.card img {
+    pointer-events: none;
+}
+
+.card textarea {
+    resize: none;
+}
+
+.card {
+    /* padding: -8px; */
+    /* border: 2px solid var(--main-color); */
+    /* box-shadow: 2px 2px 8px -2px var(--main-color); */
+    width: fit-content;
+    height: fit-content;
+    /* padding: 8px; */
+    background-color: var(--bg-color);
+}
+
+.card .inner-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    border: 8px solid transparent;
+    /* border-color: var(--main-color); */
+    /* border-image: image(url("/engineAssets/corners.png"), var(--bg-color)) 8 8 repeat; */
+    border-image: var(--corner-image) 8 8 repeat;
+    padding: 0;
+    margin: 0;
+}
+
+.inner-card>textarea {
+    flex-grow: 1;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow: scroll;
+}
+
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+
+/* .flex-row>* {
+    
+} */
+
+.card>* {
+    margin-bottom: 5px;
+    margin-top: 5px;
+
+}
+
+.card h3 {
+    margin-top: 0px;
+    margin-bottom: 10px;
+
+    padding: 3px;
+
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-between;
+
+    background-color: var(--main-color);
+    color: var(--bg-color);
+}
+
+.card h3 input {
+    display: block;
+    border: 1px solid var(--main-color);
+
+    flex-grow: 1;
+}
+
+.card .closeWindow {
+    color: var(--main-color);
+    border: none;
+    background: none;
+    background-color: var(--bg-color);
+    padding: 0;
+    margin: 0;
+
+    display: inline-block;
+    vertical-align: top;
+    margin-top: -5px;
+    padding-left: 8px;
+}
+
+.card h4 {
+    font-size: small;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.card li.selected {
+    background-color: var(--main-color);
+    color: var(--bg-color);
+}
+
+.card.log {
+    width: 200px;
+    height: 200px;
+}
+
+p.log {
+    width: 100%;
+    height: calc(100% - 36px);
+    font-family: monospace;
+    border: 1px dashed var(--main-color);
+    overflow-y: scroll;
+    user-select: text;
+}
+
+.error-msg {
+    border: 3px dashed var(--main-color);
+    filter: none;
+    font-family: monospace;
+    padding: 5px;
+    color: #f44;
+}
+
+img {
+    image-rendering: pixelated;
+}
+
+.scroll-box {
+    border: 1px dashed var(--main-color);
+    overflow: scroll;
+}
+
+.card.resources {
+    height: 400px;
+    width: 200px;
+}
+
+.card.resources .scroll-box {
+    box-sizing: border-box;
+    /* loooool */
+    flex-grow: 1;
+}
+
+ul.resources {
+    margin-left: 10px;
+}
+
+ul.resources li {
+    margin: 4px;
+    margin-left: 10px;
+    list-style-position: outside;
+}
+
+ul.resources .resource-link::before {
+    content: "❔";
+}
+
+ul.resources .resource-sprite::before {
+    /* list-style-image: url('/engineAssets/corners.png'); */
+    content: "👺";
+    /* content: "🎨"; */
+}
+
+ul.resources .resource-folder::before {
+    content: "📁";
+    /* list-style-image: url('/engineAssets/icon_folder.png'); */
+}
+
+ul.resources .resource-object::before {
+    content: "🎱";
+    /* list-style-image: url('/engineAssets/icon_folder.png'); */
+}
+
+.grabbable {
+    cursor: pointer;
+    /* cursor: move; fallback if grab cursor is unsupported */
+    /* cursor: grab; */
+    /* cursor: -moz-grab; */
+    /* cursor: -webkit-grab; */
+}
+
+ /* (Optional) Apply a "closed-hand" cursor during drag operation. */
+.grabbable:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+    background-color: var(--neutral-color);
+}
+
+.drag-hover {
+    /* content: "_"; */
+    background-color: var(--neutral-color);
+}
+
+div.toolbar {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    /* justify-content: space-between; */
+    gap: 4px;
+}
+
+div.toolbar>button {
+    display: block;
+    padding: 0;
+}
+
+button[data-selected="true"] {
+    background-color: var(--neutral-color);
+    /* width: 1000px; */
+}
+
+
+/* --- components --- */
+
+.card.obj-editor .subsection {
+    width: 128px;
+    height: 256px;
+    border: 1px dashed var(--main-color);
+    padding: 5px;
+}
+
+.card.sprite-editor .toolbar {
+    margin-top: 6px;
+}
+
+.card.sprite-editor .toolbar button {
+    padding: 3px;
+}
+
+.card.sprite-editor .canvas-container {
+    /* border: 1px solid var(--main-color); */
+    padding: 16px;
+}
+
+.card.sprite-editor .canvas-container canvas {
+    display: block;
+    border: 1px solid var(--main-color);
+    /* flex-grow: 1; */
+    /* object-fit:none ; */
+}
