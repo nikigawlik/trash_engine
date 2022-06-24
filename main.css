@@ -48,6 +48,10 @@ button:active {
     background-color: var(--main-color);
 }
 
+em {
+    font-weight: bold;
+}
+
 header div {
     display: flex;
     flex-direction: row;
@@ -93,6 +97,37 @@ canvas {
     image-rendering: pixelated;
 }
 
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.41);
+    z-index: 10000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup {
+    width: fit-content;
+    height: fit-content;
+    padding: 8px;
+    background-color: var(--bg-color);
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 
 .card {
     position: absolute;
@@ -317,6 +352,24 @@ div.toolbar>button {
 button[data-selected="true"] {
     background-color: var(--neutral-color);
     /* width: 1000px; */
+}
+
+ul.context-menu {
+    position: absolute;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    width: fit-content;
+    min-width: 10px;
+    min-height: 10px;
+}
+
+ul.context-menu button {
+    display: block;
+    width: 100%;
+    min-width: 100px;
 }
 
 

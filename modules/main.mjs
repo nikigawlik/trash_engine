@@ -20,16 +20,16 @@ window.onload = async () => {
 
 window.testResources = () => {
     let r = resourceManager || new ResourceManager();
-    r.addSprite(new Sprite("sprite0"));
-    r.addSprite(new Sprite("sprite1"));
-    r.addSprite(new Sprite("sprite2"));
-    let f = new Folder(undefined, [new Sprite("sprite3"), new Sprite("sprite4")]);
-    r.addSprite(f);
-    f.add(new Folder(undefined, [new Sprite("fanta")]));
+    // r.addSprite(new Sprite("sprite0"));
+    // r.addSprite(new Sprite("sprite1"));
+    // r.addSprite(new Sprite("sprite2"));
+    // let f = new Folder(undefined, [new Sprite("sprite3"), new Sprite("sprite4")]);
+    // r.addSprite(f);
+    // f.add(new Folder(undefined, [new Sprite("fanta")]));
 
-    r.addRoom(new Room("test_room"));
-    r.addRoom(new Room("test_room1"));
-    r.addRoom(new Room("test_room2"));
+    // r.addRoom(new Room("test_room"));
+    // r.addRoom(new Room("test_room1"));
+    // r.addRoom(new Room("test_room2"));
     // r.addThing(new Thing("test_thing"));
     // r.addThing(new Thing("test_thing1"));
     // r.addThing(new Thing("test_thing2"));

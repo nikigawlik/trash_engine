@@ -1,6 +1,6 @@
-import { appendCard, Card, cards } from "./components.mjs";
+import { appendCard, asyncYesNoPopup, Card, cards, createBlockingPopup, createContextMenu } from "./components.mjs";
 import { html } from "./deps.mjs";
-import { Resource } from "./resource_manager.mjs";
+import { Resource, resourceManager } from "./resource_manager.mjs";
 import { bringToFront } from "./ui.mjs";
 
 let brushesSrcImage = null; // set in init
@@ -35,6 +35,7 @@ export async function init() {
 }
 
 export class Sprite extends Resource {
+    static _ = Resource.typeMap["sprite"] = this; // lol hack
     constructor(name="sprite") {
         super(name, "sprite");
         this.name = name;
@@ -42,17 +43,31 @@ export class Sprite extends Resource {
         this.atlasLocation = { x: 0, y: 0, w: 1, h: 1};
     }
 
-    openWindow() {
-        // look for existing
-        let existing = cards.find(x => x.dataset.resourceUuid == this.uuid);
-        
-        if(existing) {
-            bringToFront(existing);
-        } else {
-            let elmt = html`
-            <${SpriteWindow} sprite=${this} />
-            `;
-            appendCard(elmt);
+    openResource(clickEvent) {
+        let contextMenu = createContextMenu(clickEvent, ["open", `delete ${this.name}`]);
+        let buttons = contextMenu.querySelectorAll("button");
+        buttons[0].onclick = () => {
+            // look for existing
+            let existing = cards.find(x => x.dataset.resourceUuid == this.uuid);
+            
+            if(existing) {
+                bringToFront(existing);
+            } else {
+                let elmt = html`
+                <${SpriteWindow} sprite=${this} />
+                `;
+                appendCard(elmt);
+            }  
+        }
+        buttons[1].onclick = async () => {
+            let confirmed = await asyncYesNoPopup(html`Delete <em>${this.name}</em>?`);
+
+            if(confirmed) {   
+                this.remove();
+                let spriteWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
+                if(spriteWindow) spriteWindow.remove();
+                resourceManager.refresh();   
+            }
         }
     }
 }

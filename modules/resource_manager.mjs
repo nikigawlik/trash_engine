@@ -1,8 +1,8 @@
 // -- data structure --
 
-import { Card } from "./components.mjs";
+import { asyncYesNoPopup, Card, ContextMenu, createContextMenu } from "./components.mjs";
 import { html } from "./deps.mjs";
-import { elementsRegister } from "./ui.mjs";
+import { bringToFront, elementsRegister } from "./ui.mjs";
 
 
 /** @type {ResourceManager} */ export let resourceManager;
@@ -59,6 +59,7 @@ export class ResourceManager {
         elementsRegister(this.resourceWindowElmt.querySelector("ul.resources"));
     }
 }
+
 let ResourceWindow = (attrs = {}) => {
     let elmt = html`
     <${Card} name=resources class=resources>
@@ -84,27 +85,33 @@ let resourceList = (resources) => {
 
 let ResourceSubtree = (attrs = {}, ...children) => {
     let subtree = attrs.subtree;
+    let elmt;
     if(attrs.self.type == "folder") {
-        return html`
-        ${attrs.self.render()}<ul>
+        elmt = html`
+        ${attrs.self.render()}
+        <ul>
         ${subtree.map(x => html`
             <li class=${"icon-" + x.type}>
                 <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>
             </li>
         `)}
         </ul>
-        `
+        `;
     } else {
-        return attrs.self.render();
+        elmt = attrs.self.render();
     }
+    // attrs.self._htmlRep = elmt;
+    return elmt;
 }
 
 
 export class Resource {
+    static typeMap = {};
     constructor(name=null, type="resource") {
         this.name = name;
         this.type = type;
         this._parent = null;
+        this._htmlRep = null;
         this.uuid = crypto.randomUUID();
     }
 
@@ -117,6 +124,10 @@ export class Resource {
         return current;
     }
 
+    isTopFolder() {
+        return this._parent == resourceManager.root;
+    }
+
     isParentOf(resource) {
         let current = resource;
         while(current) {
@@ -126,7 +137,11 @@ export class Resource {
         return false
     }
 
-    openWindow() {
+    remove() {
+        this._parent.remove(this);
+    }
+
+    openResource() {
         console.log(`no window implemented for ${this.type}`);
     }
 
@@ -143,7 +158,7 @@ export class Resource {
         // }
         
         elmt.addEventListener('click', evt => {
-            this.openWindow();
+            this.openResource(evt);
         });
         
 
@@ -191,12 +206,45 @@ export class Resource {
 }
 
 export class Folder extends Resource {
+    static _ = Resource.typeMap["folder"] = this; // lol hack
     constructor(name="folder", contents=[]) {
         super(name, "folder");
         this.contents = contents;
         for(let x of contents) {
             x._parent = this;
         }
+    }
+
+    getResourceInfo() {
+        let topFolder = this.getTopFolder();
+        /** @type string */ let folderName = topFolder.name;
+        // TODO this is messy lol
+        return folderName.substring(0, folderName.length - 1);
+    }
+    
+    openResource(clickEvent) {
+        let resourceType = this.getResourceInfo();
+        let options = [`new ${resourceType}`, "new folder"];
+        if(!this.isTopFolder()) options.push("delete folder");
+
+        let contextMenu = createContextMenu(clickEvent, options);
+        let buttons = contextMenu.querySelectorAll("button");
+        buttons[0].onclick = () => {
+            this.add(new Resource.typeMap[resourceType]());
+            resourceManager.refresh();   
+        }
+        buttons[1].onclick = () => {
+            this.add(new Folder());
+            resourceManager.refresh();   
+        }
+        // optional
+        if(buttons[2]) buttons[2].onclick = async () => {
+            let confirmed = await asyncYesNoPopup(html`Delete folder <em>${this.name}</em>?`);
+            if(confirmed) {
+                this.remove();
+                resourceManager.refresh();   
+            }
+        };
     }
 
     add(resource) {
@@ -218,13 +266,17 @@ export class Folder extends Resource {
     }
 
     remove(resource) {
-        let index = this.contents.indexOf(resource);
-        if(index >= 0) {
-            resource = this.contents.splice(index, 1);
-            resource._parent = null;
-            return resource;
-        } else {
-            return null;
+        if(resource == undefined && this._parent && !this.isTopFolder()) {
+            this._parent.remove(this);
+        } else {   
+            let index = this.contents.indexOf(resource);
+            if(index >= 0) {
+                resource = this.contents.splice(index, 1);
+                resource._parent = null;
+                return resource;
+            } else {
+                return null;
+            }
         }
     }
 
@@ -243,13 +295,15 @@ export class Folder extends Resource {
 }
 
 // export class Thing extends Resource {
+//     static _ = Resource.typeMap["thing"] = this; // lol hack
 //     constructor(name="thing") {
-//         super(name, "thing");
-//         this.name = name;
-//     }
-// }
+    //         super(name, "thing");
+    //         this.name = name;
+    //     }
+    // }
 
 export class Room extends Resource {
+    static _ = Resource.typeMap["room"] = this; // lol hack       
     constructor(name="room") {
         super(name, "room");
         this.name = name;

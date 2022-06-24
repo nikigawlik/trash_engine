@@ -8,9 +8,8 @@ export function bringToFront(cardElement) {
 }
 
 export function setupDraggable(draggedElement, boundsElement, handleQuery, snap = 16, initialX = notLikethis, initialY = notLikethis) {
-    draggedElement.style.left = `${notLikethis}px`;
-    draggedElement.style.top = `${notLikethis}px`;
-    notLikethis += 10; // TODO: NO :p
+    draggedElement.style.left = `0px`;
+    draggedElement.style.top = `0px`;
     bringToFront(draggedElement);
     draggedElement.onmousedown = function(event) {
         bringToFront(draggedElement);

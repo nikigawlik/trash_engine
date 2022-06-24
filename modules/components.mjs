@@ -1,6 +1,6 @@
 import { html } from "./deps.mjs";
 import { resourceManager, ResourceManager } from "./resource_manager.mjs";
-import { elementsRegister, setupDraggable } from "./ui.mjs";
+import { bringToFront, elementsRegister, setupDraggable } from "./ui.mjs";
 
 
 // ---- save data ----
@@ -39,12 +39,88 @@ export let TopBar = () => {
     return elmt;
 }
 
+export let ContextMenu = (attrs = { buttons: ["null"]}) => {
+    let elmt = html`
+    <ul class="context-menu">
+        ${attrs.buttons.map(str => html`<li><button>${str}</button></li>`)}
+    </ul>
+    `;
+    elmt.style.left = "0px";
+    elmt.style.right = "0px";
+    elmt.onmouseleave = () => elmt.remove();
+    elmt.onclick = () => elmt.remove();
+
+    return elmt;
+}
+
+export let createContextMenu = (clickEvent, buttons) => {
+    let elmt = html`
+        <${ContextMenu} buttons=${buttons} />
+    `;
+    
+    let container = document.querySelector("main"); //resourceManager.resourceWindowElmt;
+
+    let rect1 = clickEvent.target.getBoundingClientRect()
+    let rect2 = container.getBoundingClientRect();
+    let off = 5;
+    bringToFront(elmt);
+
+    elmt.style.left = clickEvent.offsetX + rect1.left - rect2.left - off + "px";
+    elmt.style.top = clickEvent.offsetY + rect1.top - rect2.top - off + "px";
+
+    // clickEvent.target.append(contextWindow);
+    container.append(elmt);
+    return elmt;
+}
+
+export let createBlockingPopup = (prompt="null", buttons=["ok"]) => {
+    let elmt = html`
+        <div class="overlay">
+            <div class="popup">
+                <p>${prompt}</p>
+                <ul class=horizontal>
+                    ${buttons.map(str => html`<li><button>${str}</button></li>`)}
+                </ul>
+            </div>
+        </div>
+    `;
+    document.body.append(elmt);
+    return elmt;
+}
+
+export let asyncYesNoPopup = async (question) => {
+    let popupElmt = createBlockingPopup(question, ["yes", "no"]);     
+    let buttonElmts = popupElmt.querySelectorAll("button"); 
+    let result = await new Promise(resolve => { 
+        buttonElmts[0].onclick = () => resolve(true); 
+        buttonElmts[1].onclick = () => resolve(false); 
+    });
+    popupElmt.remove();
+    return result;
+};
+
 export let createCard = (cardGenerator) => {
+    // let positionCandidates = [];
+    // for(let existingCard of cards) {
+    //     let rect = existingCard.getBoundingClientRect();
+    //     let p1 = [rect.left + rect.width, recht.top];
+    //     let p2 = [rect.left, recht.top + recht.height];
+    //     for(let p of [p1, p2]) {
+    //         positionCandidates.push(p);
+    //     }
+    // }
     let elmt = html`<${cardGenerator} />`;
     appendCard(elmt);
 };
 
 export let appendCard = (cardElmt) => {
+    // TODO find good place for card
+    // let updog = cards.filter(x => x != cardElmt).reduce((a, b) => a.style.zIndex > b.style.zIndex? a : b);
+    // let updog = cards.filter(x => x != cardElmt).reduceRight((a,_) => a);
+    // // debugger;
+    // const rect = updog.getBoundingClientRect();
+    // cardElmt.style.left = rect.left + rect.width + "px";
+    // cardElmt.style.top = rect.top + rect.top + "px";
     document.querySelector("main").append(cardElmt);
 }
 
