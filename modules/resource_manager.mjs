@@ -1,8 +1,10 @@
 // -- data structure --
 
-import { asyncYesNoPopup, Card, ContextMenu, createContextMenu } from "./components.mjs";
+import { asyncYesNoPopup, Card, createContextMenu, loadApp } from "./components.mjs";
+import { db, deserialize, requestPromise as requestAsync } from "./database.mjs";
 import { html } from "./deps.mjs";
-import { bringToFront, elementsRegister } from "./ui.mjs";
+import { elementsRegister } from "./ui.mjs";
+import { serialize } from "./database.mjs";
 
 
 /** @type {ResourceManager} */ export let resourceManager;
@@ -19,8 +21,9 @@ export class ResourceManager {
         this.resourceWindowElmt = null;
     }
 
-    static init() {
+    static async init() {
         resourceManager = new ResourceManager();
+        await resourceManager.load();
     }
 
     addResource(folderName, resource) {
@@ -58,7 +61,57 @@ export class ResourceManager {
         this.resourceWindowElmt.querySelector("div.scroll-box").append(resourceList(this.root.contents));
         elementsRegister(this.resourceWindowElmt.querySelector("ul.resources"));
     }
+
+    
+    
+
+    async save() {
+        if(!db || !db.transaction) return;
+        
+        // we just need to save the root, actually
+        // let rootClone = JSON.parse(JSON.stringify(this, replacer));
+        let rootClone = await serialize(this.root);
+        
+        let trans = db.transaction(["resources"], "readwrite");
+        let objectStore = trans.objectStore("resources");
+        let request = objectStore.put(rootClone);
+        request.onsuccess = event => {
+            // event.target.result === customer.ssn;
+            console.log(`saved resource ${event.target.result}`);
+        };
+
+        await new Promise((resolve, reject) => { 
+            trans.oncomplete = e => console.log("transaction done") && resolve(e); 
+            trans.onerror = e => reject(e.target.error); 
+        });
+    }
+
+    async load() {
+        let trans = db.transaction("resources", "readonly");
+        let objectStore = trans.objectStore("resources");
+        let results = await requestAsync(objectStore.getAll());
+        let result = results[results.length - 1];
+
+        if(result) {       
+            console.log(result);   
+            result = await deserialize(result);
+            console.log(result); 
+            this.root = result;  
+
+            let setParent = (obj, parent) => {
+                obj._parent = parent;
+                if(obj.contents) {
+                    for(let child of obj.contents) {
+                        setParent(child, obj);
+                    }
+                }
+            }
+            setParent(this.root, null);
+        }
+    }
 }
+
+
 
 let ResourceWindow = (attrs = {}) => {
     let elmt = html`
@@ -100,7 +153,6 @@ let ResourceSubtree = (attrs = {}, ...children) => {
     } else {
         elmt = attrs.self.render();
     }
-    // attrs.self._htmlRep = elmt;
     return elmt;
 }
 
@@ -111,7 +163,6 @@ export class Resource {
         this.name = name;
         this.type = type;
         this._parent = null;
-        this._htmlRep = null;
         this.uuid = crypto.randomUUID();
     }
 

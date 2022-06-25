@@ -1,3 +1,4 @@
+import { deleteDatabase } from "./database.mjs";
 import { html } from "./deps.mjs";
 import { resourceManager, ResourceManager } from "./resource_manager.mjs";
 import { bringToFront, elementsRegister, setupDraggable } from "./ui.mjs";
@@ -34,6 +35,9 @@ export let TopBar = () => {
             <li><button onclick=${() => createCard(ScriptWindow)}>new script</button></li>
             <li><button onclick=${() => createCard(LogWindow)}>new log</button></li>
             <li><button onclick=${() => createCard(SettingsWindow)}>show settings</button></li>
+            <li><button onclick=${() => resourceManager.save()}>save</button></li>
+            <li><button onclick=${() => resourceManager.load()}>load</button></li>
+            <li><button onclick=${async() => deleteDatabase()}>DELETE DATA</button></li>
     </ul>
     `;
     return elmt;
@@ -117,7 +121,6 @@ export let appendCard = (cardElmt) => {
     // TODO find good place for card
     // let updog = cards.filter(x => x != cardElmt).reduce((a, b) => a.style.zIndex > b.style.zIndex? a : b);
     // let updog = cards.filter(x => x != cardElmt).reduceRight((a,_) => a);
-    // // debugger;
     // const rect = updog.getBoundingClientRect();
     // cardElmt.style.left = rect.left + rect.width + "px";
     // cardElmt.style.top = rect.top + rect.top + "px";

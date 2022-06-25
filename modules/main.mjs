@@ -1,18 +1,17 @@
-import { Folder, ResourceManager, resourceManager, Room } from "./resource_manager.mjs";
-import { SaveSystem } from "./save_system.mjs";
+import * as database from "./database.mjs";
+import { ResourceManager, resourceManager } from "./resource_manager.mjs";
 import * as sprite_editor from "./sprite_editor.mjs";
-import { Sprite } from "./sprite_editor.mjs";
 import * as ui from "./ui.mjs";
 
 
 window.onload = async () => {
-    // register all elements
+    // initialize different modules
+    await database.init();
     await ResourceManager.init();
-    await SaveSystem.init();
     window.testResources();
-    console.log(resourceManager);
     await ui.init();
     await sprite_editor.init();
+    // await SaveSystem.init();
 }
 
 
