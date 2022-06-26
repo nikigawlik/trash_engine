@@ -130,7 +130,7 @@ export let Card = (attrs = {}, ...children) => {
     let elmt = html`
     <section class="card" data-resource-uuid=${resourceUUID}>
     <div class="inner-card">
-        <h3>${attrs.name} <button class="closeWindow">🞩</button></h3>
+        <h3><span class="name">${attrs.name}</span> <button class="closeWindow">🞩</button></h3>
         ${children.map(x => html`${x}`)}
     </div>
     </section>`;

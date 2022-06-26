@@ -398,6 +398,9 @@ ul.context-menu button {
 .card.sprite-editor .canvas-container canvas {
     display: block;
     border: 1px solid var(--main-color);
+    
+    overflow: hidden;
+    resize: both;
     /* flex-grow: 1; */
     /* object-fit:none ; */
 }

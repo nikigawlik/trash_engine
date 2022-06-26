@@ -13,60 +13,73 @@ export class Folder extends Resource {
         this.resourceType = resourceType;
     }
 
-    openResource(clickEvent) {
+    // openResource(clickEvent) {
+    // }
+
+    getContextMenuOptions() {
+        let defaultOptions = super.getContextMenuOptions();
+
         let resourceConstructor = this.getTopFolder().resourceType;
         let resourceType = resourceConstructor.name.toLowerCase();
         let options = [
-            `new ${resourceType}`, 
-            "new folder"
+            {
+                id: "new_resource",
+                text: `new ${resourceType}`, 
+                callback: async () => {
+                    let name = await asyncGetTextPopup(`Name of the ${resourceType}:`, `unnamed ${resourceType}`);
+                    if(name) {    
+                        let newResource = new resourceConstructor();
+                        newResource.name = name;
+                        this.add(newResource);
+                        this._resourceManager.refresh();
+                    }
+                }
+            },
+            {
+                id: "new_folder",
+                text: "new folder", 
+                callback: async () => {
+                    let name = await asyncGetTextPopup(`Name of the folder:`, `unnamed folder`);
+                    if(name) {
+                        let newFolder = new Folder();
+                        newFolder.name = name;
+                        this.add(newFolder);
+                        this._resourceManager.refresh();
+                    }
+                }
+            }
         ];
         if (!this.isTopFolder()) {
             options.push(
-                "rename",
-                "delete folder"
+                defaultOptions.find(x => x.id == "rename"),
+                defaultOptions.find(x => x.id == "delete"),
             );
         }
 
-        let contextMenu = createContextMenu(clickEvent, options);
-        let buttons = contextMenu.querySelectorAll("button");
-        // new <resource>
-        buttons[0].onclick = async () => {
-            let name = await asyncGetTextPopup(`Name of the ${resourceType}:`, `unnamed ${resourceType}`);
-            if(name) {    
-                let newResource = new resourceConstructor();
-                newResource.name = name;
-                this.add(newResource);
-                this._resourceManager.refresh();
-            }
-        };
-        // new folder
-        buttons[1].onclick = async () => {
-            let name = await asyncGetTextPopup(`Name of the folder:`, `unnamed folder`);
-            if(name) {
-                let newFolder = new Folder();
-                newFolder.name = name;
-                this.add(newFolder);
-                this._resourceManager.refresh();
-            }
-        };
-        if (buttons.length > 2) {
-            // rename
-            buttons[2].onclick = async () => {
-                let name = await asyncGetTextPopup(`Name of the folder:`, this.name);
-                if(name) {
-                    this.name = name;
-                    this._resourceManager.refresh();
-                }
-            };
-            // delete folder 
-            buttons[3].onclick = async () => {
-                let confirmed = await asyncYesNoPopup(html`Delete folder <em>${this.name}</em>?`);
-                if (confirmed) {
-                    this.remove();
-                    this._resourceManager.refresh();
-                }
-            };
-        }
+        return options;
+
+        // // new <resource>
+        // buttons[0].onclick = ;
+        // // new folder
+        // buttons[1].onclick = ;
+        // if (buttons.length > 2) {
+        //     // rename
+        //     buttons[2].onclick = async () => {
+        //         let name = await asyncGetTextPopup(`Name of the folder:`, this.name);
+        //         if(name) {
+        //             this.name = name;
+        //             this._resourceManager.refresh();
+        //         }
+        //     };
+        //     // delete folder 
+        //     buttons[3].onclick = async () => {
+        //         let confirmed = await asyncYesNoPopup(html`Delete folder <em>${this.name}</em>?`);
+        //         if (confirmed) {
+        //             this.remove();
+        //             this._resourceManager.refresh();
+        //         }
+        //     };
+        // }
     }
 
     add(resource) {

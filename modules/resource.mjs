@@ -1,18 +1,16 @@
-import { asyncYesNoPopup, createContextMenu } from "./components.mjs";
+import { asyncGetTextPopup, asyncYesNoPopup, createContextMenu } from "./components.mjs";
 import { html } from "./deps.mjs";
 
 
 console.log("resources.mjs loading")
 
 export class Resource {
-    static typeMap = {};
     constructor(name=null, resourceManager=null) {
         this.name = name;
         this.type = this.constructor.name.toLowerCase();
         this.uuid = crypto.randomUUID();
         this._parent = null;
         this._resourceManager=resourceManager;
-        Resource.typeMap
     }
 
     getTopFolder() {
@@ -42,21 +40,50 @@ export class Resource {
     }
 
     openResource(clickEvent) {
-        let contextMenu = createContextMenu(clickEvent, ["open", `delete ${this.name}`]);
+        let options = this.getContextMenuOptions();
+        let contextMenu = createContextMenu(clickEvent, options.map(x => x.text));
         let buttons = contextMenu.querySelectorAll("button");
-        buttons[0].onclick = () => {
-            this.openEditorWindow();
+        for(let i = 0; i < buttons.length; i++) {
+            buttons[i].onclick = options[i].callback;
         }
-        buttons[1].onclick = async () => {
-            let confirmed = await asyncYesNoPopup(html`Delete <em>${this.name}</em>?`);
+    }
 
-            if(confirmed) {   
-                this.remove();
-                let spriteWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
-                if(spriteWindow) spriteWindow.remove();
-                this._resourceManager.refresh();   
+    getContextMenuOptions() {
+        return [
+            {
+                id: "open",
+                text: "open",
+                callback: () => this.openEditorWindow()
+            },
+            {
+                id: "delete",
+                text: `delete`,
+                callback: async () => {
+                    let confirmed = await asyncYesNoPopup(html`Delete <em>${this.name}</em>?`);
+        
+                    if(confirmed) {   
+                        this.remove();
+                        let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
+                        if(resourceWindow) resourceWindow.remove();
+                        this._resourceManager.refresh();   
+                    }
+                }
+            },
+            {
+                id: "rename",
+                text: `rename`,
+                callback: async () => {
+                    let name = await asyncGetTextPopup(`Choose new name:`, this.name);
+                    if(name) {
+                        this.name = name;
+                        this._resourceManager.refresh();
+                        // update name on card
+                        let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
+                        resourceWindow.querySelector("h3 .name").innerText = name; // not super elegant, but ok
+                    }
+                }
             }
-        }
+        ];
     }
 
     openEditorWindow() {
@@ -66,7 +93,7 @@ export class Resource {
     render(attrs={}, ...children) {
         // let extra = this.type == "folder"? html`<button>+</button>` : "";
         /** @type HTMLElement */ let elmt = html`
-            <p draggable="true" class="grabbable"><span href="" class=${`resource-link  resource-${this.type}`} >${this.name}</span></p>
+            <p draggable="true" class="grabbable"><span class=${`resource-link  resource-${this.type}`} >${this.name}</span></p>
         `;
 
         // if(extra) {
