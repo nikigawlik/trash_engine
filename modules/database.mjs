@@ -1,14 +1,19 @@
-import { Folder, Room } from "./resource_manager.mjs";
-import { Sprite } from "./sprite_editor.mjs";
+console.log("database.mjs loading")
 
 const VERSION = 1;
 const NAME = "ngine_Database"
+
+let constructors = {};
 
 // database object
 /** @type {IDBDatabase} */
 export let db;
 
-export async function init() {
+export async function init(additionalConstructors = []) {
+    for(let s of additionalConstructors) {
+        constructors[s.name] = s;
+    }
+
     console.log("opening database...");
     if (!window.indexedDB) {
         console.log("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
@@ -84,29 +89,24 @@ export async function deleteDatabase() {
 export async function serialize(obj) {
     var copy;
 
+    // function
+    if(typeof obj == "function") {
+        return {
+            _func: obj.name
+        };
+    }
+
     // the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;
-
-    // Folder
-
-    // Sprite
-
-    // Room
 
     // canvas
     if(obj instanceof HTMLCanvasElement) {
         let blob = await new Promise(resolve => obj.toBlob(resolve, "image/png"));
-        // copy = {
-        //     // width: obj.width,
-        //     // height: obj.height,
-        //     blob: blob,
-        //     _origType: "HTMLCanvasElement",
-        // }
         return blob;
     }
 
     // array
-    if (obj instanceof Array) {
+    if(obj instanceof Array) {
         copy = [];
         for (var i = 0, len = obj.length; i < len; i++) {
             copy[i] = await serialize(obj[i]);
@@ -128,19 +128,13 @@ export async function serialize(obj) {
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
-let serializables = [Folder, Sprite, Room];
-let constructors = {};
-for(let s of serializables) {
-    constructors[s.name] = s;
-}
-
 export async function deserialize(obj) {
     var copy;
 
     // the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return await obj;
 
-    // sprite
+    // image -> canvas
     if(obj instanceof Blob) {
         if(obj.type == "image/png") {
             let img = new Image();
@@ -153,7 +147,7 @@ export async function deserialize(obj) {
             let ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0);
 
-            return await canvas;
+            return canvas;
         }
     }
 
@@ -163,21 +157,28 @@ export async function deserialize(obj) {
         for (var i = 0, len = obj.length; i < len; i++) {
             copy[i] = await deserialize(obj[i]);
         }
-        return await copy;
+        return copy;
     }
 
     // object
     if (obj instanceof Object) {
-        if(constructors[obj._type]) {
-            copy = new constructors[obj._type]();
+        if(constructors[obj._func]) {
+            // reference to a known type/function
+            return constructors[obj._func];
         } else {
-            copy = {};
+            if(constructors[obj._type]) {
+                // object of a known type/function
+                copy = new constructors[obj._type]();
+            } else {
+                // other/unknown object
+                copy = {};
+            }
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr) && attr[0] != "_") 
+                    copy[attr] = await deserialize(obj[attr]);
+            }
         }
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr) && attr[0] != "_") 
-                copy[attr] = await deserialize(obj[attr]);
-        }
-        return await copy;
+        return copy;
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");

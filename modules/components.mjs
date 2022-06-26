@@ -1,8 +1,9 @@
 import { deleteDatabase } from "./database.mjs";
 import { html } from "./deps.mjs";
-import { resourceManager, ResourceManager } from "./resource_manager.mjs";
-import { bringToFront, elementsRegister, setupDraggable } from "./ui.mjs";
+import { ResourceManager } from "./resource_manager.mjs";
+import { bringToFront, setupDraggable } from "./ui.mjs";
 
+console.log("components.mjs loading")
 
 // ---- save data ----
 let data = {};
@@ -35,8 +36,8 @@ export let TopBar = () => {
             <li><button onclick=${() => createCard(ScriptWindow)}>new script</button></li>
             <li><button onclick=${() => createCard(LogWindow)}>new log</button></li>
             <li><button onclick=${() => createCard(SettingsWindow)}>show settings</button></li>
-            <li><button onclick=${() => resourceManager.save()}>save</button></li>
-            <li><button onclick=${() => resourceManager.load()}>load</button></li>
+            <li><button onclick=${() => ResourceManager.resourceManager.save()}>save</button></li>
+            <li><button onclick=${() => ResourceManager.resourceManager.load()}>load</button></li>
             <li><button onclick=${async() => deleteDatabase()}>DELETE DATA</button></li>
     </ul>
     `;
@@ -251,10 +252,6 @@ let LogWindow = (attrs) => {
     return elmt;
 }
 
-export function elementsBeforeLoad(root) {
-    
-}
-
 window.testCreateSettings = () => {
     for(let e of document.querySelectorAll("main")) {
         let test2 = html`
@@ -274,72 +271,10 @@ window.testCreateScript = () => {
 }
 
 export function loadApp() {
+    console.log("load app...")
     let body = html`<${Body}><//>`;
     document.body.append(...body);
     // let resWindow = html`<${ResourceWindow} resourceManager=${resourceManager}><//>`;
-    let resWindow = resourceManager.render();
+    let resWindow = ResourceManager.resourceManager.render();
     document.querySelector("main").append(resWindow);
 }
-
-
-export function elementsLoad(root) {
-    // let root = document.querySelector("body");
-    // brightnessSetting(root);
-    // scriptEditor(root);
-    // logWindow(root);
-}
-
-
-
-
-
-
-
-// test
-
-
-// let test = html`
-// <template id="objectEditorCard">
-//         <section class="card obj-editor">
-//             <div class="inner-card">
-//                 <h3>obj_player <button class="closeWindow">🞩</button></h3>
-//                 <div class="flex-row">
-//                     <div class="subsection settings">
-//                         <h4>settings</h4>
-//                         <button class="event start">start</button>
-//                         <br/>
-//                         <button onclick="cloneFromTemplate('#scriptEditorCard')">new script</button>
-//                         <br/>
-//                         <button onclick="cloneFromTemplate('#logCard')">new log</button>
-//                     </div>
-//                     <div class="subsection events">
-//                         <h4>events</h4>
-//                         <ul class="events">
-//                             <li>start</li>
-//                             <li>tick</li>
-//                             <li>draw</li>
-//                             <li>destroy</li>
-//                         </ul>
-//                     </div>
-//                     <div class="subsection actions">
-//                         <h4>event actions</h4>
-//                         <template id="eventsList">
-//                             <ul class="actions">
-//                                 {/* <!-- <li>action 1</li> --> */}
-//                             </ul>
-//                         </template>
-//                     </div>
-//                     <div class="subsection action-palette">
-//                         <h4>main</h4>
-//                         <ul class="action-select">
-//                             <li>move</li>
-//                             <li>jump</li>
-//                             <li>teleport</li>
-//                             <li>reverse</li>
-//                         </ul>
-//                     </div>
-//                 </div>
-//             </div>
-//         </section>
-//     </template>
-// `

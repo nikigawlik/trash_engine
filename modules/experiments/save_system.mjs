@@ -1,4 +1,4 @@
-import { resourceManager } from "./resource_manager.mjs";
+import { ResourceManager } from "../resource_manager.mjs";
 
 
 let gameData = {};
@@ -8,7 +8,7 @@ let backu;
 
 export class SaveSystem {
     static init() {
-        gameData.resourceManager = resourceManager;
+        gameData.resourceManager = ResourceManager.resourceManager;
     }
 }
 
@@ -77,7 +77,7 @@ window.testLoad = () => {
 
 
 window.testCanvas = () => {
-    let c = (resourceManager.root.contents[0].contents[0]);
+    let c = (ResourceManager.resourceManager.root.contents[0].contents[0]);
     console.log(c);
     document.querySelector("main").append(c.canvas);
 }

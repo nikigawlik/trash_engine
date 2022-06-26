@@ -1,14 +1,17 @@
-import { appendCard, asyncYesNoPopup, Card, cards, createBlockingPopup, createContextMenu } from "./components.mjs";
+import { appendCard, asyncYesNoPopup, Card, cards, createContextMenu } from "./components.mjs";
 import { html } from "./deps.mjs";
-import { Resource, resourceManager } from "./resource_manager.mjs";
+import { Resource } from "./resource.mjs";
+import { ResourceManager } from "./resource_manager.mjs";
 import { bringToFront } from "./ui.mjs";
+
+console.log("sprite_editor.mjs loading")
 
 let brushesSrcImage = null; // set in init
 
 // more or less primary colors plus some extra
 let colors = [
     "#000000",
-    "#403540",
+    "#504050",
     "#2633df",
     "#ef4b2e",
     "#f0ff4d",
@@ -16,7 +19,7 @@ let colors = [
     "#9dab9f",
     "#ffffff"
 ]
-// // dawnbringers 8 col palette /w pure white
+// dawnbringers 8 col palette /w pure white
 // let colors = [
 //     "#000000",
 //     "#55415f",
@@ -29,16 +32,15 @@ let colors = [
 // ]
 
 export async function init() {
+    console.log("init sprite editor...")
     brushesSrcImage = new Image();
     brushesSrcImage.src = "/engineAssets/brushes.png";
     await new Promise(resolve => brushesSrcImage.onload = resolve);
 }
 
 export class Sprite extends Resource {
-    static _ = Resource.typeMap["sprite"] = this; // lol hack
-    constructor(name="sprite") {
-        super(name, "sprite");
-        this.name = name;
+    constructor(name="sprite", resourceManager=null) {
+        super(name, resourceManager);
         this.canvas = null;
         this.atlasLocation = { x: 0, y: 0, w: 1, h: 1};
     }
@@ -66,7 +68,7 @@ export class Sprite extends Resource {
                 this.remove();
                 let spriteWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
                 if(spriteWindow) spriteWindow.remove();
-                resourceManager.refresh();   
+                ResourceManager.resourceManager.refresh();   
             }
         }
     }

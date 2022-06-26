@@ -1,4 +1,4 @@
-import * as components from "./components.mjs";
+console.log("ui.mjs loading")
 
 let notLikethis = 180;
 let maxZ = 0;
@@ -83,8 +83,6 @@ export function setupDraggable(draggedElement, boundsElement, handleQuery, snap 
  * @param {HTMLElement} bounds 
  */
 export function elementsRegister(root, bounds) {
-    components.elementsBeforeLoad(root);
-    
     // elements that are protected from drag actions, I think
     for(let child of root.querySelectorAll("button")) {
         child.addEventListener("mousedown", event => {
@@ -98,33 +96,10 @@ export function elementsRegister(root, bounds) {
         }
     }
 
-    components.elementsLoad(root);
 }
 
-// const version = "0_dev";
-// function getSaveKey() {
-//     return `ngine_v_${version}_saveHTML`;
-// }
-// export function saveEverything() {
-//     let html = document.querySelector("main").innerHTML;
-//     let key = getSaveKey();
-//     localStorage.setItem(key, html);
-// }
-// window.saveEverything = saveEverything;
-
-// export function loadEverything() {
-//     let key = getSaveKey();
-//     let html = localStorage.getItem(key);
-//     document.querySelector("main").innerHTML = html;
-//     let bounds = document.querySelector("body");
-//     elementsRegister(bounds, document.querySelector("main"));
-// }
-// window.loadEverything = loadEverything;
-
-
 export function init() {
-    components.loadApp();
-    console.log("main")
+    console.log("init ui...")
     let bounds = document.querySelector("body");
     elementsRegister(bounds, document.querySelector("main"));
 }

@@ -3,6 +3,8 @@
 // import PropTypes from "https://unpkg.com/es-react@latest/dev/prop-types.js";
 import htm from "./../lib/htm.module.js";
 
+console.log("deps.mjs loading")
+
 /**
  * 
  * @param {string | any} tagName 
