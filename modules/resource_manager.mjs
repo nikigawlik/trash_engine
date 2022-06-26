@@ -1,13 +1,11 @@
-// -- data structure --
-
 import { Card } from "./components.mjs";
 import { db, deserialize, requestPromise as requestAsync, serialize } from "./database.mjs";
 import { html } from "./deps.mjs";
-import { Room } from "./room.mjs";
 import { Folder } from "./folder.mjs";
+import { Resource } from "./resource.mjs";
+import { Room } from "./room.mjs";
 import { Sprite } from "./sprite.mjs";
 import { elementsRegister } from "./ui.mjs";
-import { Resource } from "./resource.mjs";
 
 console.log("resource_manager.mjs loading")
 

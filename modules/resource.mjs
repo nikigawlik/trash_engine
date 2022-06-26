@@ -1,4 +1,6 @@
+import { asyncYesNoPopup, createContextMenu } from "./components.mjs";
 import { html } from "./deps.mjs";
+
 
 console.log("resources.mjs loading")
 
@@ -39,7 +41,25 @@ export class Resource {
         this._parent.remove(this);
     }
 
-    openResource() {
+    openResource(clickEvent) {
+        let contextMenu = createContextMenu(clickEvent, ["open", `delete ${this.name}`]);
+        let buttons = contextMenu.querySelectorAll("button");
+        buttons[0].onclick = () => {
+            this.openEditorWindow();
+        }
+        buttons[1].onclick = async () => {
+            let confirmed = await asyncYesNoPopup(html`Delete <em>${this.name}</em>?`);
+
+            if(confirmed) {   
+                this.remove();
+                let spriteWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
+                if(spriteWindow) spriteWindow.remove();
+                this._resourceManager.refresh();   
+            }
+        }
+    }
+
+    openEditorWindow() {
         console.log(`no window implemented for ${this.type}`);
     }
 
