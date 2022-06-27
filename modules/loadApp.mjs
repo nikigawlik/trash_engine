@@ -1,6 +1,7 @@
-import { LogWindow } from "./components.mjs";
+import { Card, createCard, LogWindow } from "./components.mjs";
 import { deleteDatabase } from "./database.mjs";
 import { html } from "./deps.mjs";
+import { data } from "./globalData.mjs";
 import { ResourceManager } from "./resource_manager.mjs";
 
 
@@ -36,15 +37,21 @@ export let TopBar = () => {
 export let SettingsWindow = (attrs = {}, ...children) => {
     let elmt = html`
     <${Card} name="editor settings">
-    <label>dark mode \xa0 <input type="checkbox" /></label>
+        <label>dark mode \xa0 <input type="checkbox" /></label>
+        <label>full resource hierarchy \xa0 <input type="checkbox" /></label>
     <//>
     `;
 
-    let input = elmt.querySelector("input");
-    input.checked = data.editor.settings.darkMode;
-    input.onclick = () => {
-        data.editor.settings.darkMode = input.checked;
-        document.querySelector("html").dataset.dark = input.checked;
+    let inputs = elmt.querySelectorAll("input");
+    inputs[0].checked = data.editor.settings.darkMode;
+    inputs[0].onclick = () => {
+        data.editor.settings.darkMode = inputs[0].checked;
+        document.querySelector("html").dataset.dark = inputs[0].checked;
+    };
+    inputs[1].checked = data.editor.settings.subFolders;
+    inputs[1].onclick = () => {
+        data.editor.settings.subFolders = inputs[1].checked;
+        ResourceManager.resourceManager.refresh();
     };
 
     return elmt;

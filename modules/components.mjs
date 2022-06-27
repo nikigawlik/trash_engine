@@ -3,16 +3,6 @@ import { bringToFront, setupDraggable } from "./ui.mjs";
 
 console.log("components.mjs loading")
 
-// ---- save data ----
-let data = {};
-data.editor = {};
-
-data.editor.settings = {
-    darkMode: false,
-}
-
-data.editor.cards = []; // TODO card saving here to reload yeag?
-
 // ---- components ----
 
 export let ContextMenu = (attrs = { buttons: ["null"]}) => {
@@ -146,7 +136,7 @@ export let Card = (attrs = {}, ...children) => {
         event.stopPropagation();
     };
 
-    setupDraggable(elmt, document.querySelector("main"), "h3,.inner-card", 1);
+    setupDraggable(elmt, document.querySelector("main"), "h3,h3 *,.inner-card", 1);
 
     cards.push(elmt);
 

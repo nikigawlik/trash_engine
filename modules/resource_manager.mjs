@@ -2,6 +2,7 @@ import { Card } from "./components.mjs";
 import { db, deserialize, requestPromise as requestAsync, serialize } from "./database.mjs";
 import { html } from "./deps.mjs";
 import { Folder } from "./folder.mjs";
+import { data } from "./globalData.mjs";
 import { Resource } from "./resource.mjs";
 import { Room } from "./room.mjs";
 import { Sprite } from "./sprite.mjs";
@@ -139,18 +140,40 @@ let ResourceSubtree = (attrs = {}, ...children) => {
     let subtree = attrs.subtree;
     let elmt;
     if(attrs.self.type == "folder") {
-        elmt = html`
-        ${attrs.self.render()}
-        <ul>
-        ${subtree.map(x => html`
-            <li class=${"icon-" + x.type}>
-                <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>
-            </li>
-        `)}
-        </ul>
+        let e1 = attrs.self.render();
+        let e2 = html`
+            <ul>
+                ${subtree.map(x => html`
+                <li class=${"icon-" + x.type}>
+                    <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>
+                </li>
+                `)}
+            </ul>
         `;
+        elmt = data.editor.settings.subFolders? 
+            html`
+                <${Details} summary=${e1} open=true>
+                    ${e2}
+                <//>
+            `
+        :
+            html`
+                ${e1}
+                ${e2}
+            `
+        ;
+
     } else {
         elmt = attrs.self.render();
     }
     return elmt;
+}
+
+let Details = (attrs = { summary: "", open: true }, ...children) => {
+    return html`
+        <details open=${attrs.open}>
+            <summary>${attrs.summary}</summary>
+            ${children.map(x => html`${x}`)}
+        </details>
+    `;
 }

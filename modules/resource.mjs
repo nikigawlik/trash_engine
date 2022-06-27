@@ -93,7 +93,7 @@ export class Resource {
     render(attrs={}, ...children) {
         // let extra = this.type == "folder"? html`<button>+</button>` : "";
         /** @type HTMLElement */ let elmt = html`
-            <p draggable="true" class="grabbable"><span class=${`resource-link  resource-${this.type}`} >${this.name}</span></p>
+            <span draggable="true" class="grabbable"><span class=${`resource-link  resource-${this.type}`} >${this.name}</span></span>
         `;
 
         // if(extra) {

@@ -1,5 +1,6 @@
 import { asyncGetTextPopup, asyncYesNoPopup, createContextMenu } from "./components.mjs";
 import { html } from "./deps.mjs";
+import { data } from "./globalData.mjs";
 import { Resource } from "./resource.mjs";
 
 
@@ -35,7 +36,9 @@ export class Folder extends Resource {
                     }
                 }
             },
-            {
+        ];
+        if(data.editor.settings.subFolders) {
+            options.push({
                 id: "new_folder",
                 text: "new folder", 
                 callback: async () => {
@@ -47,8 +50,8 @@ export class Folder extends Resource {
                         this._resourceManager.refresh();
                     }
                 }
-            }
-        ];
+            });
+        }
         if (!this.isTopFolder()) {
             options.push(
                 defaultOptions.find(x => x.id == "rename"),
