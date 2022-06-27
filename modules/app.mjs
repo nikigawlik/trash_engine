@@ -1,4 +1,4 @@
-import { Card, createCard, LogWindow } from "./components.mjs";
+import { Card, createCard, ErrorWindow, LogWindow } from "./components.mjs";
 import { deleteDatabase } from "./database.mjs";
 import { html } from "./deps.mjs";
 import { data, load as dataLoad, save as dataSave } from "./globalData.mjs";
@@ -37,8 +37,8 @@ export let TopBar = () => {
 export let SettingsWindow = (attrs = {}, ...children) => {
     let elmt = html`
     <${Card} name="editor settings">
-        <label>dark mode \xa0 <input type="checkbox" /></label>
-        <label>full resource hierarchy \xa0 <input type="checkbox" /></label>
+        <p><label>dark mode \xa0 <input type="checkbox" /></label></p>
+        <p><label>full resource hierarchy \xa0 <input type="checkbox" /></label></p>
     <//>
     `;
 

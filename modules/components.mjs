@@ -1,5 +1,5 @@
 import { html } from "./deps.mjs";
-import { bringToFront, setupDraggable } from "./ui.mjs";
+import { bringToFront, findWindowPos, setupDraggable } from "./ui.mjs";
 
 console.log("components.mjs loading")
 
@@ -105,12 +105,12 @@ export let createCard = (cardGenerator) => {
 
 export let appendCard = (cardElmt) => {
     // TODO find good place for card
-    // let updog = cards.filter(x => x != cardElmt).reduce((a, b) => a.style.zIndex > b.style.zIndex? a : b);
-    // let updog = cards.filter(x => x != cardElmt).reduceRight((a,_) => a);
-    // const rect = updog.getBoundingClientRect();
-    // cardElmt.style.left = rect.left + rect.width + "px";
-    // cardElmt.style.top = rect.top + rect.top + "px";
-    document.querySelector("main").append(cardElmt);
+    let main = document.querySelector("main");
+    main.append(cardElmt);
+    let bounds = main.getBoundingClientRect();
+    let pos = findWindowPos(cardElmt);
+    cardElmt.style.left = pos.left - bounds.left + "px";
+    cardElmt.style.top = pos.top - bounds.top + "px";
 }
 
 export let cards = [];
@@ -143,7 +143,7 @@ export let Card = (attrs = {}, ...children) => {
     return elmt;
 };
 
-let ErrorWindow = (attrs) => {
+export let ErrorWindow = (attrs = {line: 0, column: 0, errorName:"error", errorMessage: "..."}) => {
     return html`
     <${Card} name="an error occured\xa0">
         <p class="error-msg">

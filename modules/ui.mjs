@@ -103,3 +103,65 @@ export function init() {
     let bounds = document.querySelector("body");
     elementsRegister(bounds, document.querySelector("main"));
 }
+
+/**
+ *          
+ * @param {HTMLElement} elmt 
+ */
+export function findWindowPos(elmt) {
+    let boundsElmt = document.querySelector("main");
+    let meRect = elmt.getBoundingClientRect();
+    let bounds = boundsElmt.getBoundingClientRect();
+    let others = new Array(...boundsElmt.querySelectorAll(".card")).map(x => x.getBoundingClientRect());
+    console.log(others.length)
+    console.log(others)
+    console.log(bounds)
+
+    let cans = [];
+
+    let freeAt = (rect) => {
+        for(let otherRect of others) {
+            if(rectIntersect(rect, otherRect)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    for(let otherRect of others) {
+        // check right
+        let p1 = new DOMRect(otherRect.right, otherRect.y, meRect.width, meRect.height);
+        if(freeAt(p1)) cans.push(p1)
+        // check down
+        let p2 = new DOMRect(otherRect.x, otherRect.bottom, meRect.width, meRect.height);
+        if(freeAt(p2)) cans.push(p2)
+    }
+    cans = cans.filter(x => rectInside(x, bounds));
+    if(cans.length == 0) 
+        return new DOMRect(bounds.left, bounds.top, meRect.width, meRect.height);
+    let norm = rect => rect.y * 10000 + rect.x;
+    let result = cans.reduceRight((a,b) => norm(a) < norm(b)? a : b);
+    console.log(result)
+    return result;
+}
+
+/**
+ * @param {DOMRect} rect1 
+ * @param {DOMRect} rect2 
+ * @returns {boolean}
+ */
+function rectIntersect(rect1, rect2) {
+    // let rect1 = document.body.getBoundingClientRect()
+    // let rect2 = document.body.getBoundingClientRect()
+    return rect1.left < rect2.right && rect1.right > rect2.left &&
+        rect1.bottom > rect2.top && rect1.top < rect2.bottom;
+}
+
+/**
+ * @param {DOMRect} rect1 
+ * @param {DOMRect} rect2 
+ * @returns {boolean}
+ */
+function rectInside(rect, bounds) {
+    return rect.right <= bounds.right && rect.left >= bounds.left && rect.top >= bounds.top && rect.bottom <= bounds.bottom;
+}

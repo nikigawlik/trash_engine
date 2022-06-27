@@ -137,6 +137,13 @@ canvas {
     overflow: hidden;
     /* min-width: fit-content;
     min-height: fit-content; */
+    /* padding: -8px; */
+    /* border: 2px solid var(--main-color); */
+    /* box-shadow: 2px 2px 8px -2px var(--main-color); */
+    width: fit-content;
+    height: fit-content;
+    /* padding: 8px; */
+    background-color: var(--bg-color);
 }
 
 .card img {
@@ -147,14 +154,8 @@ canvas {
     resize: none;
 }
 
-.card {
-    /* padding: -8px; */
-    /* border: 2px solid var(--main-color); */
-    /* box-shadow: 2px 2px 8px -2px var(--main-color); */
-    width: fit-content;
-    height: fit-content;
-    /* padding: 8px; */
-    background-color: var(--bg-color);
+.card p {
+    margin-bottom: 10px;
 }
 
 .card .inner-card {

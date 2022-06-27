@@ -16,7 +16,7 @@ let colors = [
     "#f0ff4d",
     "#4ccb2a",
     "#9dab9f",
-    "#ffffff"
+    "#ffffff",
 ]
 // dawnbringers 8 col palette /w pure white
 // let colors = [
