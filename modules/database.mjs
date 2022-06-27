@@ -1,7 +1,10 @@
 console.log("database.mjs loading")
 
-const VERSION = 1;
+const VERSION = 2;
 const NAME = "ngine_Database"
+
+export const STORE_NAME_RESOURCES = "resources";
+export const STORE_NAME_GLOBAL_DATA = "global_data";
 
 let constructors = {};
 
@@ -20,14 +23,16 @@ export async function init(additionalConstructors = []) {
     }
     
     let request = window.indexedDB.open(NAME, VERSION);
+
+    let upgradePromise = null;
     
     db = await new Promise((resolve, reject) => {
         request.onsuccess = event => {
             resolve(event.target.result);     
         }
         /** @param {IDBVersionChangeEvent} event */
-        request.onupgradeneeded = event => {
-            upgrade(event.target.result, event.oldVersion, event.newVersion)
+        request.onupgradeneeded = async event => {
+            upgradePromise = upgrade(event.target.result, event.oldVersion, event.newVersion);
             // (this doesn't resolve or reject, if successful it will trigger onsuccess)
         }
         request.onblocked = event => {
@@ -38,21 +43,40 @@ export async function init(additionalConstructors = []) {
         }
     });
 
-    // let trans = db.transaction(["resources", "readonly"]);
+    if(upgradePromise) await upgradePromise; // wait for this too
+
+    // let trans = db.transaction([STORE_NAME_RESOURCES, "readonly"]);
 
 }
-
+/**
+ * 
+ * @param {IDBDatabase} database 
+ * @param {Number} fromVersion 
+ * @param {Number} toVersion 
+ */
 async function upgrade(database, fromVersion, toVersion) {
     console.log(`Upgrading database: v${fromVersion} --> v${toVersion}`);
     let currentVersion = fromVersion;
     // continuously update
     while(currentVersion != toVersion) {
-        console.log(`--- v${fromVersion} -> v${toVersion}`);
         switch(currentVersion) {
             case 0: // 0 --> 1  ===  creation of the database
-                let resources = database.createObjectStore("resources", { autoIncrement: true });
-                await new Promise(resolve => resolve = resources.transaction.oncomplete);
-                currentVersion = 1;
+                console.log(`--   0 --> 1`);
+                let resources = database.createObjectStore(STORE_NAME_RESOURCES, { autoIncrement: true });
+                // await new Promise((resolve, reject) => { 
+                    //     resolve = resources.transaction.oncomplete;
+                    //     reject = event => resources.transaction.onerror(event.target.error)
+                    // });
+                    currentVersion = 1;
+                    break;
+            case 1: // 1 --> 2
+                console.log(`--   1 --> 2`);
+                let globalData = database.createObjectStore(STORE_NAME_GLOBAL_DATA, { autoIncrement: true });
+                // await new Promise((resolve, reject) => { 
+                //     resolve = globalData.transaction.oncomplete;
+                //     reject = event => resources.transaction.onerror(event.target.error)
+                // });
+                currentVersion = 2;
                 break;
             default:
                 throw new Error(`No implementation for database version ${currentVersion}`);
@@ -185,7 +209,7 @@ export async function deserialize(obj) {
 }
 
 
-export function requestPromise(request) {
+export function requestAsync(request) {
     return new Promise((resolve, reject) => { 
         request.onsuccess = e => resolve(e.target.result); 
         request.onerror = e => reject(e.target.error); 

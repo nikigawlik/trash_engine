@@ -175,15 +175,6 @@ export let LogWindow = (attrs) => {
     return elmt;
 }
 
-window.testCreateSettings = () => {
-    for(let e of document.querySelectorAll("main")) {
-        let test2 = html`
-        <${SettingsWindow}><//>
-        `
-        e.append(test2);
-    }
-}
-
 window.testCreateScript = () => {
     for(let e of document.querySelectorAll("main")) {
         let test2 = html`

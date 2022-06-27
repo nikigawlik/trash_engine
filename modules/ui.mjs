@@ -64,19 +64,19 @@ export function setupDraggable(draggedElement, boundsElement, handleQuery, snap 
     };
 }
 
-// export function cloneFromTemplate(queryStr, parent, customProcessor=null) {
-//     parent = parent || document.querySelector("main");
+export function cloneFromTemplate(queryStr, parent, customProcessor=null) {
+    parent = parent || document.querySelector("main");
 
-//     let fragment = document.querySelector(queryStr).content.cloneNode(true);
-//     let rootElement = fragment.firstElementChild; // by convention we assume there is only one element anyways
-//     if(customProcessor) {
-//         customProcessor(fragment);
-//     }
-//     elementsRegister(fragment, parent);
-//     parent.append(fragment);
-//     return rootElement;
-// }
-// window.cloneFromTemplate = cloneFromTemplate;
+    let fragment = document.querySelector(queryStr).content.cloneNode(true);
+    let rootElement = fragment.firstElementChild; // by convention we assume there is only one element anyways
+    if(customProcessor) {
+        customProcessor(fragment);
+    }
+    elementsRegister(fragment, parent);
+    parent.append(fragment);
+    return rootElement;
+}
+window.cloneFromTemplate = cloneFromTemplate;
 
 /**
  * @param {HTMLElement} root 

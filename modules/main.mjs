@@ -1,6 +1,6 @@
 import * as database from "./database.mjs";
 import { Folder } from "./folder.mjs";
-import * as loadApp from "./loadApp.mjs";
+import * as loadApp from "./app.mjs";
 import { ResourceManager } from "./resource_manager.mjs";
 import { Room } from "./room.mjs";
 import * as sprite_editor from "./sprite.mjs";
@@ -14,11 +14,18 @@ window.onload = async () => {
     // initialize different modules
     await database.init([Sprite, Room, Folder]);
     await ResourceManager.init();
-    loadApp.loadApp();
+    await loadApp.load();
     await ui.init();
     await sprite_editor.init();
     // await SaveSystem.init();
     console.log("--- --- ---- --- ---")
     console.log("--- loading done ---")
     console.log("--- --- ---- --- ---")
+    testStuff();
 }
+
+
+function testStuff() {
+    // ui.cloneFromTemplate("#objectEditorCard", document.querySelector("main"))
+}
+

@@ -1,5 +1,5 @@
 import { Card } from "./components.mjs";
-import { db, deserialize, requestPromise as requestAsync, serialize } from "./database.mjs";
+import { db, deserialize, requestAsync, serialize, STORE_NAME_RESOURCES } from "./database.mjs";
 import { html } from "./deps.mjs";
 import { Folder } from "./folder.mjs";
 import { data } from "./globalData.mjs";
@@ -76,8 +76,8 @@ export class ResourceManager {
         // we just need to save the root, actually
         // let rootClone = JSON.parse(JSON.stringify(this, replacer));
         let rootClone = await serialize(this.root);
-        let trans = db.transaction(["resources"], "readwrite");
-        let objectStore = trans.objectStore("resources");
+        let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
+        let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
         let request = objectStore.put(rootClone);
         request.onsuccess = event => {
             // event.target.result === customer.ssn;
@@ -91,8 +91,8 @@ export class ResourceManager {
     }
 
     async load() {
-        let trans = db.transaction("resources", "readonly");
-        let objectStore = trans.objectStore("resources");
+        let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
+        let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
         let results = await requestAsync(objectStore.getAll());
         let result = results[results.length - 1];
 
@@ -126,7 +126,7 @@ export class ResourceManager {
 // helper html generator, not a component generator function!
 let resourceList = (resources) => {
     return html`
-    <ul class="resources">
+    <ul class=resources>
         ${resources.map(x => html`
             <li class="icon-folder">
                 <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>

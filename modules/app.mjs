@@ -1,7 +1,7 @@
 import { Card, createCard, LogWindow } from "./components.mjs";
 import { deleteDatabase } from "./database.mjs";
 import { html } from "./deps.mjs";
-import { data } from "./globalData.mjs";
+import { data, load as dataLoad, save as dataSave } from "./globalData.mjs";
 import { ResourceManager } from "./resource_manager.mjs";
 
 
@@ -26,8 +26,8 @@ export let TopBar = () => {
             <li><button onclick=${() => createCard(ScriptWindow)}>new script</button></li>
             <li><button onclick=${() => createCard(LogWindow)}>new log</button></li>
             <li><button onclick=${() => createCard(SettingsWindow)}>show settings</button></li>
-            <li><button onclick=${() => ResourceManager.resourceManager.save()}>save</button></li>
-            <li><button onclick=${() => ResourceManager.resourceManager.load()}>load</button></li>
+            <li><button onclick=${() => save()}>save</button></li>
+            <li><button onclick=${() => load()}>load</button></li>
             <li><button onclick=${async() => deleteDatabase()}>DELETE DATA</button></li>
     </ul>
     `;
@@ -46,7 +46,7 @@ export let SettingsWindow = (attrs = {}, ...children) => {
     inputs[0].checked = data.editor.settings.darkMode;
     inputs[0].onclick = () => {
         data.editor.settings.darkMode = inputs[0].checked;
-        document.querySelector("html").dataset.dark = inputs[0].checked;
+        applySettings();
     };
     inputs[1].checked = data.editor.settings.subFolders;
     inputs[1].onclick = () => {
@@ -103,11 +103,25 @@ let ScriptWindow = (attrs = {}, ...children) => {
 }
 
 
-export function loadApp() {
+export async function load() {
     console.log("load app...");
+    await dataLoad();
+    applySettings();
+    document.body.innerHTML = "";
     let body = html`<${Body}><//>`;
     document.body.append(...body);
     // let resWindow = html`<${ResourceWindow} resourceManager=${resourceManager}><//>`;
+    ResourceManager.resourceManager.load();
     let resWindow = ResourceManager.resourceManager.render();
     document.querySelector("main").append(resWindow);
+}
+
+function applySettings() {
+    document.querySelector("html").dataset.dark = data.editor.settings.darkMode;
+}
+
+
+function save() {
+    dataSave();
+    ResourceManager.resourceManager.save();
 }

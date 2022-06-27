@@ -11,8 +11,8 @@ html {
 }
 
 html[data-dark="true"] {
-    --bg-color: #111;
-    --main-color: #fdfdfd;
+    --bg-color: #222;
+    --main-color: #ccc;
     --corner-image: url("/engineAssets/corners_inverted.png");
 } 
 
