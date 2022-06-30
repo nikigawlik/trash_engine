@@ -120,7 +120,13 @@ export let Card = (attrs = {}, ...children) => {
     let elmt = html`
     <section class="card" data-resource-uuid=${resourceUUID}>
     <div class="inner-card">
-        <h3><span class="name">${attrs.name}</span> <button class="closeWindow">🞩</button></h3>
+        <h3>
+            <span class="name">${attrs.name}</span> 
+            <span>
+                <!-- <button class="maxWindow">☐</button> -->
+                <button class="closeWindow">🞩</button>
+            </span>
+        </h3>
         ${children.map(x => html`${x}`)}
     </div>
     </section>`;
@@ -130,7 +136,15 @@ export let Card = (attrs = {}, ...children) => {
     elmt.querySelector("button.closeWindow").onclick = () => {
         cards = cards.filter(x => x != elmt);
         elmt.remove();
-    }
+    };
+
+    // elmt.querySelector("button.maxWindow").onclick = () => {
+    //     let main = document.querySelector("main").getBoundingClientRect();
+    //     elmt.style.left = "0px";
+    //     elmt.style.top = "0px";
+    //     elmt.style.width = main.width + "px";
+    //     elmt.style.height = main.height + "px";
+    // };
 
     elmt.onresize = event => {
         event.stopPropagation();
