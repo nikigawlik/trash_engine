@@ -1,5 +1,5 @@
 import { html } from "./deps.mjs";
-import { bringToFront, findWindowPos, setupDraggable } from "./ui.mjs";
+import { bringToFront, elementsRegister, findWindowPos, setupDraggable } from "./ui.mjs";
 
 console.log("components.mjs loading")
 
@@ -89,18 +89,18 @@ export let asyncGetTextPopup = async (question, defaultText, hasCancel=true) => 
     return result;
 };
 
-export let createCard = (cardGenerator) => {
-    // let positionCandidates = [];
-    // for(let existingCard of cards) {
-    //     let rect = existingCard.getBoundingClientRect();
-    //     let p1 = [rect.left + rect.width, recht.top];
-    //     let p2 = [rect.left, recht.top + recht.height];
-    //     for(let p of [p1, p2]) {
-    //         positionCandidates.push(p);
-    //     }
-    // }
-    let elmt = html`<${cardGenerator} />`;
-    appendCard(elmt);
+export let createCard = (cardGenerator, existingCheck=null) => {
+    let existing = null;
+    if(existingCheck) {
+        existing = document.querySelector("main").querySelector(`.card.${existingCheck}`);
+    }
+    if(existing) {
+        bringToFront(existing);
+    } else {
+        let elmt = html`<${cardGenerator} />`;
+        elementsRegister(elmt);
+        appendCard(elmt);
+    }
 };
 
 export let appendCard = (cardElmt) => {
@@ -146,9 +146,9 @@ export let Card = (attrs = {}, ...children) => {
     //     elmt.style.height = main.height + "px";
     // };
 
-    elmt.onresize = event => {
-        event.stopPropagation();
-    };
+    // elmt.onresize = event => {
+    //     event.stopPropagation();
+    // };
 
     setupDraggable(elmt, document.querySelector("main"), "h3,h3 *,.inner-card", 1);
 

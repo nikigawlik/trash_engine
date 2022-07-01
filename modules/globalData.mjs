@@ -28,14 +28,15 @@ export async function save() {
 }
 
 export async function load() {
+    console.log("- loading global data...")
     let trans = db.transaction(STORE_NAME_GLOBAL_DATA, "readonly");
     let objectStore = trans.objectStore(STORE_NAME_GLOBAL_DATA);
     let results = await requestAsync(objectStore.getAll());
     let result = results[results.length - 1];
-
+    
     if(result) {       
-        console.log(result);   
         data = result;
+        console.log("- global data loaded")
     } else {
         console.log("!! no save data found")
     }

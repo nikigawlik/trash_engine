@@ -141,7 +141,7 @@ export function findWindowPos(elmt) {
         return new DOMRect(bounds.left, bounds.top, meRect.width, meRect.height);
     let norm = rect => rect.y * 10000 + rect.x;
     let result = cans.reduceRight((a,b) => norm(a) < norm(b)? a : b);
-    console.log(result)
+    // console.log(result)
     return result;
 }
 

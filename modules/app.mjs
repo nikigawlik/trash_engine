@@ -25,7 +25,7 @@ export let TopBar = () => {
             <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
             <li><button onclick=${() => createCard(ScriptWindow)}>new script</button></li>
             <li><button onclick=${() => createCard(LogWindow)}>new log</button></li>
-            <li><button onclick=${() => createCard(SettingsWindow)}>show settings</button></li>
+            <li><button onclick=${() => createCard(SettingsWindow, "settings")}>show settings</button></li>
             <li><button onclick=${() => save()}>save</button></li>
             <li><button onclick=${() => load()}>load</button></li>
             <li><button onclick=${async() => deleteDatabase()}>DELETE DATA</button></li>
@@ -36,7 +36,7 @@ export let TopBar = () => {
 
 export let SettingsWindow = (attrs = {}, ...children) => {
     let elmt = html`
-    <${Card} name="editor settings">
+    <${Card} name="editor settings" class="settings">
         <p><label>dark mode \xa0 <input type="checkbox" /></label></p>
         <p><label>full resource hierarchy \xa0 <input type="checkbox" /></label></p>
     <//>
@@ -111,7 +111,7 @@ export async function load() {
     let body = html`<${Body}><//>`;
     document.body.append(...body);
     // let resWindow = html`<${ResourceWindow} resourceManager=${resourceManager}><//>`;
-    ResourceManager.resourceManager.load();
+    await ResourceManager.init();
     let resWindow = ResourceManager.resourceManager.render();
     document.querySelector("main").append(resWindow);
 }

@@ -91,15 +91,17 @@ export class ResourceManager {
     }
 
     async load() {
+        console.log(`- load resource tree...`)
         let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
         let results = await requestAsync(objectStore.getAll());
         let result = results[results.length - 1];
-
+        
         if(result) {       
-            console.log(result);   
+            // console.log(result);   
             result = await deserialize(result);
-            console.log(result); 
+            console.log(`- resources loaded`)
+            // console.log(result); 
             this.root = result;  
 
             let postProcess = (obj, parent) => {

@@ -1,4 +1,4 @@
-import { appendCard, Card, cards } from "./components.mjs";
+import { appendCard, Card, cards, createBlockingPopup } from "./components.mjs";
 import { html } from "./deps.mjs";
 import { Resource } from "./resource.mjs";
 import { bringToFront } from "./ui.mjs";
@@ -9,15 +9,22 @@ let brushesSrcImage = null; // set in init
 
 // more or less primary colors plus some extra
 let colors = [
-    "#000000",
-    "#504050",
-    "#2633df",
-    "#ef4b2e",
-    "#f0ff4d",
-    "#4ccb2a",
-    "#9dab9f",
-    "#ffffff",
+    "#00000000", // eraser
+    "#000000ff",
+    "#504050ff",
+    "#2633dfff",
+    "#ef4b2eff",
+    "#f0ff4dff",
+    "#4ccb2aff",
+    "#9dab9fff",
+    "#ffffffff",
 ]
+
+let colorUIAdjust = {
+    "#000000ff": "dark",
+    "#ffffffff": "light",
+}
+
 // dawnbringers 8 col palette /w pure white
 // let colors = [
 //     "#000000",
@@ -67,9 +74,9 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
         canvas = document.createElement("canvas");
         canvas.width = canvas.height = 100;
 
-        let ctx = canvas.getContext("2d");
-        ctx.fillStyle = colors[colors.length-1];
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // let ctx = canvas.getContext("2d");
+        // ctx.fillStyle = colors[colors.length-1];
+        // ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         attrs.sprite.canvas = canvas;
     }
@@ -95,23 +102,79 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
     
     let dummyIcon = () => html`<canvas width=${~~iconDisplayWidth + "px"} height=${~~iconDisplayWidth + "px"} />`
     
-    // TODO this is dependent on current zoom level!!! (-> do something on resize event?)
-    // account for device pixel ratio inthe big canvas, too
-    let canvasDisplayWidth =  canvas.width / window.devicePixelRatio * Math.round(window.devicePixelRatio) * 2;
-    canvas.style.width = canvas.style.height = canvasDisplayWidth + "px";
+    let canvasDisplayWidth, canvasDisplayHeight;
+    let resizeCanvas = (scaleFactor) => {
+        canvasDisplayWidth =  canvas.width / window.devicePixelRatio * scaleFactor;
+        canvasDisplayHeight =  canvas.height / window.devicePixelRatio * scaleFactor;
+        canvas.style.width = canvasDisplayWidth + "px";
+        canvas.style.height = canvasDisplayHeight + "px";
+    }
+
+    resizeCanvas(2); // default scale
 
     /** @type HTMLElement */let elmt = html`
         <${Card} name=${attrs.sprite.name} resourceUUID=${attrs.sprite.uuid} class=sprite-editor>
-            <div class="card-settings"> --- </div>
+            <div class="card-settings"> 
+                <p>
+                    <span>size: </span> <span class=size-description>${canvas.width} x ${canvas.height}</span> <button class=resize> change </button>
+                </p>
+            </div>
             <div class="toolbar colors">
-                ${colors.map((color, i) => html`<button value=${i}>${dummyIcon()}</button>`)}
+                ${colors.map((color, i) => html`<button data-id=${i}>${dummyIcon()}</button>`)}
             </div>
             <div class="toolbar brushes">
-                ${brushes.map((icon, i) => html`<button value=${i}>${icon}</button>`)}
+                ${brushes.map((icon, i) => html`<button data-id=${i}>${icon}</button>`)}
             </div>
             <div class="canvas-container">${canvas}</div>
+            <!-- <div class="frame-select"><input step=1 min=0 max=4 type="range" /></div> -->
         <//>
     `;
+
+    // refresh size
+    // TODO kinda hacky
+    let refreshSettings = () => {
+        elmt.querySelector("span.size-description").innerText = `${canvas.width} x ${canvas.height}`;
+    }
+    refreshSettings();
+
+    // canvas size
+    // account for device pixel ratio inthe big canvas
+    let canvasContainer = elmt.querySelector(".canvas-container");
+    let autoResizeCanvas = () => {
+        const sizeAvailable = canvasContainer.getBoundingClientRect();
+        let scaleFactor = Math.min(
+            ~~(sizeAvailable.width / canvas.width * window.devicePixelRatio),
+            ~~(sizeAvailable.height / canvas.height * window.devicePixelRatio)
+        );
+        scaleFactor = Math.max(1, scaleFactor);
+        resizeCanvas(scaleFactor);
+    };
+    new ResizeObserver(autoResizeCanvas).observe(canvasContainer);
+
+    // resize button
+    elmt.querySelector("button.resize").onclick = async() => {
+        let popup = createBlockingPopup(
+            html`
+                <p>This will <em>erase</em> your drawing!!!</p>
+                <p><label> width: <input value=${canvas.width} /></label></p>
+                <p><label> height: <input value=${canvas.height} /></label></p>
+            `, 
+            ["ok", "cancel"]
+        );
+        let buttons = popup.querySelectorAll("button");
+        let confirmed = await new Promise(resolve => {
+            buttons[0].onclick = () => resolve(true);
+            buttons[1].onclick = () => resolve(false);
+        });
+        if(confirmed) {
+            let inputs = popup.querySelectorAll("input");
+            canvas.width = Math.max(1, parseInt(inputs[0].value));
+            canvas.height = Math.max(1, parseInt(inputs[1].value));
+            refreshSettings();
+            autoResizeCanvas();
+        }
+        popup.remove();
+    };
 
     // stroke select
     let currentBrush = null;
@@ -122,31 +185,52 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
                 otherButton.dataset.selected = false;
             }
             button.dataset.selected = true;
-            currentBrush = brushes[button.value];
+            currentBrush = brushes[button.dataset.id];
         }
         button.dataset.selected = false;
     }
     brushSelectButtons[0].onclick(); // select first
     
-
+    // canvas context
+    let canvasCtx = canvas.getContext("2d");
+    
     // colors
     let colorSelectButtons = elmt.querySelectorAll(".colors>button");
+    let currentCanvasOP = "source-over";
+
     for(let button of colorSelectButtons) {
-        button.style.backgroundColor = colors[button.value];
+        let color = colors[button.dataset.id];
+        button.style.backgroundColor = color;
+        let isEraser = color == "#00000000";
+        if(isEraser) button.dataset.eraser = true;
 
         button.onclick = () => {
+            for(let otherButton of colorSelectButtons) {
+                otherButton.dataset.selected = false;
+            }
+            button.dataset.selected = true;
+
+            if(colorUIAdjust[color]) {
+                elmt.querySelector(".brushes").dataset.backgroundTweak = colorUIAdjust[color];
+            } else {
+                delete elmt.querySelector(".brushes").dataset.backgroundTweak;
+            }
+
             for(let brush of brushes) {
                 let ctx = brush.getContext("2d");
                 ctx.globalCompositeOperation = "source-in";
-                ctx.fillStyle = colors[button.value];
+                ctx.fillStyle = !isEraser? color : "#fff"; // TODO not white
                 ctx.fillRect(0, 0, brushWidth, brushWidth);
+                // main canvas
+                currentCanvasOP = isEraser? "destination-out" : "source-over";
             }
         }
+        button.dataset.selected = false;
     }
+    colorSelectButtons[colorSelectButtons.length - 1].onclick();
 
     // let canvas = elmt.querySelector("canvas");
-    let ctx = canvas.getContext("2d");
-    ctx.fillStyle = "black";
+    canvasCtx.fillStyle = "black";
     let draw = false;
     let prevX = -1;
     let prevY = -1;
@@ -158,6 +242,8 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
         x1 = ~~x1; y1 = ~~y1; x2 = ~~x2; y2 = ~~y2;
         let dx = (x2-x1);
         let dy = (y2-y1);
+
+        canvasCtx.globalCompositeOperation = currentCanvasOP;
 
         let alongX = Math.abs(dx) > Math.abs(dy);
         let dLong = alongX? dx : dy;
@@ -172,7 +258,7 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
             let ry = !alongX? i : ~~((i / dx) * dy);
             let x = x1 + rx - ~~(brushWidth / 2);
             let y = y1 + ry - ~~(brushWidth / 2);
-            ctx.drawImage(currentBrush, x, y);
+            canvasCtx.drawImage(currentBrush, x, y);
         }
     }
     
@@ -196,7 +282,6 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
     }
     canvas.onmouseup = () => { draw = false; }
     
-    let canvasContainer = elmt.querySelector(".canvas-container");
     canvasContainer.onmouseup = () => { draw = false; }
     canvasContainer.onmouseleave = () => { draw = false; }
 
