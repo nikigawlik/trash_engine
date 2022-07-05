@@ -7,6 +7,7 @@ data.editor = {};
 data.editor.settings = {
     darkMode: false,
     subFolders: false,
+    openResourcesMaximized: false,
 }
 
 export async function save() {

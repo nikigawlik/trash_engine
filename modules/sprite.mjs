@@ -1,5 +1,6 @@
 import { appendCard, Card, cards, createBlockingPopup } from "./components.mjs";
 import { html } from "./deps.mjs";
+import { data } from "./globalData.mjs";
 import { Resource } from "./resource.mjs";
 import { bringToFront } from "./ui.mjs";
 
@@ -48,7 +49,6 @@ export class Sprite extends Resource {
     constructor(name="sprite", resourceManager=null) {
         super(name, resourceManager);
         this.canvas = null;
-        this.atlasLocation = { x: 0, y: 0, w: 1, h: 1};
     }
 
     openEditorWindow() {
@@ -62,11 +62,15 @@ export class Sprite extends Resource {
             <${SpriteWindow} sprite=${this} />
             `;
             appendCard(elmt);
+            if(data.editor.settings.openResourcesMaximized) {
+                // TODO hacky
+                elmt.querySelector("button.maxWindow").click();
+            }
         }  
     }
 }
 
-export let SpriteWindow = (attrs = {sprite: null, }) => {
+let SpriteWindow = (attrs = {sprite: null, }) => {
     // get canvas
     /** @type HTMLCanvasElement */
     let canvas = attrs.sprite.canvas;
@@ -119,11 +123,13 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
                     <span>size: </span> <span class=size-description>${canvas.width} x ${canvas.height}</span> <button class=resize> change </button>
                 </p>
             </div>
-            <div class="toolbar colors">
-                ${colors.map((color, i) => html`<button data-id=${i}>${dummyIcon()}</button>`)}
-            </div>
-            <div class="toolbar brushes">
-                ${brushes.map((icon, i) => html`<button data-id=${i}>${icon}</button>`)}
+            <div class="toolbar-container">
+                <div class="toolbar colors">
+                    ${colors.map((color, i) => html`<button data-id=${i}>${dummyIcon()}</button>`)}
+                </div>
+                <div class="toolbar brushes">
+                    ${brushes.map((icon, i) => html`<button data-id=${i}>${icon}</button>`)}
+                </div>
             </div>
             <div class="canvas-container">${canvas}</div>
             <!-- <div class="frame-select"><input step=1 min=0 max=4 type="range" /></div> -->
@@ -284,6 +290,13 @@ export let SpriteWindow = (attrs = {sprite: null, }) => {
     
     canvasContainer.onmouseup = () => { draw = false; }
     canvasContainer.onmouseleave = () => { draw = false; }
+
+    // after load hack
+    setTimeout(() => {
+        let style = getComputedStyle(elmt);
+        elmt.style.width = style.width;
+        elmt.querySelector(".toolbar-container").style.flexDirection = "row";
+    }, 50);
 
     return elmt;
 }

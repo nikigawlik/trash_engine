@@ -1,5 +1,5 @@
 import { html } from "./deps.mjs";
-import { bringToFront, elementsRegister, findWindowPos, setupDraggable } from "./ui.mjs";
+import { bringToFront, findWindowPos, setupDraggable } from "./ui.mjs";
 
 console.log("components.mjs loading")
 
@@ -89,7 +89,7 @@ export let asyncGetTextPopup = async (question, defaultText, hasCancel=true) => 
     return result;
 };
 
-export let createCard = (cardGenerator, existingCheck=null) => {
+export let openCard = (generator, existingCheck=null) => {
     let existing = null;
     if(existingCheck) {
         existing = document.querySelector("main").querySelector(`.card.${existingCheck}`);
@@ -97,14 +97,14 @@ export let createCard = (cardGenerator, existingCheck=null) => {
     if(existing) {
         bringToFront(existing);
     } else {
-        let elmt = html`<${cardGenerator} />`;
-        elementsRegister(elmt);
+        // let elmt = (elementOrGenerator instanceof Function)? html`<${elementOrGenerator} />` : elementOrGenerator;
+        // elementsRegister(elmt);
+        let elmt = generator();
         appendCard(elmt);
     }
 };
 
 export let appendCard = (cardElmt) => {
-    // TODO find good place for card
     let main = document.querySelector("main");
     main.append(cardElmt);
     let bounds = main.getBoundingClientRect();
@@ -123,7 +123,7 @@ export let Card = (attrs = {}, ...children) => {
         <h3>
             <span class="name">${attrs.name}</span> 
             <span>
-                <!-- <button class="maxWindow">☐</button> -->
+                <button class="maxWindow">☐</button>
                 <button class="closeWindow">🞩</button>
             </span>
         </h3>
@@ -138,17 +138,39 @@ export let Card = (attrs = {}, ...children) => {
         elmt.remove();
     };
 
-    // elmt.querySelector("button.maxWindow").onclick = () => {
-    //     let main = document.querySelector("main").getBoundingClientRect();
-    //     elmt.style.left = "0px";
-    //     elmt.style.top = "0px";
-    //     elmt.style.width = main.width + "px";
-    //     elmt.style.height = main.height + "px";
-    // };
+    let maxWindowBut = elmt.querySelector("button.maxWindow");
+    
 
-    // elmt.onresize = event => {
-    //     event.stopPropagation();
-    // };
+    // click
+    let memory = null;
+    maxWindowBut.onclick = () => {
+        if(maxWindowBut.innerText == "☐") {
+            let rect = elmt.getBoundingClientRect();
+            memory = { 
+                width: elmt.style.width || rect.width + "px", 
+                height: elmt.style.height || rect.height + "px", 
+                left: elmt.style.left, top: elmt.style.top 
+            };
+            elmt.style.position = "static";
+            elmt.style.width = "100%";
+            elmt.style.height = "100%";
+            elmt.style.resize = "none";
+            bringToFront(elmt);
+            console.log("front")
+            maxWindowBut.innerText = "❐";
+        } else {
+            if(memory) {
+                elmt.style.width = memory.width;
+                elmt.style.height = memory.height;
+                elmt.style.left = memory.left;
+                elmt.style.top = memory.top;
+                elmt.style.resize = "both";
+                elmt.style.position = "absolute";
+                memory = null;
+            }
+            maxWindowBut.innerText = "☐";
+        }
+    };
 
     setupDraggable(elmt, document.querySelector("main"), "h3,h3 *,.inner-card", 1);
 

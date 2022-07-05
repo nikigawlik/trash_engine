@@ -190,7 +190,8 @@ export async function deserialize(obj) {
             // reference to a known type/function
             return constructors[obj._func];
         } else {
-            if(constructors[obj._type]) {
+            let constructor = constructors[obj._type]; // Can be undefined!
+            if(constructor) {
                 // object of a known type/function
                 copy = new constructors[obj._type]();
             } else {
@@ -198,7 +199,8 @@ export async function deserialize(obj) {
                 copy = {};
             }
             for (var attr in obj) {
-                if (obj.hasOwnProperty(attr) && attr[0] != "_") 
+                if ((obj.hasOwnProperty(attr) && attr[0] != "_") 
+                && (!constructor || copy.hasOwnProperty(attr))) // for constructors the property needs to already exist
                     copy[attr] = await deserialize(obj[attr]);
             }
         }

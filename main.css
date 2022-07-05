@@ -37,11 +37,27 @@ html[data-dark="true"] {
 } 
 
 body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
     background-color: var(--bg-color);
     color: var(--main-color);
-    overflow: hidden;
     font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
 }
+
+main {
+    /* width: 100vw; */
+    /* height: 100vh; */
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
 
 textarea {
     background-color: var(--bg-color);
@@ -123,17 +139,6 @@ ul.topbar > li {
     /* border-right: 1px solid var(--main-color); */
     padding: 4px;
 }
-
-main {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-}
-
 canvas {
     display: block;
     margin: auto;
@@ -288,6 +293,7 @@ canvas {
     color: var(--bg-color);
 }
 
+/* settings at top of card like width in sprite editor */
 .card .card-settings>p {
     display: flex;
     align-items: center;
@@ -391,8 +397,16 @@ ul.resources .resource-object::before {
     background-color: var(--neutral-color);
 }
 
+div.toolbar-container {
+    display: flex;
+    flex-direction: column; /* hack: changed in js */ 
+    flex-wrap: wrap;
+    column-gap: 16px;
+    justify-content: center;
+}
+
 div.toolbar {
-    width: 100%;
+    /* width: 100%; */
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -425,6 +439,10 @@ ul.context-menu button {
 
 
 /* --- components --- */
+
+.card.settings {
+    min-width: 200px;
+}
 
 .card.obj-editor .subsection {
     width: 128px;
@@ -464,4 +482,10 @@ ul.context-menu button {
     /* flex-grow: 1; */
     /* object-fit:none ; */
     background: var(--stripey-gradient);
+}
+
+/* room editor */
+
+.card.room-editor canvas {
+    border: 1px dashed var(--main-color);
 }

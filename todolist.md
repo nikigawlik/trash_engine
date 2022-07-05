@@ -1,2 +1,3 @@
-- resource editor drag and drop
-- 'window manager' -> arranges cards
+vv START HERE vv
+
+- redo undo

@@ -1,17 +1,27 @@
 console.log("ui.mjs loading")
 
-let notLikethis = 180;
 let maxZ = 0;
 
+/**
+ * @param {HTMLElement} cardElement 
+ */
 export function bringToFront(cardElement) {
+    // this code for non-flexbox maximized stuff
+    // if(window.getComputedStyle(cardElement).position != "absolute") {
+    //     if(cardElement.parentNode) 
+    //         cardElement.parentNode.insertBefore(cardElement, cardElement.parentNode.firstElementChild);
+    // }
     cardElement.style.zIndex = ++maxZ;
 }
 
-export function setupDraggable(draggedElement, boundsElement, handleQuery, snap = 16, initialX = notLikethis, initialY = notLikethis) {
+export function setupDraggable(draggedElement, boundsElement, handleQuery, snap = 16) {
     draggedElement.style.left = `0px`;
     draggedElement.style.top = `0px`;
     bringToFront(draggedElement);
     draggedElement.onmousedown = function(event) {
+        if(window.getComputedStyle(draggedElement).position != "absolute") {
+            return;
+        }
         bringToFront(draggedElement);
         
         if(!event.target.matches(handleQuery)) {
@@ -62,6 +72,13 @@ export function setupDraggable(draggedElement, boundsElement, handleQuery, snap 
             draggedElement.dataset.isDragged = false;
         }, {once: true});
     };
+
+    // don't do it on buttons
+    for(let child of draggedElement.querySelectorAll("button")) {
+        child.addEventListener("mousedown", event => {
+            event.stopPropagation();
+        });
+    }
 }
 
 export function cloneFromTemplate(queryStr, parent, customProcessor=null) {
@@ -72,7 +89,7 @@ export function cloneFromTemplate(queryStr, parent, customProcessor=null) {
     if(customProcessor) {
         customProcessor(fragment);
     }
-    elementsRegister(fragment, parent);
+    // elementsRegister(fragment, parent);
     parent.append(fragment);
     return rootElement;
 }
@@ -84,24 +101,20 @@ window.cloneFromTemplate = cloneFromTemplate;
  */
 export function elementsRegister(root, bounds) {
     // elements that are protected from drag actions, I think
-    for(let child of root.querySelectorAll("button")) {
-        child.addEventListener("mousedown", event => {
-            event.stopPropagation();
-        });
-    }
+    
     
     for(let e of root.querySelectorAll(".resource-link")) {
-        e.onclick = evt => {
-            evt.preventDefault();
-        }
+        // e.onclick = evt => {
+        //     evt.preventDefault();
+        // }
     }
 
 }
 
 export function init() {
     console.log("init ui...")
-    let bounds = document.querySelector("body");
-    elementsRegister(bounds, document.querySelector("main"));
+    // let bounds = document.querySelector("body");
+    // elementsRegister(bounds, document.querySelector("main"));
 }
 
 /**
@@ -112,10 +125,11 @@ export function findWindowPos(elmt) {
     let boundsElmt = document.querySelector("main");
     let meRect = elmt.getBoundingClientRect();
     let bounds = boundsElmt.getBoundingClientRect();
-    let others = new Array(...boundsElmt.querySelectorAll(".card")).map(x => x.getBoundingClientRect());
-    console.log(others.length)
-    console.log(others)
-    console.log(bounds)
+    let others = 
+        new Array(...boundsElmt.querySelectorAll(".card"))
+        .filter(x => x != elmt)
+        .map(x => x.getBoundingClientRect())
+    ;
 
     let cans = [];
 
@@ -126,6 +140,10 @@ export function findWindowPos(elmt) {
             }
         }
         return true;
+    }
+
+    if(freeAt(meRect)) {
+        cans.push(meRect);
     }
 
     for(let otherRect of others) {

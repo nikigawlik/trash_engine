@@ -1,4 +1,4 @@
-import { Card, createCard, ErrorWindow, LogWindow } from "./components.mjs";
+import { appendCard, Card, openCard, ErrorWindow, LogWindow } from "./components.mjs";
 import { deleteDatabase } from "./database.mjs";
 import { html } from "./deps.mjs";
 import { data, load as dataLoad, save as dataSave } from "./globalData.mjs";
@@ -23,9 +23,10 @@ export let TopBar = () => {
     let elmt = html`
     <ul class="topbar">
             <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
-            <li><button onclick=${() => createCard(ScriptWindow)}>new script</button></li>
-            <li><button onclick=${() => createCard(LogWindow)}>new log</button></li>
-            <li><button onclick=${() => createCard(SettingsWindow, "settings")}>show settings</button></li>
+            <li><button onclick=${() => openCard(ScriptWindow)}>new script</button></li>
+            <li><button onclick=${() => openCard(LogWindow)}>new log</button></li>
+            <li><button onclick=${() => openCard(SettingsWindow, "settings")}>settings</button></li>
+            <li><button onclick=${() => openResourceManager()}>resources</button></li>
             <li><button onclick=${() => save()}>save</button></li>
             <li><button onclick=${() => load()}>load</button></li>
             <li><button onclick=${async() => deleteDatabase()}>DELETE DATA</button></li>
@@ -39,6 +40,7 @@ export let SettingsWindow = (attrs = {}, ...children) => {
     <${Card} name="editor settings" class="settings">
         <p><label>dark mode \xa0 <input type="checkbox" /></label></p>
         <p><label>full resource hierarchy \xa0 <input type="checkbox" /></label></p>
+        <p><label>open resources maximized \xa0 <input type="checkbox" /></label></p>
     <//>
     `;
 
@@ -52,6 +54,10 @@ export let SettingsWindow = (attrs = {}, ...children) => {
     inputs[1].onclick = () => {
         data.editor.settings.subFolders = inputs[1].checked;
         ResourceManager.resourceManager.refresh();
+    };
+    inputs[2].checked = data.editor.settings.openResourcesMaximized;
+    inputs[2].onclick = () => {
+        data.editor.settings.openResourcesMaximized = inputs[1].checked;
     };
 
     return elmt;
@@ -112,8 +118,13 @@ export async function load() {
     document.body.append(...body);
     // let resWindow = html`<${ResourceWindow} resourceManager=${resourceManager}><//>`;
     await ResourceManager.init();
-    let resWindow = ResourceManager.resourceManager.render();
-    document.querySelector("main").append(resWindow);
+    openResourceManager();
+}
+
+function openResourceManager() {
+    let generator = () => ResourceManager.resourceManager.render();
+    // appendCard(resWindow);
+    openCard(generator, "resources");
 }
 
 function applySettings() {

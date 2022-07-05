@@ -152,6 +152,7 @@ let ResourceSubtree = (attrs = {}, ...children) => {
                 `)}
             </ul>
         `;
+        console.log(data.editor.settings.subFolders)
         elmt = data.editor.settings.subFolders? 
             html`
                 <${Details} summary=${e1} open=true>
