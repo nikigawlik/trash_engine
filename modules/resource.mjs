@@ -11,6 +11,7 @@ export class Resource {
         this.uuid = crypto.randomUUID();
         this._parent = null;
         this._resourceManager=resourceManager;
+        this._icon = null;
     }
 
     getTopFolder() {
@@ -90,10 +91,21 @@ export class Resource {
         console.log(`no window implemented for ${this.type}`);
     }
 
+    getIconElement() {
+        return html`<span>❔</span>`;
+    }
+
     render(attrs={}, ...children) {
         // let extra = this.type == "folder"? html`<button>+</button>` : "";
+        let icon = html`<span class="icon">${this.getIconElement()}</span>`; // icon-${this.type} 
+
         /** @type HTMLElement */ let elmt = html`
-            <span draggable="true" class="grabbable"><span class=${`resource-link  resource-${this.type}`} >${this.name}</span></span>
+            <span draggable="true" class="grabbable">
+                <span class=${`resource-link  resource-${this.type}`}>
+                    ${icon}
+                    ${this.name} 
+                </span>
+            </span>
         `;
 
         // if(extra) {

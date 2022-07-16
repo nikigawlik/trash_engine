@@ -6,13 +6,14 @@ import { Room } from "./room.mjs";
 import * as sprite_editor from "./sprite.mjs";
 import { Sprite } from "./sprite.mjs";
 import * as ui from "./ui.mjs";
+import { Instance } from "./instance.mjs";
 
 console.log("main.mjs loading")
 
 window.onload = async () => {
     console.log("--- window.onload ---")
     // initialize different modules
-    await database.init([Sprite, Room, Folder]);
+    await database.init([Sprite, Room, Folder, Instance]);
     // await ResourceManager.init();
     await app.load();
     await ui.init();

@@ -138,10 +138,10 @@ ul.topbar {
 ul.topbar > li {
     /* border-right: 1px solid var(--main-color); */
     padding: 4px;
+
 }
 canvas {
-    display: block;
-    margin: auto;
+    /* display: block; */
     /* image-rendering: crisp-edges; */
     image-rendering: pixelated;
 }
@@ -173,9 +173,13 @@ canvas {
 }
 
 .horizontal {
+    min-height: 0;
+    flex: 1 1 auto;
+
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    gap: 8px;
 }
 
 .card {
@@ -356,25 +360,37 @@ ul.resources li {
     list-style-position: outside;
 }
 
-ul.resources .resource-link::before {
+ul.resources .icon {
+    width: 1em;
+    display: inline-block;
+    margin-right: 4px;
+    padding: auto;
+    text-align: end;
+}
+
+/* ul.resources .resource-link {
+    vertical-align: middle;
+} */
+
+/* ul.resources .resource-link::before {
     content: "❔";
 }
 
 ul.resources .resource-sprite::before {
-    /* list-style-image: url('/engineAssets/corners.png'); */
+    list-style-image: url('/engineAssets/corners.png');
     content: "👺";
-    /* content: "🎨"; */
+    content: "🎨";
 }
 
 ul.resources .resource-folder::before {
     content: "📁";
-    /* list-style-image: url('/engineAssets/icon_folder.png'); */
+    list-style-image: url('/engineAssets/icon_folder.png');
 }
 
 ul.resources .resource-object::before {
     content: "🎱";
-    /* list-style-image: url('/engineAssets/icon_folder.png'); */
-}
+    list-style-image: url('/engineAssets/icon_folder.png');
+} */
 
 .grabbable {
     cursor: pointer;
@@ -397,7 +413,7 @@ ul.resources .resource-object::before {
     background-color: var(--neutral-color);
 }
 
-div.toolbar-container {
+.toolbar-container {
     display: flex;
     flex-direction: column; /* hack: changed in js */ 
     flex-wrap: wrap;
@@ -405,7 +421,7 @@ div.toolbar-container {
     justify-content: center;
 }
 
-div.toolbar {
+.toolbar {
     /* width: 100%; */
     display: flex;
     flex-direction: row;
@@ -414,9 +430,13 @@ div.toolbar {
     gap: 4px;
 }
 
-div.toolbar>button {
+.toolbar>button {
     display: block;
     padding: 0;
+}
+
+.toolbar canvas{
+    display: block;
 }
 
 ul.context-menu {
@@ -436,7 +456,6 @@ ul.context-menu button {
     width: 100%;
     min-width: 100px;
 }
-
 
 /* --- components --- */
 
@@ -475,6 +494,7 @@ ul.context-menu button {
 
 .card.sprite-editor .canvas-container canvas {
     display: block;
+    margin: auto;
     border: 1px solid var(--main-color);
     background-color: var(--stripey-gradient);
     
@@ -486,6 +506,39 @@ ul.context-menu button {
 
 /* room editor */
 
-.card.room-editor canvas {
+.card.room-editor .canvas-container {
+    overflow: scroll;
+    flex-shrink: 1;
+    height: 100%;
+}
+
+.card.room-editor .canvas-container canvas {
+    /* display: block; */
     border: 1px dashed var(--main-color);
+}
+
+.card.room-editor .left-rider {
+    flex: 1 1 120px;
+    max-width: 200px;
+}
+
+.card.room-editor .sprite-select {
+    padding: 4px;
+
+    /* flex-grow: 0; */
+    display: flex;
+    /* flex-direction: row; */
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 33vh;
+}
+
+.card.room-editor .sprite-select button {
+    border: none;
+    box-shadow: none;
+}
+
+.card.room-editor .scroll-box button[data-selected="true"] {
+    background-color: var(--off-bg-color);
 }

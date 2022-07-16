@@ -7,6 +7,7 @@ import { Resource } from "./resource.mjs";
 import { Room } from "./room.mjs";
 import { Sprite } from "./sprite.mjs";
 import { elementsRegister } from "./ui.mjs";
+import { assert } from "./utils.mjs";
 
 console.log("resource_manager.mjs loading")
 
@@ -39,6 +40,12 @@ export class ResourceManager {
     // addThing(thing) { this.addResource("things", thing); }
     addRoom(room) { this.addResource("rooms", room); }
 
+    getAllOfResourceType(type) {
+        let folder = this.root.contents.find(x => x.resourceType == type);
+        let resources = Array.from(folder.iterateAllResources());
+        return resources;
+    }
+
     toJSON() {
         return this.root;
     }
@@ -48,6 +55,10 @@ export class ResourceManager {
         let result = folder.findByUUID(uuid);
         if(!result) return null;
         else return result;
+    }
+
+    findByUUID(uuid) {
+        return this.root.findByUUID(uuid);
     }
 
     render() {
@@ -130,7 +141,7 @@ let resourceList = (resources) => {
     return html`
     <ul class=resources>
         ${resources.map(x => html`
-            <li class="icon-folder">
+            <li>
                 <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>
             </li>
         `)}
@@ -146,7 +157,7 @@ let ResourceSubtree = (attrs = {}, ...children) => {
         let e2 = html`
             <ul>
                 ${subtree.map(x => html`
-                <li class=${"icon-" + x.type}>
+                <li>
                     <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>
                 </li>
                 `)}

@@ -49,6 +49,8 @@ export class Sprite extends Resource {
     constructor(name="sprite", resourceManager=null) {
         super(name, resourceManager);
         this.canvas = null;
+        this.originX = 0;
+        this.originY = 0;
     }
 
     openEditorWindow() {
@@ -68,6 +70,28 @@ export class Sprite extends Resource {
             }
         }  
     }
+
+    getCopy() {
+        let newCanvas = document.createElement("canvas");
+        if(this.canvas) {
+            newCanvas.width = this.canvas.width;
+            newCanvas.height = this.canvas.height;
+            let ctx = newCanvas.getContext("2d");
+            ctx.drawImage(this.canvas, 0, 0);
+        }
+        return newCanvas;
+    }
+
+    getIconElement() {
+        let icon = this.getCopy();
+        const emSize = 1.0;
+        if(icon.width < icon.height) {
+            icon.style.height = `${emSize}em`;
+        } else {
+            icon.style.width = `${emSize}em`;
+        }
+        return icon;
+    }
 }
 
 let SpriteWindow = (attrs = {sprite: null, }) => {
@@ -77,6 +101,8 @@ let SpriteWindow = (attrs = {sprite: null, }) => {
     if(!canvas) {
         canvas = document.createElement("canvas");
         canvas.width = canvas.height = 100;
+        attrs.sprite.originX =
+        attrs.sprite.originY = 50;
 
         // let ctx = canvas.getContext("2d");
         // ctx.fillStyle = colors[colors.length-1];
@@ -121,6 +147,7 @@ let SpriteWindow = (attrs = {sprite: null, }) => {
             <div class="card-settings"> 
                 <p>
                     <span>size: </span> <span class=size-description>${canvas.width} x ${canvas.height}</span> <button class=resize> change </button>
+                    <span><button class=center-origin>center origin</button></span>
                 </p>
             </div>
             <div class="toolbar-container">
@@ -176,11 +203,18 @@ let SpriteWindow = (attrs = {sprite: null, }) => {
             let inputs = popup.querySelectorAll("input");
             canvas.width = Math.max(1, parseInt(inputs[0].value));
             canvas.height = Math.max(1, parseInt(inputs[1].value));
+            attrs.sprite.originX = ~~(canvas.width / 2);
+            attrs.sprite.originY = ~~(canvas.height / 2);
             refreshSettings();
             autoResizeCanvas();
         }
         popup.remove();
     };
+
+    elmt.querySelector("button.center-origin").onclick = () => {
+        attrs.sprite.originX = ~~(canvas.width / 2);
+        attrs.sprite.originY = ~~(canvas.height / 2);
+    }
 
     // stroke select
     let currentBrush = null;

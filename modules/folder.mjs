@@ -33,6 +33,7 @@ export class Folder extends Resource {
                         newResource.name = name;
                         this.add(newResource);
                         this._resourceManager.refresh();
+                        newResource.openEditorWindow(); // sus
                     }
                 }
             },
@@ -60,29 +61,10 @@ export class Folder extends Resource {
         }
 
         return options;
+    }
 
-        // // new <resource>
-        // buttons[0].onclick = ;
-        // // new folder
-        // buttons[1].onclick = ;
-        // if (buttons.length > 2) {
-        //     // rename
-        //     buttons[2].onclick = async () => {
-        //         let name = await asyncGetTextPopup(`Name of the folder:`, this.name);
-        //         if(name) {
-        //             this.name = name;
-        //             this._resourceManager.refresh();
-        //         }
-        //     };
-        //     // delete folder 
-        //     buttons[3].onclick = async () => {
-        //         let confirmed = await asyncYesNoPopup(html`Delete folder <em>${this.name}</em>?`);
-        //         if (confirmed) {
-        //             this.remove();
-        //             this._resourceManager.refresh();
-        //         }
-        //     };
-        // }
+    getIconElement() {
+        return html`<span>📁</span>`;
     }
 
     add(resource) {
@@ -125,12 +107,25 @@ export class Folder extends Resource {
             if (resource.uuid == uuid) {
                 return resource;
             }
-            if (resource.type == "folder") {
+            if (resource instanceof Folder) {
                 let subResult = resource.findByUUID(uuid);
                 if (subResult)
                     return subResult;
             }
         }
         return null;
+    }
+
+    *iterateAllResources() {
+        let subfunc = function* (resource) {
+            if(resource instanceof Folder) {
+                for(let r of resource.contents) {
+                    yield * subfunc(r);
+                }
+            } else {
+                yield resource;
+            }
+        }
+        yield * subfunc(this);
     }
 }

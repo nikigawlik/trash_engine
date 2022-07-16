@@ -100,13 +100,12 @@ window.cloneFromTemplate = cloneFromTemplate;
  * @param {HTMLElement} bounds 
  */
 export function elementsRegister(root, bounds) {
-    // elements that are protected from drag actions, I think
-    
+    // elements that are protected from drag actions, other kinds of default actions
     
     for(let e of root.querySelectorAll(".resource-link")) {
-        // e.onclick = evt => {
-        //     evt.preventDefault();
-        // }
+        e.onclick = evt => {
+            evt.preventDefault();
+        }
     }
 
 }
