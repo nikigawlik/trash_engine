@@ -1,4 +1,4 @@
-import { appendCard, Card, openCard, ErrorWindow, LogWindow } from "./components.mjs";
+import { appendCard, Card, openCard, ErrorWindow, LogWindow, asyncYesNoPopup } from "./components.mjs";
 import { deleteDatabase } from "./database.mjs";
 import { html } from "./deps.mjs";
 import { data, load as dataLoad, save as dataSave } from "./globalData.mjs";
@@ -28,8 +28,8 @@ export let TopBar = () => {
             <li><button onclick=${() => openCard(SettingsWindow, "settings")}>settings</button></li>
             <li><button onclick=${() => openResourceManager()}>resources</button></li>
             <li><button onclick=${() => save()}>save</button></li>
-            <li><button onclick=${() => load()}>load</button></li>
-            <li><button onclick=${async() => deleteDatabase()}>DELETE DATA</button></li>
+            <li><button onclick=${() => location.reload()}>load</button></li>
+            <li><button onclick=${async() => (await asyncYesNoPopup("REALLY?")) && deleteDatabase()}>DELETE DATA</button></li>
     </ul>
     `;
     return elmt;

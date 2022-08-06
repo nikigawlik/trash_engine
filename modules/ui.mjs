@@ -1,3 +1,5 @@
+import { rectIntersect, rectInside } from "./utils.mjs";
+
 console.log("ui.mjs loading")
 
 let maxZ = 0;
@@ -160,25 +162,4 @@ export function findWindowPos(elmt) {
     let result = cans.reduceRight((a,b) => norm(a) < norm(b)? a : b);
     // console.log(result)
     return result;
-}
-
-/**
- * @param {DOMRect} rect1 
- * @param {DOMRect} rect2 
- * @returns {boolean}
- */
-function rectIntersect(rect1, rect2) {
-    // let rect1 = document.body.getBoundingClientRect()
-    // let rect2 = document.body.getBoundingClientRect()
-    return rect1.left < rect2.right && rect1.right > rect2.left &&
-        rect1.bottom > rect2.top && rect1.top < rect2.bottom;
-}
-
-/**
- * @param {DOMRect} rect1 
- * @param {DOMRect} rect2 
- * @returns {boolean}
- */
-function rectInside(rect, bounds) {
-    return rect.right <= bounds.right && rect.left >= bounds.left && rect.top >= bounds.top && rect.bottom <= bounds.bottom;
 }

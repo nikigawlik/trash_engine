@@ -18,7 +18,7 @@ rougelike
 - do menuing first
 
 structure
-- p5js -> enforces it's structure, kind of
+- p5js -> enforces it's structure, kind of, Kinda fucking sucks to get to work tbh -> no structure no nothing
 - my scripts -> are function level -> custom format
 - shit's in the global scope
 - internal structure -> modules
@@ -30,10 +30,13 @@ structure
 - resources + data + scripts
 - objects and instances -> object has the event functions, calls them for instances!
 
-todos
-- dev server 
-  - file registry?
-
+event system
+- data inherits from 'resource'
+- html elements listen to resource
+- resource changed -> html is notified
+- examples
+  - sprite added -> containing folder resources changes -> folder html is updated (element inserted)
+  - sprite drawn on -> sprite resources changes
 
 
 

@@ -21,13 +21,13 @@ export class Folder extends Resource {
         let defaultOptions = super.getContextMenuOptions();
 
         let resourceConstructor = this.getTopFolder().resourceType;
-        let resourceType = resourceConstructor.name.toLowerCase();
+        let resourceName = resourceConstructor.name.toLowerCase();
         let options = [
             {
                 id: "new_resource",
-                text: `new ${resourceType}`, 
+                text: `new ${resourceName}`, 
                 callback: async () => {
-                    let name = await asyncGetTextPopup(`Name of the ${resourceType}:`, `unnamed ${resourceType}`);
+                    let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
                     if(name) {    
                         let newResource = new resourceConstructor();
                         newResource.name = name;
@@ -117,15 +117,16 @@ export class Folder extends Resource {
     }
 
     *iterateAllResources() {
-        let subfunc = function* (resource) {
-            if(resource instanceof Folder) {
-                for(let r of resource.contents) {
-                    yield * subfunc(r);
-                }
-            } else {
-                yield resource;
+        yield * Folder.iterateResource(this);
+    }
+
+    static *iterateResource(resource) {
+        if(resource instanceof Folder) {
+            for(let r of resource.contents) {
+                yield * Folder.iterateResource(r);
             }
+        } else {
+            yield resource;
         }
-        yield * subfunc(this);
     }
 }

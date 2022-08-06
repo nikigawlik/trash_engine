@@ -100,9 +100,9 @@ let SpriteWindow = (attrs = {sprite: null, }) => {
     let canvas = attrs.sprite.canvas;
     if(!canvas) {
         canvas = document.createElement("canvas");
-        canvas.width = canvas.height = 100;
-        attrs.sprite.originX =
-        attrs.sprite.originY = 50;
+        canvas.width = canvas.height = 60;
+        attrs.sprite.originX = ~~(canvas.width / 2);
+        attrs.sprite.originY = ~~(canvas.height / 2);
 
         // let ctx = canvas.getContext("2d");
         // ctx.fillStyle = colors[colors.length-1];

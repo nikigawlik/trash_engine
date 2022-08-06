@@ -7,7 +7,6 @@ import { Resource } from "./resource.mjs";
 import { Room } from "./room.mjs";
 import { Sprite } from "./sprite.mjs";
 import { elementsRegister } from "./ui.mjs";
-import { assert } from "./utils.mjs";
 
 console.log("resource_manager.mjs loading")
 
