@@ -1,12 +1,9 @@
-import { appendCard, Card, cards, createBlockingPopup } from "./components.mjs";
-import { html } from "./deps.mjs";
-import { data } from "./globalData.mjs";
-import { Resource } from "./resource.mjs";
-import { bringToFront } from "./ui.mjs";
+import type { ResourceManager } from "../ResourceManager.js";
+import Resource from "./resource.js";
 
 console.log("sprite_editor.mjs loading")
 
-let brushesSrcImage = null; // set in init
+let brushesSrcImage: HTMLImageElement | null = null; // set in init
 
 // more or less primary colors plus some extra
 let colors = [
@@ -42,11 +39,14 @@ export async function init() {
     console.log("init sprite editor...")
     brushesSrcImage = new Image();
     brushesSrcImage.src = "/engineAssets/brushes.png";
-    await new Promise(resolve => brushesSrcImage.onload = resolve);
+    await new Promise(resolve => brushesSrcImage!.onload = resolve);
 }
 
-export class Sprite extends Resource {
-    constructor(name="sprite", resourceManager=null) {
+export default class Sprite extends Resource {
+    canvas: HTMLCanvasElement | null;
+    originX: number;
+    originY: number;
+    constructor(name="sprite", resourceManager: ResourceManager) {
         super(name, resourceManager);
         this.canvas = null;
         this.originX = 0;

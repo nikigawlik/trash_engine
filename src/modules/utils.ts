@@ -1,4 +1,4 @@
-export function assert(bool) {
+export function assert(bool: boolean) {
     if(!bool) throw Error("Assertion failed.");
 }
 
@@ -8,7 +8,7 @@ export function assert(bool) {
  * @param {DOMRect} rect2 
  * @returns {boolean}
  */
- export function rectIntersect(rect1, rect2) {
+ export function rectIntersect(rect1: DOMRect, rect2: DOMRect) {
     // let rect1 = document.body.getBoundingClientRect()
     // let rect2 = document.body.getBoundingClientRect()
     return rect1.left < rect2.right && rect1.right > rect2.left &&
@@ -20,14 +20,14 @@ export function assert(bool) {
  * @param {DOMRect} rect2 
  * @returns {boolean}
  */
-export function rectInside(rect, bounds) {
+export function rectInside(rect: DOMRect, bounds: DOMRect) {
     const result = rect.right <= bounds.right && rect.left >= bounds.left && rect.top >= bounds.top && rect.bottom <= bounds.bottom;
     // let rp = rect => `[${rect.x}, ${rect.y}, ${rect.width}, ${rect.height}]`;
     // console.log(`is ${rp(rect)} in ${rp(bounds)}? ${result? "yes" : "no"}.`)
     return result;
 }
 
-export function parseIntSafe(string, minValue = -Infinity) {
+export function parseIntSafe(string: string, minValue = -Infinity) {
     let intValue = parseInt(string);
     if(isNaN(intValue)) intValue = 0;
     return Math.max(minValue, intValue);

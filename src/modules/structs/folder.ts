@@ -1,11 +1,12 @@
-import { asyncGetTextPopup, asyncYesNoPopup, createContextMenu } from "./components.mjs";
-import { html } from "./deps.mjs";
-import { data } from "./globalData.mjs";
-import { Resource } from "./resource.mjs";
+import type { ResourceManager } from "../ResourceManager.js";
+import { data } from "./../globalData";
+import Resource from "./resource";
 
-
-export class Folder extends Resource {
-    constructor(name = "folder", resourceManager = null, contents = [], resourceType = null) {
+export default class Folder extends Resource {
+    contents: Resource[]
+    resourceType: typeof Resource | null
+    
+    constructor(name = "folder", resourceManager: ResourceManager|null = null, contents: Resource[] = [], resourceType: (typeof Resource)|null = null) {
         super(name, resourceManager);
         this.contents = [];
         for (let x of contents) {
@@ -20,9 +21,9 @@ export class Folder extends Resource {
     getContextMenuOptions() {
         let defaultOptions = super.getContextMenuOptions();
 
-        let resourceConstructor = this.getTopFolder().resourceType;
-        let resourceName = resourceConstructor.name.toLowerCase();
-        let options = [
+        const resourceConstructor = this.getTopFolder().resourceType;
+        const resourceName = resourceConstructor?.name.toLowerCase();
+        let options = resourceConstructor? [
             {
                 id: "new_resource",
                 text: `new ${resourceName}`, 
@@ -32,12 +33,12 @@ export class Folder extends Resource {
                         let newResource = new resourceConstructor();
                         newResource.name = name;
                         this.add(newResource);
-                        this._resourceManager.refresh();
+                        this._resourceManager?.refresh();
                         newResource.openEditorWindow(); // sus
                     }
                 }
             },
-        ];
+        ] : [];
         if(data.editor.settings.subFolders) {
             options.push({
                 id: "new_folder",
@@ -87,22 +88,17 @@ export class Folder extends Resource {
         }
     }
 
-    remove(resource) {
-        if (resource == undefined && this._parent && !this.isTopFolder()) {
-            this._parent.remove(this);
+    remove(resource: Resource): boolean {
+        let index = this.contents.indexOf(resource);
+        if (index >= 0) {
+            this.contents.splice(index, 1);
+            return true;
         } else {
-            let index = this.contents.indexOf(resource);
-            if (index >= 0) {
-                resource = this.contents.splice(index, 1);
-                resource._parent = null;
-                return resource;
-            } else {
-                return null;
-            }
+            return false;
         }
     }
 
-    findByUUID(uuid) {
+    findByUUID(uuid: string): Resource | null {
         for (let resource of this.contents) {
             if (resource.uuid == uuid) {
                 return resource;
@@ -120,7 +116,7 @@ export class Folder extends Resource {
         yield * Folder.iterateResource(this);
     }
 
-    static *iterateResource(resource) {
+    static *iterateResource(resource: Resource): IterableIterator<Resource>  {
         if(resource instanceof Folder) {
             for(let r of resource.contents) {
                 yield * Folder.iterateResource(r);

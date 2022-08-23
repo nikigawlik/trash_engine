@@ -1,48 +1,40 @@
-import { rectIntersect, rectInside } from "./utils.mjs";
+import { rectIntersect, rectInside } from "./utils";
 
-console.log("ui.mjs loading")
+console.log("ui module loading")
 
-let maxZ = 0;
 
-/**
- * @param {HTMLElement} cardElement 
- */
-export function bringToFront(cardElement) {
-    // this code for non-flexbox maximized stuff
-    // if(window.getComputedStyle(cardElement).position != "absolute") {
-    //     if(cardElement.parentNode) 
-    //         cardElement.parentNode.insertBefore(cardElement, cardElement.parentNode.firstElementChild);
-    // }
-    cardElement.style.zIndex = ++maxZ;
-}
+export function setupDraggable(draggedElement: HTMLElement, params: { boundsElement: HTMLElement; handleQuery: string; snap: number; }) {
+    let boundsElement : HTMLElement, handleQuery: string, snap: number;
+    ({boundsElement, handleQuery, snap} = params);
 
-export function setupDraggable(draggedElement, boundsElement, handleQuery, snap = 16) {
     if(!window) return;
+    
     draggedElement.style.left = `0px`;
     draggedElement.style.top = `0px`;
-    bringToFront(draggedElement);
+    
     draggedElement.onmousedown = function(event) {
         if(window.getComputedStyle(draggedElement).position != "absolute") {
             return;
         }
-        bringToFront(draggedElement);
+        // TODO reimplement
+        // bringToFront(draggedElement);
         
-        if(!event.target.matches(handleQuery)) {
+        if(!event.target || !(event.target instanceof HTMLElement) || !event.target.matches(handleQuery)) {
             return;
         }
 
-        draggedElement.dataset.isDragged = true;
+        draggedElement.dataset.isDragged = "true";
 
         // move to front
-        draggedElement.parentElement.append(draggedElement);
+        draggedElement.parentElement?.append(draggedElement);
 
         let rect = draggedElement.getBoundingClientRect();
         let offsetX = rect.left - event.clientX;
         let offsetY = rect.top - event.clientY;
 
-        let snappy = (v, s) => Math.round(v / s) * s;
+        let snappy = (v: number, s: number) => Math.round(v / s) * s;
 
-        let moveElement = (x, y, snap = .01) => {
+        let moveElement = (x: number, y: number, snap = .01) => {
             // move element to cursor position (respecting offset)
             let areaBounds = boundsElement.getBoundingClientRect();
             // let left = snappy((x) + (offsetX) - areaBounds.left, snap);
@@ -65,14 +57,14 @@ export function setupDraggable(draggedElement, boundsElement, handleQuery, snap 
             // element.dispatchEvent(event);
         };
 
-        let mouseMove = event => moveElement(event.clientX, event.clientY, 1);
+        let mouseMove = (event: MouseEvent) => moveElement(event.clientX, event.clientY, 1);
 
         boundsElement.addEventListener("mousemove", mouseMove);
 
         boundsElement.addEventListener("mouseup", event => {
             boundsElement.removeEventListener("mousemove", mouseMove);
             moveElement(event.clientX, event.clientY, snap);
-            draggedElement.dataset.isDragged = false;
+            draggedElement.dataset.isDragged = "false";
         }, {once: true});
     };
 
@@ -84,18 +76,18 @@ export function setupDraggable(draggedElement, boundsElement, handleQuery, snap 
     }
 }
 
-export function cloneFromTemplate(queryStr, parent, customProcessor=null) {
-    parent = parent || document.querySelector("main");
+// export function cloneFromTemplate(queryStr, parent, customProcessor=null) {
+//     parent = parent || document.querySelector("main");
 
-    let fragment = document.querySelector(queryStr).content.cloneNode(true);
-    let rootElement = fragment.firstElementChild; // by convention we assume there is only one element anyways
-    if(customProcessor) {
-        customProcessor(fragment);
-    }
-    // elementsRegister(fragment, parent);
-    parent.append(fragment);
-    return rootElement;
-}
+//     let fragment = document.querySelector(queryStr).content.cloneNode(true);
+//     let rootElement = fragment.firstElementChild; // by convention we assume there is only one element anyways
+//     if(customProcessor) {
+//         customProcessor(fragment);
+//     }
+//     // elementsRegister(fragment, parent);
+//     parent.append(fragment);
+//     return rootElement;
+// }
 
 if(typeof window !== 'undefined') {
     // @ts-ignore
@@ -106,11 +98,11 @@ if(typeof window !== 'undefined') {
  * @param {HTMLElement} root 
  * @param {HTMLElement} bounds 
  */
-export function elementsRegister(root, bounds) {
+export function elementsRegister(root: HTMLElement, bounds: HTMLElement) {
     // elements that are protected from drag actions, other kinds of default actions
     
     for(let e of root.querySelectorAll(".resource-link")) {
-        e.onclick = evt => {
+        if(e instanceof HTMLElement) e.onclick = evt => {
             evt.preventDefault();
         }
     }
@@ -123,13 +115,10 @@ export function init() {
     // elementsRegister(bounds, document.querySelector("main"));
 }
 
-/**
- *          
- * @param {HTMLElement} elmt 
- */
-export function findWindowPos(elmt) {
+export function findWindowPos(elmt: HTMLElement) {
     let boundsElmt = document.querySelector("main");
     let meRect = elmt.getBoundingClientRect();
+    if(!boundsElmt) return meRect;
     let bounds = boundsElmt.getBoundingClientRect();
     let others = 
         new Array(...boundsElmt.querySelectorAll(".card"))
@@ -139,7 +128,7 @@ export function findWindowPos(elmt) {
 
     let cans = [];
 
-    let freeAt = (rect) => {
+    let freeAt = (rect: DOMRect) => {
         for(let otherRect of others) {
             if(rectIntersect(rect, otherRect)) {
                 return false;
@@ -163,7 +152,7 @@ export function findWindowPos(elmt) {
     cans = cans.filter(x => rectInside(x, bounds));
     if(cans.length == 0) 
         return new DOMRect(bounds.left, bounds.top, meRect.width, meRect.height);
-    let norm = rect => rect.y * 10000 + rect.x;
+    let norm = (rect: DOMRect) => rect.y * 10000 + rect.x;
     let result = cans.reduceRight((a,b) => norm(a) < norm(b)? a : b);
     // console.log(result)
     return result;

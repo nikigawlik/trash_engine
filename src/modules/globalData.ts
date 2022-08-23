@@ -1,14 +1,16 @@
-import { db, requestAsync, STORE_NAME_GLOBAL_DATA } from "./database.mjs";
+import { writable } from "svelte/store";
+import { db, requestAsync, STORE_NAME_GLOBAL_DATA } from "./database";
 
 // ---- save data ----
-export let data = {};
-data.editor = {};
-
-data.editor.settings = {
-    darkMode: false,
-    subFolders: false,
-    openResourcesMaximized: false,
-}
+export const data = writable({
+    editor: {
+        settings: {
+            darkMode: false,
+            subFolders: false,
+            openResourcesMaximized: false,
+        }
+    }
+});
 
 export async function save() {
     
@@ -19,12 +21,12 @@ export async function save() {
     let request = objectStore.put(data);
     request.onsuccess = event => {
         // event.target.result === customer.ssn;
-        console.log(`saved resource ${event.target.result}`);
+        console.log(`saved resource ${request.result}`);
     };
 
     await new Promise((resolve, reject) => { 
-        trans.oncomplete = e => console.log("transaction done") && resolve(e); 
-        trans.onerror = e => reject(e.target.error); 
+        trans.oncomplete = e => { console.log("transaction done"); resolve(e); }; 
+        trans.onerror = e => reject(request.error); 
     });
 }
 
@@ -36,7 +38,7 @@ export async function load() {
     let result = results[results.length - 1];
     
     if(result) {       
-        data = result;
+        data.set(result);
         console.log("- global data loaded")
     } else {
         console.log("!! no save data found")

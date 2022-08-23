@@ -6,13 +6,12 @@ const NAME = "ngine_Database"
 export const STORE_NAME_RESOURCES = "resources";
 export const STORE_NAME_GLOBAL_DATA = "global_data";
 
-let constructors = {};
+let constructors: any = {};
 
 // database object
-/** @type {IDBDatabase} */
-export let db;
+export let db: IDBDatabase;
 
-export async function init(additionalConstructors = []) {
+export async function init(additionalConstructors: Function[] = []) {
     for(let s of additionalConstructors) {
         constructors[s.name] = s;
     }
@@ -24,37 +23,33 @@ export async function init(additionalConstructors = []) {
     
     let request = window.indexedDB.open(NAME, VERSION);
 
-    let upgradePromise = null;
+    let upgradePromise: null | Promise<void> = null;
     
     db = await new Promise((resolve, reject) => {
         request.onsuccess = event => {
-            resolve(event.target.result);     
+            resolve(request.result);     
         }
-        /** @param {IDBVersionChangeEvent} event */
-        request.onupgradeneeded = async event => {
-            upgradePromise = upgrade(event.target.result, event.oldVersion, event.newVersion);
+        request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+            upgradePromise = upgrade(request.result, event.oldVersion, event.newVersion);
             // (this doesn't resolve or reject, if successful it will trigger onsuccess)
         }
         request.onblocked = event => {
             reject("database opening blocked");
         }
         request.onerror = event => {
-            reject("database opening error" + event.target.errorCode);
+            reject("database opening error " + request.error?.code);
         }
     });
 
     if(upgradePromise) await upgradePromise; // wait for this too
 
+    console.log(".");
+
     // let trans = db.transaction([STORE_NAME_RESOURCES, "readonly"]);
 
 }
-/**
- * 
- * @param {IDBDatabase} database 
- * @param {Number} fromVersion 
- * @param {Number} toVersion 
- */
-async function upgrade(database, fromVersion, toVersion) {
+
+async function upgrade(database: IDBDatabase, fromVersion: number, toVersion: number | null) {
     console.log(`Upgrading database: v${fromVersion} --> v${toVersion}`);
     let currentVersion = fromVersion;
     // continuously update
@@ -95,10 +90,10 @@ export async function deleteDatabase() {
         console.log(`try deleting database "${NAME}"...`)
         let request = indexedDB.deleteDatabase(NAME);
         let result = await new Promise((resolve, reject) => { 
-            request.onsuccess = event => { console.log("success"); resolve(event.target.error); } 
-            request.onerror = event => { console.log("error"); reject(event.target.error); } 
-            request.onblocked = event => { console.log("database deletion blocked, will be deleted on reload"); resolve(); }
-            request.onupgradeneeded = () => {console.log("upgrade triggered"); resolve()};
+            request.onsuccess = event => { console.log("success"); resolve(request.error); } 
+            request.onerror = event => { console.log("error"); reject(request.error); } 
+            request.onblocked = event => { resolve("database deletion blocked, will be deleted on reload"); }
+            request.onupgradeneeded = () => { resolve("upgrade triggered")};
         });
         console.log(result);
         location.reload();
@@ -110,11 +105,11 @@ export async function deleteDatabase() {
 
 
 // is used to create clean copy before storing in db
-export async function serialize(obj) {
-    var copy;
+export async function serialize(obj: any | null) {
+    var copy : any;
 
     // function
-    if(typeof obj == "function") {
+    if(typeof obj === "function") {
         return {
             _func: obj.name
         };
@@ -152,8 +147,8 @@ export async function serialize(obj) {
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
-export async function deserialize(obj) {
-    var copy;
+export async function deserialize(obj: any | null) {
+    var copy : any;
 
     // the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return await obj;
@@ -169,7 +164,7 @@ export async function deserialize(obj) {
             canvas.width = img.width;
             canvas.height = img.height;
             let ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
+            if(ctx) ctx.drawImage(img, 0, 0);
 
             return canvas;
         }
@@ -186,7 +181,7 @@ export async function deserialize(obj) {
 
     // object
     if (obj instanceof Object) {
-        if(constructors[obj._func]) {
+        if(obj.func_ && constructors[obj._func]) {
             // reference to a known type/function
             return constructors[obj._func];
         } else {
@@ -211,9 +206,9 @@ export async function deserialize(obj) {
 }
 
 
-export function requestAsync(request) {
+export function requestAsync(request: IDBRequest<any[]>): Promise<any[]> {
     return new Promise((resolve, reject) => { 
-        request.onsuccess = e => resolve(e.target.result); 
-        request.onerror = e => reject(e.target.error); 
+        request.onsuccess = (e): void => resolve(request.result); 
+        request.onerror = (e): void => reject(request.error); 
     })
 }
