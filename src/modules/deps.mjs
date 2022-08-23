@@ -1,8 +1,8 @@
 // import React from "https://unpkg.com/es-react@latest/dev/react.js";
 // import ReactDOM from "https://unpkg.com/es-react@latest/dev/react-dom.js";
 // import PropTypes from "https://unpkg.com/es-react@latest/dev/prop-types.js";
-import htm from "./../htm.mjs";
-
+// import htm from "./../htm.mjs";
+// 
 console.log("deps.mjs loading")
 
 /**
@@ -42,7 +42,8 @@ function createElement(tagName, attrs = {}, ...children) {
  * 
  * @returns {HTMLElement}
  */
-let html = htm.bind(createElement);
+// let html = htm.bind(createElement);
+let html = () => null;
 
 export {
     // React,

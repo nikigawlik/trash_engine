@@ -1,6 +1,6 @@
 
 <script lang="ts">
-import { data } from "src/modules/globalData";
+import { data } from "./../modules/globalData";
 
     let darkMode = $data.editor.settings.darkMode;
     let subFolders = $data.editor.settings.subFolders;

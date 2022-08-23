@@ -1,64 +1,64 @@
 <script lang="ts">
-    // let extra = this.type == "folder"? html`<button>+</button>` : "";
-    let icon = html`<span class="icon">${this.getIconElement()}</span>`; // icon-${this.type} 
+import type Resource from "src/modules/structs/resource";
+    export let resource: Resource;
 
-    /** @type HTMLElement */ let elmt = html`
-        <span draggable="true" class="grabbable">
-            <span class=${`resource-link  resource-${this.type}`}>
-                ${icon}
-                ${this.name} 
-            </span>
-        </span>
-    `;
-
-    // if(extra) {
-    //     extra.addEventListener("click", () => { 
-    //         document.querySelector("main").append(html`<${Card} name=test><p>test card</p><//>`)
-    //     });
-    // }
+    let hover: boolean = false;
     
-    function onclick()  {
-        this.openResource(evt);
+    function onclick(evt: MouseEvent)  {
+        resource.openResource(evt);
     }
 
-    function ondragover()  evt.preventDefault());
-    function ondragenter()  {
+    function ondragover(evt: DragEvent) {
         evt.preventDefault();
-        elmt.classList.add('drag-hover')
+    }  
+    function ondragenter(evt: DragEvent)  {
+        hover = true;
     }
-    function ondragleave()  {
-        evt.preventDefault()
-        elmt.classList.remove('drag-hover')
+    function ondragleave(evt: DragEvent)  {
+        hover = false;
     }
-    function ondragstart()  {
-        evt.dataTransfer.setData('text/uuid', this.uuid);
-        // console.log("src: " + this.uuid)
+    function ondragstart(evt: DragEvent)  {
+        evt.dataTransfer?.setData('text/uuid', resource.uuid);
+        // console.log("src: " + uuid)
     }
-    function ondrop()  { 
+    function ondrop(evt: DragEvent)  { 
         evt.preventDefault() 
-        elmt.classList.remove('drag-hover')
+        hover = false;
 
-        let otherUUID = evt.dataTransfer.getData("text/uuid");
-        // console.log(otherUUID);
-        let topFolder = this.getTopFolder();
-        if(topFolder) {
-            let other = this._resourceManager.findByUUIDInFolder(otherUUID, topFolder.name);
-            if(!other) {
-                console.log(`could not find ${otherUUID} / ${topFolder.name}`)
-            } else if(other.isParentOf(this)) {
-                console.log(`can't move parent into child folder`)
-            } else if(other == this) {
-                console.log(`can't move something into itself`)
-            } else if(this.type == "folder") {
-                this.add(other);
-                this._resourceManager.refresh();
+        let otherUUID = evt.dataTransfer?.getData("text/uuid");
+        if(otherUUID) {
+            // console.log(otherUUID);
+            let topFolder = resource.getTopFolder();
+            const _resourceManager = resource._resourceManager;
+            if(topFolder) {
+                let other = _resourceManager.findByUUIDInFolder(otherUUID, topFolder.name);
+                if(!other) {
+                    console.log(`could not find ${otherUUID} / ${topFolder.name}`)
+                } else if(other.isParentOf(resource)) {
+                    console.log(`can't move parent into child folder`)
+                } else if(other == resource) {
+                    console.log(`can'resource.t move something into itself`)
+                } else if(resource.type == "folder") {
+                    resource.add(other);
+                    // _resourceManager.refresh();
+                } else {
+                    resource._parent?.insert(other, resource);
+                    // _resourceManager.refresh();
+                }
             } else {
-                this._parent.insert(other, this);
-                this._resourceManager.refresh();
+                console.log(`can't move into top folders / detached tree`)
             }
-        } else {
-            console.log(`can't move into top folders / detached tree`)
         }
     }
-    return elmt;
+</script>
+
+
+<span draggable="true" class="grabbable" class:drag-hover={hover}
+
+>
+<span class=${`resource-link  resource-${resource.type}`}>
+    <span class="icon">{resource.getIconElement()}</span>
+    {resource.name} 
+    </span>
 }
+</span>

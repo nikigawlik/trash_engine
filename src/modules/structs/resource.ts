@@ -1,7 +1,8 @@
-import ContextMenuSvelte from "src/components/ContextMenu.svelte";
+import ContextMenuSvelte from "./../../components/ContextMenu.svelte";
 import { cards, CardType } from "../cardManager";
 import type ResourceManager from "../ResourceManager";
 import type Folder from "./folder";
+import { asyncGetTextPopup, asyncYesNoPopup } from "../components";
 
 console.log("resources.mjs loading")
 
@@ -70,10 +71,10 @@ export default class Resource {
                 id: "delete",
                 text: `delete`,
                 callback: async () => {
-                    let confirmed = await asyncYesNoPopup(html`Delete <em>${this.name}</em>?`);
+                    let confirmed = await asyncYesNoPopup(`Delete <em>${this.name}</em>?`); // TODO
         
                     if(confirmed) {   
-                        this.remove();
+                        this.removeSelf();
                         let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
                         if(resourceWindow) resourceWindow.remove();
                         this._resourceManager.refresh();   
@@ -88,9 +89,10 @@ export default class Resource {
                     if(name) {
                         this.name = name;
                         this._resourceManager.refresh();
+                        // TODO
                         // update name on card
-                        let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
-                        resourceWindow.querySelector("h3 .name").innerText = name; // not super elegant, but ok
+                        // let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
+                        // resourceWindow.querySelector("h3 .name").innerText = name; // not super elegant, but ok
                     }
                 }
             }
@@ -102,7 +104,7 @@ export default class Resource {
     }
 
     getIconElement() {
-        return html`<span>❔</span>`;
+        return `<span>❔</span>`;
     }
 
     

@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { html } from "./deps.mjs";
-import { bringToFront, findWindowPos, setupDraggable } from "./ui.mjs";
 
 console.log("components.mjs loading")
 
@@ -38,7 +37,7 @@ export let asyncYesNoPopup = async (question) => {
     return result;
 };
 
-export let asyncGetTextPopup = async (question, defaultText, hasCancel=true) => {
+export let asyncGetTextPopup = async (question, defaultText, hasCancel=true) : Promise<string> => {
     let popupElmt = createBlockingPopup(
         html`
             <p>${question}</p>

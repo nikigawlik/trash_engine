@@ -1,8 +1,7 @@
 
 <script lang="ts">
-import { setupDraggable } from 'src/modules/ui';
-
-    import { createEventDispatcher } from 'svelte';
+import { setupDraggable } from "../modules/ui";
+import { createEventDispatcher } from "svelte";
 
     export let uuid = 'none';
     export let name = 'none';

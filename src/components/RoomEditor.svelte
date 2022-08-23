@@ -1,11 +1,11 @@
 <script lang="ts">
-import { ResourceManager } from "src/modules/ResourceManager";
+import { ResourceManager } from "./../modules/ResourceManager";
 
-import Instance from "src/modules/structs/instance";
+import Instance from "./../modules/structs/instance";
 
-import type Room from "src/modules/structs/room";
-import Sprite from "src/modules/structs/sprite";
-import { rectInside } from "src/modules/utils";
+import type Room from "./../modules/structs/room";
+import Sprite from "./../modules/structs/sprite";
+import { rectInside } from "./../modules/utils";
 
 import { onMount } from "svelte";
     export let self: Room;

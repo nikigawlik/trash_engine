@@ -1,5 +1,5 @@
 <script lang="ts">
-import { cards } from "src/modules/cardManager";
+import { cards } from "./../modules/cardManager";
 import Card from "./Card.svelte";
 
 </script>

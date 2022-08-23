@@ -1,8 +1,11 @@
 <script lang="ts">
-import ResourceManager from "src/modules/ResourceManager";
+import type Folder from "src/modules/structs/folder";
+
+import ResourceManager from "./../modules/ResourceManager";
 import ResourceSubTree from "./ResourceSubTree.svelte";
 
 let root = ResourceManager.resourceManager.root;
+$: folders = (root.contents as Folder[])
 
 </script>
 
@@ -10,9 +13,9 @@ let root = ResourceManager.resourceManager.root;
 
 <div class="scroll-box">
     <ul class=resources>
-        {#each root.contents as x}
+        {#each folders as x}
             <li>
-                <ResourceSubTree resource={x} name={x.name}></ResourceSubTree>
+                <ResourceSubTree folder={x}></ResourceSubTree>
             </li>
         {/each}
     </ul>

@@ -1,22 +1,19 @@
 
 <script lang="ts">
-import Folder from "src/modules/structs/folder";
-import type Resource from "src/modules/structs/resource";
+import Folder from "./../modules/structs/folder";
+import ResourceTreeResource from "./ResourceTreeResource.svelte";
 
 
-    export let resource : Resource;
-    export let name : string;
+    export let folder : Folder;
 </script>
 
 <ul>
-    {#if resource instanceof Folder}
-        {#each resource.contents as childResource}
-            <li>
-                <svelte:self resource={childResource} name={childResource.name}></svelte:self>
-            </li>   
-            
-        {/each}
-    {:else}
-            <ResourceSubTree
-    {/if}
+    {#each folder.contents as childResource}
+    <li>
+        <ResourceTreeResource resource={childResource}></ResourceTreeResource>
+        {#if childResource instanceof Folder}
+            <svelte:self resource={childResource} name={childResource.name}></svelte:self>
+        {/if}
+    </li>   
+    {/each}
 </ul>
