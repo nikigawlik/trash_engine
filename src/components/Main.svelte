@@ -1,20 +1,20 @@
 <script lang="ts">
-import type { SvelteComponent } from "svelte/internal";
+import { onMount } from "svelte/internal";
 
-import { cards, CardType } from "./../modules/cardManager";
-import Card from "./Card.svelte";
+import { cards } from "./../modules/cardManager";
+import ContextMenu,{ currentContextMenu } from "./ContextMenu.svelte";
 
-export function openCard(type: any, allowDuplicate: boolean = true) {
-    
-    // either an existing card or false/undefined
-    let existing = !allowDuplicate && $cards.find(x => x.componentType === type);
-    
-    if(existing) {
-        cards.focus(existing.uuid);
-    } else {   
-        cards.add(type, "");
+    export function openCard(type: any, allowDuplicate: boolean = true) {
+        
+        // either an existing card or false/undefined
+        let existing = !allowDuplicate && $cards.find(x => x.componentType === type);
+        
+        if(existing) {
+            cards.focus(existing.uuid);
+        } else {   
+            cards.add(type, "");
+        }
     }
-}
 
 </script>
 
@@ -22,4 +22,7 @@ export function openCard(type: any, allowDuplicate: boolean = true) {
     {#each $cards as card}
         <svelte:component this={card.componentType} card={card}/>
     {/each}
+    {#if $currentContextMenu}
+        <ContextMenu data={$currentContextMenu}></ContextMenu>
+    {/if}
 </main>

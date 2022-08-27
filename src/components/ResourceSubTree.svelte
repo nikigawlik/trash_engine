@@ -10,7 +10,7 @@ import ResourceTreeResource from "./ResourceTreeResource.svelte";
 <ul>
     {#each folder.contents as childResource}
     <li>
-        <ResourceTreeResource resource={childResource}></ResourceTreeResource>
+        <ResourceTreeResource selfResource={childResource}></ResourceTreeResource>
         {#if childResource instanceof Folder}
             <svelte:self resource={childResource} name={childResource.name}></svelte:self>
         {/if}

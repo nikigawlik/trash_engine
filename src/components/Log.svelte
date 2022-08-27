@@ -31,7 +31,7 @@ import Card from "./Card.svelte";
     // }
 </script>
 
-<Card card={card}>
+<Card card={card} autoFocus={false}>
     <p class="log">
     </p>
 </Card>

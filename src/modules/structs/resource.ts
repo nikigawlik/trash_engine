@@ -6,6 +6,16 @@ import { asyncGetTextPopup, asyncYesNoPopup } from "../components";
 
 console.log("resources.mjs loading")
 
+
+/*
+
+refactor stuff:
+
+this class should not contain editor/ui stuff, but is more like a _struct_ of 
+game relevant data.
+
+*/
+
 export default class Resource {
     name: string;
     type: string;
@@ -51,56 +61,6 @@ export default class Resource {
         this._parent?.remove(this);
     }
 
-    openResource(clickEvent: MouseEvent) {
-        let options = this.getContextMenuOptions();
-        // let contextMenu = createContextMenu(clickEvent, options.map(x => x.text));
-        let c = cards.add(ContextMenuSvelte, "", undefined, CardType.ContextMenu)
-        // TODO callbacks
-
-        // let buttons = contextMenu.querySelectorAll("button");
-        // for(let i = 0; i < buttons.length; i++) {
-        //     buttons[i].onclick = options[i].callback;
-        // }
-    }
-
-    getContextMenuOptions() {
-        return [
-            {
-                id: "open",
-                text: "open",
-                callback: async () => this.openEditorWindow()
-            },
-            {
-                id: "delete",
-                text: `delete`,
-                callback: async () => {
-                    let confirmed = await asyncYesNoPopup(`Delete <em>${this.name}</em>?`); // TODO
-        
-                    if(confirmed) {   
-                        this.removeSelf();
-                        let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
-                        if(resourceWindow) resourceWindow.remove();
-                        this._resourceManager.refresh();   
-                    }
-                }
-            },
-            {
-                id: "rename",
-                text: `rename`,
-                callback: async () => {
-                    let name = await asyncGetTextPopup(`Choose new name:`, this.name);
-                    if(name) {
-                        this.name = name;
-                        this._resourceManager.refresh();
-                        // TODO
-                        // update name on card
-                        // let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
-                        // resourceWindow.querySelector("h3 .name").innerText = name; // not super elegant, but ok
-                    }
-                }
-            }
-        ];
-    }
 
     openEditorWindow() {
         console.log(`no window implemented for ${this.type}`);

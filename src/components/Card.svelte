@@ -13,7 +13,9 @@ import { cards, type CardInstance } from "../modules/cardManager";
     let clientWidth = 200;
     let clientHeight = 200;
     // $: name = `${clientWidth} ${clientHeight}`;
-    
+
+    export let autoFocus = true;
+    let fresh = true;
 
     function closeWindow() {
         cards.remove(card.uuid);
@@ -63,11 +65,18 @@ import { cards, type CardInstance } from "../modules/cardManager";
     onMount(() => {     
         console.log("new card elmt")
 
+        // TODO fix draggable and implement it in this component
         if(elmt) setupDraggable(elmt, {
             boundsElement: document.querySelector("main") as HTMLElement, 
             handleQuery: "h3,h3 *,.inner-card", 
             snap: 1
         });
+
+        if(fresh && elmt) {
+            if(autoFocus) elmt.focus()
+            fresh = false;
+        }
+
     });
     // cards.push(elmt);
 </script>
@@ -78,6 +87,8 @@ data-resource-uuid={uuid}
 bind:this={elmt}
 bind:clientWidth={clientWidth} 
 bind:clientHeight={clientHeight}
+tabindex=-1
+style:z-index={card.zIndex}
 >
     <div class="inner-card">
         <h3>

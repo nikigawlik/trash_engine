@@ -451,6 +451,10 @@ ul.context-menu {
     min-height: 10px;
 }
 
+ul.context-menu li {
+    margin: 0;
+}
+
 ul.context-menu button {
     display: block;
     width: 100%;

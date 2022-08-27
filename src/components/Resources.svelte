@@ -25,7 +25,7 @@ export const windowName = "resources"; // TODO
     <div class="scroll-box">
         <ul class="resources">
             {#each folders as x}
-            <ResourceTreeResource resource={x}></ResourceTreeResource>
+            <ResourceTreeResource selfResource={x}></ResourceTreeResource>
             <li>
                 <ResourceSubTree folder={x}></ResourceSubTree>
             </li>
