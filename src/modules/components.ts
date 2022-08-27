@@ -61,7 +61,7 @@ export let asyncGetTextPopup = async (question, defaultText, hasCancel=true) : P
 
 export let ErrorWindow = (attrs = {line: 0, column: 0, errorName:"error", errorMessage: "..."}) => {
     return html`
-    <${Card} name="an error occured\xa0">
+    <${Card} name="an error occured&nbsp">
         <p class="error-msg">
             <p>at: ${attrs.line}/${attrs.column}</p>
             <p>${attrs.errorName}</p>
@@ -74,7 +74,7 @@ export let ErrorWindow = (attrs = {line: 0, column: 0, errorName:"error", errorM
 
 export let LogWindow = (attrs) => {
     let elmt = html`
-    <${Card} name="log\xa0" class="log">
+    <${Card} name="log&nbsp" class="log">
         
     <//>
     `;

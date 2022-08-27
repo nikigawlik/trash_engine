@@ -1,5 +1,10 @@
-
 <script lang="ts">
+import type { CardInstance } from "../modules/cardManager";
+import Card from "./Card.svelte";
+
+    export let card: CardInstance;
+    $: card.name = "script";
+
     let scriptText: string;
 
     function runScript() {
@@ -43,7 +48,9 @@
 
 </script>
 
-<p><button title="run" class="play">▶</button></p>
-<textarea cols="40" rows="10" bind:value={scriptText}></textarea>
+<Card {card}>
+    <p><button title="run" class="play">▶</button></p>
+    <textarea cols="40" rows="10" bind:value={scriptText}></textarea>
+</Card>
 
 

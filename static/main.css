@@ -15,7 +15,7 @@ html {
 }
 
 /* light mode */
-html {
+body {
     --bg-color: #fdfdfd;
     --main-color: #111;
     --corner-image: url("/engineAssets/corners.png");
@@ -26,7 +26,7 @@ html {
 }
 
 /* dark mode */
-html[data-dark="true"] {
+body.dark {
     --bg-color: #222;
     --main-color: #ccc;
     --corner-image: url("/engineAssets/corners_inverted.png");

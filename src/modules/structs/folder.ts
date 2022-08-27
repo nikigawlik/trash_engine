@@ -1,4 +1,5 @@
-import type { ResourceManager } from "../ResourceManager.js";
+import { asyncGetTextPopup } from "../components.js";
+import type ResourceManager from "../ResourceManager.js";
 import { data } from "./../globalData";
 import Resource from "./resource";
 
@@ -6,7 +7,7 @@ export default class Folder extends Resource {
     contents: Resource[]
     resourceType: typeof Resource | null
     
-    constructor(name = "folder", resourceManager: ResourceManager|null = null, contents: Resource[] = [], resourceType: (typeof Resource)|null = null) {
+    constructor(name = "folder", resourceManager: ResourceManager, contents: Resource[] = [], resourceType: (typeof Resource)|null = null) {
         super(name, resourceManager);
         this.contents = [];
         for (let x of contents) {
@@ -21,7 +22,7 @@ export default class Folder extends Resource {
     getContextMenuOptions() {
         let defaultOptions = super.getContextMenuOptions();
 
-        const resourceConstructor = this.getTopFolder().resourceType;
+        const resourceConstructor = this.getTopFolder()?.resourceType;
         const resourceName = resourceConstructor?.name.toLowerCase();
         let options = resourceConstructor? [
             {
@@ -30,8 +31,7 @@ export default class Folder extends Resource {
                 callback: async () => {
                     let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
                     if(name) {    
-                        let newResource = new resourceConstructor();
-                        newResource.name = name;
+                        let newResource = new resourceConstructor(name, this._resourceManager);
                         this.add(newResource);
                         this._resourceManager?.refresh();
                         newResource.openEditorWindow(); // sus
@@ -39,14 +39,14 @@ export default class Folder extends Resource {
                 }
             },
         ] : [];
-        if(data.editor.settings.subFolders) {
+        if(data.get().editor.settings.subFolders) {
             options.push({
                 id: "new_folder",
                 text: "new folder", 
                 callback: async () => {
                     let name = await asyncGetTextPopup(`Name of the folder:`, `unnamed folder`);
                     if(name) {
-                        let newFolder = new Folder();
+                        let newFolder = new Folder(undefined, this._resourceManager);
                         newFolder.name = name;
                         this.add(newFolder);
                         this._resourceManager.refresh();
@@ -56,8 +56,8 @@ export default class Folder extends Resource {
         }
         if (!this.isTopFolder()) {
             options.push(
-                defaultOptions.find(x => x.id == "rename"),
-                defaultOptions.find(x => x.id == "delete"),
+                defaultOptions.find(x => x.id == "rename")!, // TODO bad use of "!"" ?
+                defaultOptions.find(x => x.id == "delete")!,
             );
         }
 
@@ -65,10 +65,10 @@ export default class Folder extends Resource {
     }
 
     getIconElement() {
-        return html`<span>📁</span>`;
+        return `📁`;
     }
 
-    add(resource) {
+    add(resource: Resource) {
         if (resource._parent)
             resource._parent.remove(resource);
         this.contents.push(resource);
@@ -76,10 +76,10 @@ export default class Folder extends Resource {
         resource._resourceManager = this._resourceManager;
     }
 
-    insert(resource, beforeResource) {
+    insert(resource: Resource, beforeResource: Resource) {
         let index = this.contents.indexOf(beforeResource);
         if (index >= 0) {
-            resource._parent.remove(resource);
+            resource.removeSelf();
             this.contents.splice(index, 0, resource);
             resource._parent = this;
             return true;

@@ -11,6 +11,9 @@ export function setupDraggable(draggedElement: HTMLElement, params: { boundsElem
     
     draggedElement.style.left = `0px`;
     draggedElement.style.top = `0px`;
+
+    draggedElement.style.position = 'absolute';
+    console.log("draggable!")
     
     draggedElement.onmousedown = function(event) {
         if(window.getComputedStyle(draggedElement).position != "absolute") {
@@ -91,7 +94,7 @@ export function setupDraggable(draggedElement: HTMLElement, params: { boundsElem
 
 if(typeof window !== 'undefined') {
     // @ts-ignore
-    window.cloneFromTemplate = cloneFromTemplate;
+    // window.cloneFromTemplate = cloneFromTemplate;
 } 
 
 /**

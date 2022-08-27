@@ -54,11 +54,16 @@ import type Resource from "src/modules/structs/resource";
 
 
 <span draggable="true" class="grabbable" class:drag-hover={hover}
-
+{onclick}
+{ondragover}
+{ondragenter}
+{ondragleave}
+{ondragstart}
+{ondrop}
 >
-<span class=${`resource-link  resource-${resource.type}`}>
+
+<span class={`resource-link  resource-${resource.type}`}>
     <span class="icon">{resource.getIconElement()}</span>
     {resource.name} 
     </span>
-}
 </span>

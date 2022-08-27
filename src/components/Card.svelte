@@ -2,29 +2,29 @@
 <script lang="ts">
 import { setupDraggable } from "../modules/ui";
 import { createEventDispatcher } from "svelte";
+import { onMount } from "svelte";
+import { cards, type CardInstance } from "../modules/cardManager";
 
-    export let uuid = 'none';
-    export let name = 'none';
+    export let card: CardInstance;
+    $: uuid = card.uuid;
+    $: name = card.name;
+    $: windowType = card.className || "";
 
-	const dispatch = createEventDispatcher();
+    let clientWidth = 200;
+    let clientHeight = 200;
+    // $: name = `${clientWidth} ${clientHeight}`;
+    
 
     function closeWindow() {
-        // cards = cards.filter(x => x != elmt);
-        // elmt.remove();
-		dispatch('close', {
-			uuid: uuid,
-		});
+        cards.remove(card.uuid);
     };
 
     function focusWindow() {
-		dispatch('focus', {
-			uuid: uuid,
-		});
+        cards.focus(card.uuid);
     }
 
     // click
     let memory: { width: any; height: any; left: any; top: any; } | null = null;
-    let maxWindowBut : HTMLButtonElement;
     let elmt : HTMLElement | null = null;
 
     let isMaximized: boolean = false;
@@ -59,25 +59,31 @@ import { createEventDispatcher } from "svelte";
         }
     };
 
-    if(elmt) setupDraggable(elmt, {
-        boundsElement: document.querySelector("main") as HTMLElement, 
-        handleQuery: "h3,h3 *,.inner-card", 
-        snap: 1
+
+    onMount(() => {     
+        console.log("new card elmt")
+
+        if(elmt) setupDraggable(elmt, {
+            boundsElement: document.querySelector("main") as HTMLElement, 
+            handleQuery: "h3,h3 *,.inner-card", 
+            snap: 1
+        });
     });
     // cards.push(elmt);
 </script>
 
 <section 
-class="card" 
+class={`card ${windowType || ''}`} 
 data-resource-uuid={uuid} 
 bind:this={elmt}
-
+bind:clientWidth={clientWidth} 
+bind:clientHeight={clientHeight}
 >
     <div class="inner-card">
         <h3>
             <span class="name">{name}</span> 
             <span>
-                <button class="maxWindow" bind:this={maxWindowBut} on:click={maxWindow}>
+                <button class="maxWindow" on:click={maxWindow}>
                     { isMaximized? "❐" : "☐" }
                 </button>
                 <button class="closeWindow" on:click={closeWindow}>🞩</button>

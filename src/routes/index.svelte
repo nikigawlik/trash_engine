@@ -5,27 +5,27 @@
 </svelte:head>
 
 <script lang="ts">
-import Main from "./../components/Main.svelte";
 import { onMount } from "svelte";
+import Resources from "../components/Resources.svelte";
+import ResourceManager from "../modules/ResourceManager";
+import Log from "./../components/Log.svelte";
+import Main from "./../components/Main.svelte";
+import ScriptEditor from "./../components/ScriptEditor.svelte";
+import Settings from "./../components/Settings.svelte";
+import { asyncYesNoPopup } from "./../modules/components";
 import * as database from "./../modules/database";
-import Sprite from "./../modules/structs/sprite";
-import Room from "./../modules/structs/room";
+import * as globalData from "./../modules/globalData";
 import Folder from "./../modules/structs/folder";
 import Instance from "./../modules/structs/instance";
-import * as globalData from "./../modules/globalData";
-import ResourceManager from "./../modules/ResourceManager";
+import Room from "./../modules/structs/room";
+import Sprite,* as sprite_editor from "./../modules/structs/sprite";
 import * as ui from "./../modules/ui";
-import * as sprite_editor from "./../modules/structs/sprite"; 
-import { asyncYesNoPopup } from "./../modules/components";
-import ScriptEditor from "./../components/ScriptEditor.svelte";
-import Log from "./../components/Log.svelte";
-import Settings from "./../components/Settings.svelte";
+import { data } from "../modules/globalData";
+import { browser } from '$app/env'; 
 
     let main: Main | null;
 
-    function openResourceManager() {
-        // TODO STUB
-    }
+    $: if(browser) $data.editor.settings.darkMode? document.body.classList.add("dark") : document.body.classList.remove("dark");
 
     function save() {
         // TODO STUB
@@ -42,7 +42,6 @@ import Settings from "./../components/Settings.svelte";
 
             // let resWindow = html`<${ResourceWindow} resourceManager=${resourceManager}><//>`;
             await ResourceManager.init();
-            openResourceManager(); 
         }
         await ui.init();
         await sprite_editor.init();
@@ -53,19 +52,17 @@ import Settings from "./../components/Settings.svelte";
     })
 </script>
 
-<body>    
-    <header>
-        <div><img src="icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
-        <ul class="topbar">
-            <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
-            <li><button on:click={() => main?.openCard(ScriptEditor)}>new script</button></li>
-            <li><button on:click={() => main?.openCard(Log)}>new log</button></li>
-            <li><button on:click={() => main?.openCard(Settings)}>settings</button></li>
-            <li><button on:click={() => openResourceManager()}>resources</button></li>
-            <li><button on:click={() => save()}>save</button></li>
-            <li><button on:click={() => location.reload()}>load</button></li>
-            <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>
-        </ul>
-    </header>
-    <Main bind:this={main}></Main>
-</body>
+<header>
+    <div><img src="icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
+    <ul class="topbar">
+        <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
+        <li><button on:click={() => main?.openCard(ScriptEditor)}>new script</button></li>
+        <li><button on:click={() => main?.openCard(Log)}>new log</button></li>
+        <li><button on:click={() => main?.openCard(Settings)}>settings</button></li>
+        <li><button on:click={() => main?.openCard(Resources, false)}>resources</button></li>
+        <li><button on:click={() => save()}>save</button></li>
+        <li><button on:click={() => location.reload()}>load</button></li>
+        <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>
+    </ul>
+</header>
+<Main bind:this={main}></Main>

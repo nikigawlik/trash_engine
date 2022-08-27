@@ -1,5 +1,5 @@
 import { bringToFront, cards } from "../cardManager";
-import type { ResourceManager } from "../ResourceManager";
+import type ResourceManager from "../ResourceManager";
 import type Instance from "./instance";
 import Resource from "./resource";
 

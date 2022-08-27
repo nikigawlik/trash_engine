@@ -1,4 +1,4 @@
-import { ResourceManager } from "../ResourceManager";
+import ResourceManager from "../ResourceManager";
 import Sprite from "./sprite";
 
 export default class Instance {

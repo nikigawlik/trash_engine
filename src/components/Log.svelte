@@ -1,4 +1,11 @@
 <script lang="ts">
+import type { CardInstance } from "../modules/cardManager";
+import Card from "./Card.svelte";
+
+
+    export let card: CardInstance;
+    $: card.name = "log";
+
     // TODO implement
 
     // let loggers = [];
@@ -24,5 +31,7 @@
     // }
 </script>
 
-<p class="log">
-</p>
+<Card card={card}>
+    <p class="log">
+    </p>
+</Card>

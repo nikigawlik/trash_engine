@@ -1,4 +1,4 @@
-import { ResourceManager } from "../resource_manager.mjs";
+import ResourceManager from "../resource_manager.mjs";
 
 
 let gameData = {};

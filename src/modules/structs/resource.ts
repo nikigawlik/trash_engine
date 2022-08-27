@@ -22,8 +22,11 @@ export default class Resource {
         this._icon = null;
     }
 
-    getTopFolder() {
-        let current: Resource = this;
+    getTopFolder() : Folder|null {
+        if(!this._parent) 
+            return null;
+        
+        let current: Folder = this._parent;
         while(current._parent && current._parent != this._resourceManager.root) {
             current = current._parent;
         }
@@ -51,7 +54,7 @@ export default class Resource {
     openResource(clickEvent: MouseEvent) {
         let options = this.getContextMenuOptions();
         // let contextMenu = createContextMenu(clickEvent, options.map(x => x.text));
-        let c = cards.add(ContextMenuSvelte, undefined, CardType.ContextMenu)
+        let c = cards.add(ContextMenuSvelte, "", undefined, CardType.ContextMenu)
         // TODO callbacks
 
         // let buttons = contextMenu.querySelectorAll("button");
@@ -65,7 +68,7 @@ export default class Resource {
             {
                 id: "open",
                 text: "open",
-                callback: () => this.openEditorWindow()
+                callback: async () => this.openEditorWindow()
             },
             {
                 id: "delete",
@@ -103,7 +106,7 @@ export default class Resource {
         console.log(`no window implemented for ${this.type}`);
     }
 
-    getIconElement() {
+    getIconElement(): string|HTMLElement {
         return `<span>❔</span>`;
     }
 

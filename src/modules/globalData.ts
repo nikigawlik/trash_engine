@@ -2,7 +2,18 @@ import { writable } from "svelte/store";
 import { db, requestAsync, STORE_NAME_GLOBAL_DATA } from "./database";
 
 // ---- save data ----
-export const data = writable({
+
+interface GlobalSettings {
+    editor: {
+        settings: {
+            darkMode: boolean,
+            subFolders: boolean,
+            openResourcesMaximized: boolean,
+        }
+    }
+}
+
+const { subscribe, set, update } = writable({
     editor: {
         settings: {
             darkMode: false,
@@ -10,7 +21,18 @@ export const data = writable({
             openResourcesMaximized: false,
         }
     }
-});
+} as GlobalSettings);
+
+let _value: GlobalSettings;
+subscribe(v => _value = v); // TODO evil code?
+
+export const data = {
+    subscribe,
+    update,
+    set,
+    get: () => _value,
+}
+
 
 export async function save() {
     

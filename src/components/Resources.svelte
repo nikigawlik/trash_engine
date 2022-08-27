@@ -1,22 +1,35 @@
 <script lang="ts">
-import type Folder from "src/modules/structs/folder";
+import type { CardInstance } from "../modules/cardManager";
+
+import type Folder from "../modules/structs/folder";
 
 import ResourceManager from "./../modules/ResourceManager";
+import Card from "./Card.svelte";
 import ResourceSubTree from "./ResourceSubTree.svelte";
+import ResourceTreeResource from "./ResourceTreeResource.svelte";
+
+export let card: CardInstance;
+$: card.name = "resources";
+$: card.className = "resources";
 
 let root = ResourceManager.resourceManager.root;
 $: folders = (root.contents as Folder[])
 
+export const windowName = "resources"; // TODO
+
 </script>
 
+<!-- {@debug folders} -->
 
-
-<div class="scroll-box">
-    <ul class=resources>
-        {#each folders as x}
+<Card {card}>
+    <div class="scroll-box">
+        <ul class="resources">
+            {#each folders as x}
+            <ResourceTreeResource resource={x}></ResourceTreeResource>
             <li>
                 <ResourceSubTree folder={x}></ResourceSubTree>
             </li>
-        {/each}
-    </ul>
-</div>
+            {/each}
+        </ul>
+    </div>
+</Card>

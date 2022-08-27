@@ -8,12 +8,13 @@ export enum CardType {
     ContextMenu,
 }
 
-interface CardInstance {
+export interface CardInstance {
+    cardType: CardType
+    componentType: (typeof SvelteComponent)
     uuid: string
-    content: (typeof SvelteComponent)
-    zIndex: number
     name: string
-    type: CardType
+    zIndex: number
+    className?: string
 }
 
 let maxZ = 0;
@@ -26,14 +27,14 @@ subscribe(v => _value = v); // TODO evil code?
 
 export let cards = {
     subscribe,
-    add: (content: typeof SvelteComponent, uuid?: string, type: CardType = CardType.Window) => update(store => {
+    add: (content: typeof SvelteComponent, name: string, uuid?: string, type: CardType = CardType.Window) => update(store => {
         if(!store.find(x => x.uuid === uuid)) {
             store.push({
                 uuid: uuid || crypto.randomUUID(),
-                content: content,
+                componentType: content,
                 zIndex: ++maxZ,
-                name: content.name, // TODO
-                type: type,
+                name: name,
+                cardType: type,
             });
         }
         return store;

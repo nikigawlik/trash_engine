@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ResourceManager } from "./../modules/ResourceManager";
+import ResourceManager from "./../modules/ResourceManager";
 
 import Instance from "./../modules/structs/instance";
 
@@ -8,7 +8,14 @@ import Sprite from "./../modules/structs/sprite";
 import { rectInside } from "./../modules/utils";
 
 import { onMount } from "svelte";
+import type { CardInstance } from "../modules/cardManager";
+import Card from "./Card.svelte";
+    
+    export let card: CardInstance;
+
     export let self: Room;
+    $: card.name = self.name;
+
 
     let icon = (spr: Sprite) => {
         let canvas = spr.getCopy();
@@ -16,8 +23,9 @@ import { onMount } from "svelte";
         canvas.style.height = 50 + "px";
         return canvas;
     }
+
     // TODO reactive
-    let sprites = self._resourceManager.getAllOfResourceType(Sprite) as Sprite[];
+    let sprites = self._resourceManager.getAllOfResourceType(Sprite) as unknown as Sprite[];
 
     let canvas: HTMLCanvasElement;
     let currentSprite: Sprite = sprites[0];
@@ -107,41 +115,43 @@ import { onMount } from "svelte";
     
 </script>
 
-<div class="horizontal">    
-    <div class="left-rider">
-        <h4>sprites</h4>
-        <div class="sprite-select scroll-box">
-            {#each sprites as spr}
-                <button 
-                data-uuid={spr.uuid} 
-                data-selected={currentSprite == spr}
-                on:click={() => currentSprite = spr}
-                >
-                    <h4>{spr.name}</h4> 
-                    {icon(spr)} 
-                </button>
-            {/each}
+<Card {card}>
+    <div class="horizontal">    
+        <div class="left-rider">
+            <h4>sprites</h4>
+            <div class="sprite-select scroll-box">
+                {#each sprites as spr}
+                    <button 
+                    data-uuid={spr.uuid} 
+                    data-selected={currentSprite == spr}
+                    on:click={() => currentSprite = spr}
+                    >
+                        <h4>{spr.name}</h4> 
+                        {icon(spr)} 
+                    </button>
+                {/each}
+            </div>
+        </div>
+        <div class="room-edit">
+            <div class="room-top-bar">
+                <!-- <label for="view_mode">view</label>
+                <label><input disabled type="radio" name="view_mode" value="2d" checked />  2D </label>
+                <label><input disabled type="radio" name="view_mode" value="3d" /> 3D </label>
+                <span class="spacer" /> -->
+                <label><input type="checkbox" name="grid_enabled" bind:checked={gridEnabled}/> grid </label>
+                <label for="grid_width" hidden> width </label> 
+                <input name="grid_width" type="number" bind:value={gridWidth} />
+                x
+                <label for="grid_height" hidden> height </label> 
+                <input name="grid_height" type="number" bind:value={gridHeight} />
+                <span class="spacer" />
+                <label for="snap_mode">snap</label>
+                <label><input type="radio" name="snap_mode" value="center" checked bind:group={snapMode} />  center </label>
+                <label><input type="radio" name="snap_mode" value="corner" bind:group={snapMode} /> corner </label>
+            </div>
+            <div class="canvas-container">
+                <canvas width={self.width} height={self.height} class="room-canvas" bind:this={canvas}/>
+            </div>
         </div>
     </div>
-    <div class="room-edit">
-        <div class="room-top-bar">
-            <!-- <label for="view_mode">view</label>
-            <label><input disabled type="radio" name="view_mode" value="2d" checked />  2D </label>
-            <label><input disabled type="radio" name="view_mode" value="3d" /> 3D </label>
-            <span class="spacer" /> -->
-            <label><input type="checkbox" name="grid_enabled" bind:checked={gridEnabled}/> grid </label>
-            <label for="grid_width" hidden> width </label> 
-            <input name="grid_width" type="number" bind:value={gridWidth} />
-            x
-            <label for="grid_height" hidden> height </label> 
-            <input name="grid_height" type="number" bind:value={gridHeight} />
-            <span class="spacer" />
-            <label for="snap_mode">snap</label>
-            <label><input type="radio" name="snap_mode" value="center" checked bind:group={snapMode} />  center </label>
-            <label><input type="radio" name="snap_mode" value="corner" bind:group={snapMode} /> corner </label>
-        </div>
-        <div class="canvas-container">
-            <canvas width={self.width} height={self.height} class="room-canvas" bind:this={canvas}/>
-        </div>
-    </div>
-</div>
+</Card>
