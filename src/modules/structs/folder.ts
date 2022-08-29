@@ -1,6 +1,4 @@
-import { asyncGetTextPopup } from "../components.js";
 import type ResourceManager from "../ResourceManager.js";
-import { data } from "./../globalData";
 import Resource from "./resource";
 
 export default class Folder extends Resource {
@@ -18,51 +16,6 @@ export default class Folder extends Resource {
 
     // openResource(clickEvent) {
     // }
-
-    getContextMenuOptions() {
-        let defaultOptions = super.getContextMenuOptions();
-
-        const resourceConstructor = this.getTopFolder()?.resourceType;
-        const resourceName = resourceConstructor?.name.toLowerCase();
-        let options = resourceConstructor? [
-            {
-                id: "new_resource",
-                text: `new ${resourceName}`, 
-                callback: async () => {
-                    let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
-                    if(name) {    
-                        let newResource = new resourceConstructor(name, this._resourceManager);
-                        this.add(newResource);
-                        this._resourceManager?.refresh();
-                        newResource.openEditorWindow(); // sus
-                    }
-                }
-            },
-        ] : [];
-        if(data.get().editor.settings.subFolders) {
-            options.push({
-                id: "new_folder",
-                text: "new folder", 
-                callback: async () => {
-                    let name = await asyncGetTextPopup(`Name of the folder:`, `unnamed folder`);
-                    if(name) {
-                        let newFolder = new Folder(undefined, this._resourceManager);
-                        newFolder.name = name;
-                        this.add(newFolder);
-                        this._resourceManager.refresh();
-                    }
-                }
-            });
-        }
-        if (!this.isTopFolder()) {
-            options.push(
-                defaultOptions.find(x => x.id == "rename")!, // TODO bad use of "!"" ?
-                defaultOptions.find(x => x.id == "delete")!,
-            );
-        }
-
-        return options;
-    }
 
     getIconElement() {
         return `📁`;

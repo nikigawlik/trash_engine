@@ -1,5 +1,5 @@
 <script lang="ts">
-import ResourceManager from "./../modules/ResourceManager";
+import ResourceManager, { resourceManager } from "./../modules/ResourceManager";
 
 import Instance from "./../modules/structs/instance";
 
@@ -10,10 +10,12 @@ import { rectInside } from "./../modules/utils";
 import { onMount } from "svelte";
 import type { CardInstance } from "../modules/cardManager";
 import Card from "./Card.svelte";
+import { data } from "../modules/globalData";
     
     export let card: CardInstance;
 
-    export let self: Room;
+    console.log(`open room ${card.uuid}`);
+    let self: Room = resourceManager.get()?.findByUUID(card.uuid) as Room;
     $: card.name = self.name;
 
 
@@ -112,10 +114,10 @@ import Card from "./Card.svelte";
         };
 
     })
-    
+
 </script>
 
-<Card {card}>
+<Card {card} isMaximized={$data.editor.settings.openResourcesMaximized}>
     <div class="horizontal">    
         <div class="left-rider">
             <h4>sprites</h4>

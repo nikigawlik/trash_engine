@@ -28,6 +28,7 @@ subscribe(v => _value = v); // TODO evil code?
 export let cards = {
     subscribe,
     add: (content: typeof SvelteComponent, name: string, uuid?: string, type: CardType = CardType.Window) => update(store => {
+        console.log(`added ${uuid}`)
         if(!store.find(x => x.uuid === uuid)) {
             store.push({
                 uuid: uuid || crypto.randomUUID(),
@@ -53,4 +54,18 @@ export let cards = {
 
 export function bringToFront(card: CardInstance) {
     card.zIndex = ++maxZ;
+}
+
+export function openCard(type: any, allowDuplicate: boolean = true, uuid?: string) {
+        
+    // either an existing card or false/undefined
+    let existing = !allowDuplicate && cards.get().find(x => x.componentType === type);
+    let existingUUID = !!uuid && cards.get().find(x => x.uuid == uuid)
+    existing ||= existingUUID;
+
+    if(existing) {
+        cards.focus(existing.uuid);
+    } else {
+        cards.add(type, "", uuid);
+    }
 }

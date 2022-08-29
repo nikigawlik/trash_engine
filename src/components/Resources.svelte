@@ -3,7 +3,7 @@ import type { CardInstance } from "../modules/cardManager";
 
 import type Folder from "../modules/structs/folder";
 
-import ResourceManager from "./../modules/ResourceManager";
+import ResourceManager, { resourceManager } from "./../modules/ResourceManager";
 import Card from "./Card.svelte";
 import ResourceSubTree from "./ResourceSubTree.svelte";
 import ResourceTreeResource from "./ResourceTreeResource.svelte";
@@ -12,10 +12,8 @@ export let card: CardInstance;
 $: card.name = "resources";
 $: card.className = "resources";
 
-let root = ResourceManager.resourceManager.root;
-$: folders = (root.contents as Folder[])
-
-export const windowName = "resources"; // TODO
+// let root = resourceManager.get()?.root;
+$: folders = ($resourceManager?.root.contents || []) as Folder[] 
 
 </script>
 

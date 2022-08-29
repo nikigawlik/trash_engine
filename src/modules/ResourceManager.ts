@@ -1,3 +1,4 @@
+import { writable, type Writable } from "svelte/store";
 import { db, deserialize, requestAsync, serialize, STORE_NAME_RESOURCES } from "./database";
 import Folder from "./structs/folder";
 import Resource from "./structs/resource";
@@ -6,12 +7,21 @@ import Sprite from "./structs/sprite";
 
 console.log("resource_manager.mjs loading")
 
+let {subscribe, set, update } = writable(null) as Writable<ResourceManager|null>;
+let _value: ResourceManager|null;
+subscribe(x => _value = x);
+
+export let resourceManager = {
+    subscribe,
+    get: () => _value,
+}
 // /** @type {ResourceManager} */ export let resourceManager;
 
 export default class ResourceManager {
     static resourceManager: ResourceManager;
     root: Folder;
     constructor() {
+        set(this);
         this.root = new Folder("root", this, 
             [
                 new Folder("sprites", this, [], Sprite),
@@ -72,6 +82,7 @@ export default class ResourceManager {
         // this.resourceWindowElmt.querySelector("div.scroll-box")
         //     .append(resourceList(this.root.contents));
         // elementsRegister(this.resourceWindowElmt.querySelector("ul.resources"));
+        update(x => x);
     }
 
     async save() {

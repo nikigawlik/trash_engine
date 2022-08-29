@@ -1,28 +1,20 @@
 <script lang="ts">
-import { onMount } from "svelte/internal";
+import { blockingPopup, PromptType } from "../modules/ui";
 
 import { cards } from "./../modules/cardManager";
-import ContextMenu,{ currentContextMenu } from "./ContextMenu.svelte";
-
-    export function openCard(type: any, allowDuplicate: boolean = true) {
-        
-        // either an existing card or false/undefined
-        let existing = !allowDuplicate && $cards.find(x => x.componentType === type);
-        
-        if(existing) {
-            cards.focus(existing.uuid);
-        } else {   
-            cards.add(type, "");
-        }
-    }
-
+import BlockingPopUp from "./BlockingPopUp.svelte";
+import GetTextPopUp from "./GetTextPopUp.svelte";
 </script>
 
 <main>
     {#each $cards as card}
         <svelte:component this={card.componentType} card={card}/>
     {/each}
-    {#if $currentContextMenu}
-        <ContextMenu data={$currentContextMenu}></ContextMenu>
+    {#if $blockingPopup}
+        {#if $blockingPopup.promptType == PromptType.Text}
+            <GetTextPopUp bind:prompt={$blockingPopup}></GetTextPopUp>
+        {:else}
+            <BlockingPopUp bind:prompt={$blockingPopup}></BlockingPopUp>
+        {/if}
     {/if}
 </main>

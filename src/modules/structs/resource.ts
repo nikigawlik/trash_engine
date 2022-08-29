@@ -1,8 +1,5 @@
-import ContextMenuSvelte from "./../../components/ContextMenu.svelte";
-import { cards, CardType } from "../cardManager";
 import type ResourceManager from "../ResourceManager";
-import type Folder from "./folder";
-import { asyncGetTextPopup, asyncYesNoPopup } from "../components";
+import Folder from "./folder";
 
 console.log("resources.mjs loading")
 
@@ -36,7 +33,7 @@ export default class Resource {
         if(!this._parent) 
             return null;
         
-        let current: Folder = this._parent;
+        let current: Folder = this instanceof Folder ? this : this._parent;
         while(current._parent && current._parent != this._resourceManager.root) {
             current = current._parent;
         }

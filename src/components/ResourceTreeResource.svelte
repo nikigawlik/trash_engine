@@ -1,8 +1,12 @@
 <script lang="ts">
 import type Resource from "src/modules/structs/resource";
-import { asyncGetTextPopup,asyncYesNoPopup } from "../modules/components";
+import { asyncGetTextPopup } from "../modules/ui";
 import ContextMenu from "./ContextMenu.svelte";
 import type { ContextMenuData } from "./ContextMenu.svelte";
+import { asyncYesNoPopup } from "../modules/ui";
+import Folder from "../modules/structs/folder";
+import { data } from "../modules/globalData";
+import { onMount } from "svelte";
 // import { currentContextMenu } from "./ContextMenu.svelte";
     export let selfResource: Resource;
 
@@ -12,7 +16,6 @@ import type { ContextMenuData } from "./ContextMenu.svelte";
 
     function openContextMenu(clickEvent: MouseEvent, resource: Resource) {
         let options = getContextMenuOptions(resource);
-        console.log(`${clickEvent.clientX} ${clickEvent.clientY}`)
 
         currentContextMenu = {
             title: "",
@@ -25,7 +28,7 @@ import type { ContextMenuData } from "./ContextMenu.svelte";
     }
     
     function getContextMenuOptions(resource: Resource) {
-        return [
+        let defaultOptions = [
             {
                 id: "open",
                 text: "open",
@@ -35,7 +38,7 @@ import type { ContextMenuData } from "./ContextMenu.svelte";
                 id: "delete",
                 text: `delete`,
                 callback: async () => {
-                    let confirmed = await asyncYesNoPopup(`Delete <em>${resource.name}</em>?`); // TODO
+                    let confirmed = await asyncYesNoPopup(`Delete ${resource.name}?`); // TODO
         
                     if(confirmed) {   
                         resource.removeSelf();
@@ -55,16 +58,64 @@ import type { ContextMenuData } from "./ContextMenu.svelte";
                         resource._resourceManager.refresh();
                         // TODO
                         // update name on card
-                        // let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${this.uuid}"]`);
+                        // let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${resource.uuid}"]`);
                         // resourceWindow.querySelector("h3 .name").innerText = name; // not super elegant, but ok
                     }
                 }
             }
         ];
+
+        let options;
+
+        if(resource instanceof Folder) {
+            const resourceConstructor = resource.getTopFolder()?.resourceType;
+            const resourceName = resourceConstructor?.name.toLowerCase();
+            options = resourceConstructor? [
+                {
+                    id: "new_resource",
+                    text: `new ${resourceName}`, 
+                    callback: async () => {
+                        let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
+                        if(name) {    
+                            let newResource = new resourceConstructor(name, resource._resourceManager);
+                            resource.add(newResource);
+                            resource._resourceManager?.refresh();
+                            newResource.openEditorWindow(); // sus
+                        }
+                    }
+                },
+            ] : [];
+            if(data.get().editor.settings.subFolders) {
+                options.push({
+                    id: "new_folder",
+                    text: "new folder", 
+                    callback: async () => {
+                        let name = await asyncGetTextPopup(`Name of the folder:`, `unnamed folder`);
+                        if(name) {
+                            let newFolder = new Folder(undefined, resource._resourceManager);
+                            newFolder.name = name;
+                            resource.add(newFolder);
+                            resource._resourceManager.refresh();
+                        }
+                    }
+                });
+            }
+            if (!resource.isTopFolder()) {
+                options.push(
+                    defaultOptions.find(x => x.id == "rename")!, // TODO bad use of "!"" ?
+                    defaultOptions.find(x => x.id == "delete")!,
+                );
+            }
+        } else {
+            options = defaultOptions;
+        }
+        
+        
+        
+        return options;
     }
     
     function onclick(evt: MouseEvent)  {
-        console.log("click")
         openContextMenu(evt, selfResource);
     }
 
@@ -110,6 +161,12 @@ import type { ContextMenuData } from "./ContextMenu.svelte";
             }
         }
     }
+
+    let iconContainer: HTMLElement;
+    onMount(() => {
+        let elmt = selfResource.getIconElement();
+        iconContainer.append(elmt);
+    });
 </script>
 
 
@@ -125,7 +182,7 @@ on:drop={ondrop}
     <ContextMenu bind:data={currentContextMenu}></ContextMenu>
     {/if}
     <span class={`resource-link  resource-${selfResource.type}`}>
-        <span class="icon">{selfResource.getIconElement()}</span>
+        <span class="icon" bind:this={iconContainer}></span>
         {selfResource.name} 
     </span>
 </button>

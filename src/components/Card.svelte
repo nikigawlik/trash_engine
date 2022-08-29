@@ -29,7 +29,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
     let memory: { width: any; height: any; left: any; top: any; } | null = null;
     let elmt : HTMLElement | null = null;
 
-    let isMaximized: boolean = false;
+    export let isMaximized: boolean = false;
 
     function maxWindow(): void {
         if(!elmt) return;

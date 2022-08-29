@@ -1,6 +1,4 @@
 <script context="module" lang="ts">
-import { writable,type Writable } from "svelte/store";
-
     export interface ContextMenuOption {
         text: string
         callback: () => Promise<void>
@@ -12,23 +10,6 @@ import { writable,type Writable } from "svelte/store";
         x: number
         y: number
     }
-
-    const { subscribe, set, update } = writable(null) as Writable<ContextMenuData|null>;
-
-    export let currentContextMenu = {
-        subscribe,
-        set,
-        update,
-        addOption(text: string, callback: () => Promise<void>) {
-            update(value => {
-                // value ||= {title: "", options: [], x:0, y: 0};
-                value?.options.push({text, callback})
-                return value;
-            })
-        },
-        reset() { set(null) },
-    }
-
 </script>
 
 <script lang="ts">

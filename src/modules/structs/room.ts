@@ -1,5 +1,7 @@
-import { bringToFront, cards } from "../cardManager";
+import RoomEditor from "../../components/RoomEditor.svelte";
+import { bringToFront, cards, openCard } from "../cardManager";
 import type ResourceManager from "../ResourceManager";
+import { assert } from "../utils";
 import type Instance from "./instance";
 import Resource from "./resource";
 
@@ -28,40 +30,36 @@ export default class Room extends Resource {
 
     openEditorWindow() {
         // look for existing
+
+        // openCard(RoomEditor)
+
         let existing = cards.get().find(x => x.uuid == this.uuid);
         
         if(existing) {
-            bringToFront(existing);
+            cards.focus(existing.uuid);
         } else {
-            cards.add()
-
-            let elmt = html`
-            <${RoomWindow} room=${this} />
-            `;
-            appendCard(elmt);
-            if(data.editor.settings.openResourcesMaximized) {
-                // TODO hacky
-                elmt.querySelector("button.maxWindow").click();
-            }
-            this.refresh();
+            cards.add(RoomEditor, this.name, this.uuid);
+            // this.refresh(); // TODO ?
             
-            // after load hack
-            setTimeout(() => {
-                let style = getComputedStyle(elmt);
-                elmt.style.width = style.width;
-                // elmt.style.width = style.width || elmt.getBoundingClientRect().width + "px";
-                elmt.querySelector(".sprite-select").style.flexDirection = "row";
-            }, 50);
+            // // after load hack
+            // setTimeout(() => {
+            //     let style = getComputedStyle(elmt);
+            //     elmt.style.width = style.width;
+            //     // elmt.style.width = style.width || elmt.getBoundingClientRect().width + "px";
+            //     elmt.querySelector(".sprite-select").style.flexDirection = "row";
+            // }, 50);
         }  
     }
     
     getIconElement() {
-        return html`<span>🌳</span>`;
+        return `🌳`;
     }
 
     refresh() {
         /** @type {CanvasRenderingContext2D} */
-        let ctx = this._canvas.getContext("2d");
+        let ctx = this._canvas?.getContext("2d");
+
+        if(!ctx) return;
 
         // ctx.clearRect(0, 0, this.width, this.height);
         ctx.fillStyle = this.backgroundColor;

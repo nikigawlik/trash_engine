@@ -1,6 +1,63 @@
 import { rectIntersect, rectInside } from "./utils";
+import { writable, type Writable } from "svelte/store";
+import type { SvelteComponent } from "svelte/internal";
 
 console.log("ui module loading")
+
+export enum PromptType {
+    YesNo,
+    Text,
+    Dimensions,
+}
+
+export interface AbstractPrompt {
+    promptType: PromptType
+    text: string
+    buttons: AbstractButton[]
+    defaultText?: string
+    width?: number
+    height?: number
+    resolve: (value: any) => void
+}
+
+export interface AbstractButton {
+    text: string
+    callback: () => Promise<void>|void
+}
+
+
+export let blockingPopup = writable(null) as Writable<AbstractPrompt|null>;
+
+// TODO might never resolve
+export let asyncYesNoPopup = async (question: string) => {
+    return await new Promise(resolve => {
+        blockingPopup.set({
+            promptType: PromptType.YesNo,
+            text: question,
+            buttons: [
+                { text: "yes", callback: () => resolve(true) },
+                { text: "no", callback: () => resolve(false) },
+            ],
+            resolve
+        });
+    });
+}
+
+
+export let asyncGetTextPopup = async (question: string, defaultText: string) : Promise<string> => {
+    return await new Promise(resolve => {
+        // this is a AbstractGetTextPrompt
+        blockingPopup.set({
+            promptType: PromptType.Text,
+            text: question,
+            buttons: [],
+            defaultText,
+            resolve,
+        });
+    });
+};
+
+/* ------- old stuff -------   */
 
 
 export function setupDraggable(draggedElement: HTMLElement, params: { boundsElement: HTMLElement; handleQuery: string; snap: number; }) {
