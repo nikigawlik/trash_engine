@@ -1,22 +1,19 @@
-import { rectIntersect, rectInside } from "./utils";
-import { writable, type Writable } from "svelte/store";
 import type { SvelteComponent } from "svelte/internal";
+import { writable, type Writable } from "svelte/store";
+import BlockingPopUpSvelte from "../components/BlockingPopUp.svelte";
+import GetTextPopUpSvelte from "../components/GetTextPopUp.svelte";
+import { rectInside, rectIntersect } from "./utils";
 
 console.log("ui module loading")
 
-export enum PromptType {
-    YesNo,
-    Text,
-    Dimensions,
-}
-
 export interface AbstractPrompt {
-    promptType: PromptType
-    text: string
-    buttons: AbstractButton[]
-    defaultText?: string
-    width?: number
-    height?: number
+    componentType: (typeof SvelteComponent)
+    text?: string
+    buttons?: AbstractButton[]
+    // defaultText?: string
+    // width?: number
+    // height?: number
+    data: any
     resolve: (value: any) => void
 }
 
@@ -32,8 +29,9 @@ export let blockingPopup = writable(null) as Writable<AbstractPrompt|null>;
 export let asyncYesNoPopup = async (question: string) => {
     return await new Promise(resolve => {
         blockingPopup.set({
-            promptType: PromptType.YesNo,
+            componentType: BlockingPopUpSvelte as any,
             text: question,
+            data: null,
             buttons: [
                 { text: "yes", callback: () => resolve(true) },
                 { text: "no", callback: () => resolve(false) },
@@ -48,10 +46,10 @@ export let asyncGetTextPopup = async (question: string, defaultText: string) : P
     return await new Promise(resolve => {
         // this is a AbstractGetTextPrompt
         blockingPopup.set({
-            promptType: PromptType.Text,
+            componentType: GetTextPopUpSvelte as any,
             text: question,
             buttons: [],
-            defaultText,
+            data: defaultText,
             resolve,
         });
     });

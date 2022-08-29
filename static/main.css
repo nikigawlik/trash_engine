@@ -4,7 +4,7 @@
 
 
 
-html {
+body {
     --sqrt2: 1.4142;
     --pattern-stop1: calc(var(--sqrt2) * 7px);
     --pattern-stop2: calc(var(--sqrt2) * 8px);

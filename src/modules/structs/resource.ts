@@ -60,7 +60,6 @@ export default class Resource {
 
 
     openEditorWindow() {
-        console.log(`no window implemented for ${this.type}`);
     }
 
     getIconElement(): string|HTMLElement {

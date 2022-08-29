@@ -3,7 +3,6 @@
 import Folder from "./../modules/structs/folder";
 import ResourceTreeResource from "./ResourceTreeResource.svelte";
 
-
     export let folder : Folder;
 </script>
 
@@ -12,7 +11,7 @@ import ResourceTreeResource from "./ResourceTreeResource.svelte";
     <li>
         <ResourceTreeResource selfResource={childResource}></ResourceTreeResource>
         {#if childResource instanceof Folder}
-            <svelte:self resource={childResource} name={childResource.name}></svelte:self>
+            <svelte:self folder={childResource}></svelte:self>
         {/if}
     </li>   
     {/each}

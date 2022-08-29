@@ -7,6 +7,11 @@ import { asyncYesNoPopup } from "../modules/ui";
 import Folder from "../modules/structs/folder";
 import { data } from "../modules/globalData";
 import { onMount } from "svelte";
+import Sprite from "../modules/structs/sprite";
+import Room from "../modules/structs/room";
+import { openCard } from "../modules/cardManager";
+import SpriteEditor from "./SpriteEditor.svelte";
+import RoomEditor from "./RoomEditor.svelte";
 // import { currentContextMenu } from "./ContextMenu.svelte";
     export let selfResource: Resource;
 
@@ -23,8 +28,17 @@ import { onMount } from "svelte";
             x: clickEvent.offsetX,
             y: clickEvent.offsetY,
         };
-        
-        // TODO callbacks
+    }
+
+    function openEditorWindow(resource: Resource) {
+        // TODO not clean ?
+        if(resource instanceof Sprite) {
+            openCard(SpriteEditor, true, resource.uuid);
+        } else if (resource instanceof Room) {
+            openCard(RoomEditor, true, resource.uuid);
+        } else {
+            console.log(`no window implemented for ${resource.type}`);
+        }
     }
     
     function getContextMenuOptions(resource: Resource) {
@@ -32,7 +46,7 @@ import { onMount } from "svelte";
             {
                 id: "open",
                 text: "open",
-                callback: async () => resource.openEditorWindow()
+                callback: async () => openEditorWindow(resource)
             },
             {
                 id: "delete",
@@ -95,7 +109,7 @@ import { onMount } from "svelte";
                             let newFolder = new Folder(undefined, resource._resourceManager);
                             newFolder.name = name;
                             resource.add(newFolder);
-                            resource._resourceManager.refresh();
+                            resource._resourceManager?.refresh();
                         }
                     }
                 });
@@ -148,13 +162,13 @@ import { onMount } from "svelte";
                 } else if(other.isParentOf(selfResource)) {
                     console.log(`can't move parent into child folder`)
                 } else if(other == selfResource) {
-                    console.log(`can'resource.t move something into itself`)
+                    console.log(`can't move something into itself`)
                 } else if(selfResource.type == "folder") {
                     selfResource.add(other);
-                    // _resourceManager.refresh();
+                    _resourceManager.refresh();
                 } else {
                     selfResource._parent?.insert(other, selfResource);
-                    // _resourceManager.refresh();
+                    _resourceManager.refresh();
                 }
             } else {
                 console.log(`can't move into top folders / detached tree`)
@@ -182,6 +196,7 @@ on:drop={ondrop}
     <ContextMenu bind:data={currentContextMenu}></ContextMenu>
     {/if}
     <span class={`resource-link  resource-${selfResource.type}`}>
+        <!-- TODO BUG icons!! are not reactiove -->
         <span class="icon" bind:this={iconContainer}></span>
         {selfResource.name} 
     </span>

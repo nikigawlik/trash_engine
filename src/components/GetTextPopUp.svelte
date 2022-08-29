@@ -12,7 +12,7 @@ import BlockingPopUp from "./BlockingPopUp.svelte";
         {text: "cancel", callback: () => prompt?.resolve(null)},
     ]
 
-    let text: string = prompt?.defaultText || "";
+    let text: string = prompt?.data || "";
     let inputElmt: HTMLInputElement;
 
     onMount(() => {
