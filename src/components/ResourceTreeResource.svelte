@@ -193,7 +193,7 @@ import SpriteIcon from "./SpriteIcon.svelte";
                 {selfResource.getIconElement()}
             {/if}
         </span>
-        <span>{selfResource.name}</span> 
+        <span class=name>{selfResource.name}</span> 
     </button>
 </span>
 
@@ -218,5 +218,6 @@ import SpriteIcon from "./SpriteIcon.svelte";
     .icon {
         /* height: fit-content; */
         height: 1.5em;
+        width: 1.5em;
     }
 </style>

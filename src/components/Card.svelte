@@ -111,18 +111,93 @@ on:mousedown={onMouseDown}
 >
     <div class="inner-card">
         <h3>
-            <span class="name">{name}</span> 
-            <span>
+            <div class="name">{name}</div> 
+            <div class="buttons">
                 <button class="maxWindow" on:click={maxWindow}>
                     { isMaximized? "❐" : "☐" }
                 </button>
                 <button class="closeWindow" on:click={closeWindow}>🞩</button>
-            </span>
+            </div>
         </h3>
         <slot></slot>
     </div>
 </section>
 
 
-<style>
+<style>    
+    * {
+        box-sizing: border-box;
+    }
+
+    .inner-card {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;;
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--main-color);
+        /* border: 8px solid transparent; */
+        /* border-image: var(--corner-image) 8 8 repeat; */
+        /* border-color: var(--main-color); */
+        /* border-image: image(url("/engineAssets/corners.png"), var(--bg-color)) 8 8 repeat; */
+        padding: 0;
+        margin: 0;
+    }
+
+
+    h3 {
+        margin-top: 0px;
+        margin-bottom: 10px;
+
+        display: flex; 
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center;
+
+        background-color: var(--main-color);
+        color: var(--bg-color);
+    }
+
+    h3>div {
+        height: 100%;
+    }
+
+    .name {
+        padding: 5px;
+        padding-bottom: 7px;
+        font-size: 90%;
+    }
+
+    .buttons {
+        display: flex;
+        flex-direction: row;
+    }
+
+    button {
+        border: none;
+        /* background-color: var(--bg-color); */
+        color: var(--bg-color);
+        /* border: 1px solid var(--bg-color); */
+        background: none;
+        padding: 0;
+        padding-bottom: 2px;
+        margin: 0;
+        box-shadow: none;
+
+        width: 28px;
+        height: 100%;
+        display: block;
+
+        /* display: inline-block;
+        vertical-align: top; */
+        /* margin-top: -5px;
+        padding-left: 4px; */
+        /* padding-left: 8px; */
+    }
+
+    button:hover {
+        color: var(--main-color);
+        background-color: var(--bg-color);
+    }
+
 </style>

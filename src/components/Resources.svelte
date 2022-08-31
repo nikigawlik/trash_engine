@@ -31,3 +31,9 @@ $: folders = ($resourceManager?.root.contents || []) as Folder[]
         </ul>
     </div>
 </Card>
+
+<style>
+    .scroll-box {
+        border: none;
+    }
+</style>

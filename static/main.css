@@ -199,20 +199,6 @@ canvas {
     margin-bottom: 10px;
 }
 
-.card .inner-card {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    border: 8px solid transparent;
-    /* border-color: var(--main-color); */
-    /* border-image: image(url("/engineAssets/corners.png"), var(--bg-color)) 8 8 repeat; */
-    border-image: var(--corner-image) 8 8 repeat;
-    padding: 0;
-    margin: 0;
-}
-
 .inner-card>textarea {
     flex-grow: 1;
     white-space: pre;
@@ -227,68 +213,22 @@ canvas {
     gap: 10px;
 }
 
-
-/* .flex-row>* {
-    
-} */
-
-.card>* {
-    margin-bottom: 5px;
-    margin-top: 5px;
-
-}
-
-.card h3 {
-    margin-top: 0px;
-    margin-bottom: 10px;
-
-    padding: 3px;
-
-    display: flex; 
-    flex-direction: row; 
-    justify-content: space-between;
-
-    background-color: var(--main-color);
-    color: var(--bg-color);
-}
-
-.card h3 input {
-    display: block;
-    border: 1px solid var(--main-color);
-
-    flex-grow: 1;
-}
-
-.card .closeWindow, .card .maxWindow {
-    color: var(--main-color);
-    border: none;
-    background: none;
-    background-color: var(--bg-color);
-    padding: 0;
-    margin: 0;
-
-    display: inline-block;
-    vertical-align: top;
-    margin-top: -5px;
-    padding-left: 4px;
-    /* padding-left: 8px; */
-}
-
-.card h4 {
+h4 {
     font-size: small;
     font-style: italic;
     margin-bottom: 10px;
 }
 
-.card li.selected {
-    background-color: var(--main-color);
-    color: var(--bg-color);
+/* settings at top of card like width in sprite editor */
+.card .card-settings {
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
-/* settings at top of card like width in sprite editor */
 .card .card-settings>p {
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 .card .card-settings>p>* {
     font-size: small;
@@ -343,7 +283,7 @@ ul.resources {
 }
 
 ul.resources li {
-    margin: 4px;
+    /* margin: 4px; */
     margin-left: 10px;
     list-style-position: outside;
 }
@@ -415,6 +355,7 @@ ul.resources .resource-object::before {
     flex-direction: row;
     flex-wrap: wrap;
     /* justify-content: space-between; */
+    justify-content: center;
     gap: 4px;
 }
 
