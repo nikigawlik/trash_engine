@@ -1,27 +1,17 @@
-import { writable, type Writable } from "svelte/store";
+import { writable } from "svelte/store";
 import { db, deserialize, requestAsync, serialize, STORE_NAME_RESOURCES } from "./database";
 import Folder from "./structs/folder";
 import Resource from "./structs/resource";
 import Room from "./structs/room";
 import Sprite from "./structs/sprite";
 
-console.log("resource_manager.mjs loading")
+console.log("resource_manager.ts loading")
 
-let {subscribe, set, update } = writable(null) as Writable<ResourceManager|null>;
-let _value: ResourceManager|null;
-subscribe(x => _value = x);
-
-export let resourceManager = {
-    subscribe,
-    get: () => _value,
-}
 // /** @type {ResourceManager} */ export let resourceManager;
 
 export default class ResourceManager {
-    static resourceManager: ResourceManager;
     root: Folder;
     constructor() {
-        set(this);
         this.root = new Folder("root", this, 
             [
                 new Folder("sprites", this, [], Sprite),
@@ -32,8 +22,6 @@ export default class ResourceManager {
 
     static async init() {
         console.log("resource manager init...")
-        this.resourceManager = new ResourceManager();
-        await this.resourceManager.load();
     }
 
     addResource(folderName: string, resource: Resource) {
@@ -106,6 +94,7 @@ export default class ResourceManager {
     }
 
     async load() {
+        if(!db || !db.transaction) return;
         console.log(`- load resource tree...`)
         let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
@@ -116,7 +105,7 @@ export default class ResourceManager {
             // console.log(result);   
             result = await deserialize(result);
             console.log(`- resources loaded`)
-            // console.log(result); 
+            console.log(result); 
             this.root = result;  
 
             let postProcess = (obj: any, parent: Folder | null) => {
@@ -138,6 +127,19 @@ export default class ResourceManager {
     }
 }
 
+
+let _value = new ResourceManager();
+let {subscribe, set, update } = writable(_value);
+subscribe(x => _value = x);
+update(x => x)
+
+let isLoadedPromise = _value.load();
+
+export let resourceManager = {
+    subscribe,
+    get: () => _value,
+    waitForLoad: () => isLoadedPromise,
+}
 
 
 // // helper html generator, not a component generator function!
