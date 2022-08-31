@@ -1,4 +1,4 @@
-import ResourceManager from "../ResourceManager";
+import { resourceManager } from "../ResourceManager";
 import Sprite from "./sprite";
 
 export default class Instance {
@@ -14,7 +14,7 @@ export default class Instance {
     draw(ctx: CanvasRenderingContext2D) {
         // draw at x y sprite
         // TODO this is v slow
-        let sprite = ResourceManager.resourceManager.findByUUID(this.spriteID);
+        let sprite = resourceManager.get().findByUUID(this.spriteID);
         if(sprite && sprite instanceof Sprite && sprite.canvas) {
             ctx.drawImage(sprite.canvas, this.x - sprite.originX, this.y - sprite.originY);
         }

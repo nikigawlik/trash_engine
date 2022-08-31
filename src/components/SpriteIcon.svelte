@@ -1,0 +1,39 @@
+
+<script lang="ts">
+import { onMount } from "svelte";
+
+import { resourceManager } from "../modules/ResourceManager";
+import type Sprite from "../modules/structs/sprite";
+    export let sprite: Sprite;
+    export let growToFit: boolean = true;
+    let myCanvas: HTMLCanvasElement;
+
+    $: {$resourceManager; sprite = sprite;} // small reactivity hack, resource manager change triggers sprite change
+    $: width = sprite.canvas?.width || 1
+    $: height = sprite.canvas?.height || 1
+    $: {$resourceManager; redraw();}
+
+    $: adjWidth = width / window.devicePixelRatio
+    $: adjHeight = height / window.devicePixelRatio
+    
+    function redraw() {
+        if(myCanvas && sprite.canvas) {
+            myCanvas.width = sprite.canvas.width;
+            myCanvas.height = sprite.canvas.height;
+            let ctx = myCanvas.getContext("2d")!;
+            ctx.clearRect(0, 0, width, height);
+            ctx.drawImage(sprite.canvas, 0, 0);
+        }
+    }
+
+    onMount(() => redraw())
+</script>
+
+
+<canvas 
+    {width} 
+    {height} 
+    bind:this={myCanvas}
+    style:width={growToFit? (width > height? '100%' : null) : adjWidth}
+    style:height={growToFit? (height >= width? '100%' : null) : adjHeight}
+></canvas>

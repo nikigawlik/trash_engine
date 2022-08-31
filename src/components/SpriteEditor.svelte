@@ -236,6 +236,8 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
             let y = y1 + ry - ~~(brushWidth / 2);
             canvasCtx.drawImage(currentBrush, x, y);
         }
+
+        resourceManager.get()?.refresh(); // lol
     }
 
     // TODO these events make me uncomfortable

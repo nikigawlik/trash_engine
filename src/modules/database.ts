@@ -1,4 +1,4 @@
-console.log("database.mjs loading")
+console.log("database.ts loading")
 
 const VERSION = 2;
 const NAME = "ngine_Database"
@@ -181,7 +181,7 @@ export async function deserialize(obj: any | null) {
 
     // object
     if (obj instanceof Object) {
-        if(obj.func_ && constructors[obj._func]) {
+        if(obj._func && constructors[obj._func]) {
             // reference to a known type/function
             return constructors[obj._func];
         } else {

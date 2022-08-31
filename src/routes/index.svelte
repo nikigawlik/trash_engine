@@ -10,7 +10,7 @@ import { browser } from '$app/env';
 import { onMount } from "svelte";
 import Resources from "../components/Resources.svelte";
 import { data } from "../modules/globalData";
-import ResourceManager from "../modules/ResourceManager";
+import ResourceManager, { resourceManager } from "../modules/ResourceManager";
 import Log from "./../components/Log.svelte";
 import Main from "./../components/Main.svelte";
 import ScriptEditor from "./../components/ScriptEditor.svelte";
@@ -32,9 +32,11 @@ import { openCard } from '../modules/cardManager';
 
     function save() {
         // TODO STUB
+        resourceManager.get().save();
+        data.save();
     }
 
-    onMount(async () => {
+    let init = async () => {
         console.log("--- window.onload ---")
         // initialize different modules
         await database.init([Sprite, Room, Folder, Instance]);
@@ -42,9 +44,7 @@ import { openCard } from '../modules/cardManager';
         {
             console.log("load app...");
             await globalData.load();
-
-            // let resWindow = html`<${ResourceWindow} resourceManager=${resourceManager}><//>`;
-            await ResourceManager.init();
+            await resourceManager.get().load();
         }
         await ui.init();
         await sprite_editor.init();
@@ -52,20 +52,31 @@ import { openCard } from '../modules/cardManager';
         console.log("--- --- ---- --- ---")
         console.log("--- loading done ---")
         console.log("--- --- ---- --- ---")
-    })
+    };
+
+    let initPromise = init();
 </script>
 
-<header>
-    <div><img src="icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
-    <ul class="topbar">
-        <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
-        <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li>
-        <li><button on:click={() => openCard(Log)}>new log</button></li>
-        <li><button on:click={() => openCard(Settings)}>settings</button></li>
-        <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
-        <li><button on:click={() => save()}>save</button></li>
-        <li><button on:click={() => location.reload()}>load</button></li>
-        <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>
-    </ul>
-</header>
-<Main bind:this={main}></Main>
+{#await initPromise}
+    <div class=loading>
+        <img src="icon.png" alt="trashcan">
+        loading...
+    </div>
+{:then} 
+    
+    <header>
+        <div><img src="icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
+        <ul class="topbar">
+            <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
+            <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li>
+            <li><button on:click={() => openCard(Log)}>new log</button></li>
+            <li><button on:click={() => openCard(Settings)}>settings</button></li>
+            <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
+            <li><button on:click={() => save()}>save</button></li>
+            <li><button on:click={() => location.reload()}>load</button></li>
+            <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>
+        </ul>
+    </header>
+    <Main bind:this={main}></Main>
+
+{/await}

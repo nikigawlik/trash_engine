@@ -1,10 +1,13 @@
 <script lang="ts">
 import { blockingPopup } from "../modules/ui";
-import { cards } from "./../modules/cardManager";
+import { cards, openCard } from "./../modules/cardManager";
+import Resources from "./Resources.svelte";
+
+openCard(Resources)
 </script>
 
 <main>
-    {#each $cards as card}
+    {#each $cards as card (card.uuid)}
         <svelte:component this={card.componentType} card={card} />
     {/each}
     {#if $blockingPopup}

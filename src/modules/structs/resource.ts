@@ -1,7 +1,7 @@
 import type ResourceManager from "../ResourceManager";
 import Folder from "./folder";
 
-console.log("resources.mjs loading")
+console.log("resources.ts loading")
 
 
 /*
@@ -58,21 +58,12 @@ export default class Resource {
         this._parent?.remove(this);
     }
 
-
-    openEditorWindow() {
+    getIconElement(): string {
+        return `❔`;
     }
-
-    getIconElement(): string|HTMLElement {
-        return `<span>❔</span>`;
-    }
-
     
     add(other: any) {
         throw new Error("Method not implemented.");
-    }
-
-    render(other: any) {
-        throw new Error("dON'T Use this..");
     }
 }
 

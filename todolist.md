@@ -20,3 +20,9 @@ vv START HERE vv
   - play
   - scripts / anims
 - rename Card to Window?
+
+
+PORT STUFF
+
+- draggable logic in Card
+- save and load

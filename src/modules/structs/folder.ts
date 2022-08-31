@@ -14,9 +14,6 @@ export default class Folder extends Resource {
         this.resourceType = resourceType;
     }
 
-    // openResource(clickEvent) {
-    // }
-
     getIconElement() {
         return `📁`;
     }

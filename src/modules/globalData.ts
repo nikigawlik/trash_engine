@@ -31,6 +31,7 @@ export const data = {
     update,
     set,
     get: () => _value,
+    save,
 }
 
 
@@ -40,7 +41,7 @@ export async function save() {
         
     let trans = db.transaction([STORE_NAME_GLOBAL_DATA], "readwrite");
     let objectStore = trans.objectStore(STORE_NAME_GLOBAL_DATA);
-    let request = objectStore.put(data);
+    let request = objectStore.put(data.get());
     request.onsuccess = event => {
         // event.target.result === customer.ssn;
         console.log(`saved resource ${request.result}`);

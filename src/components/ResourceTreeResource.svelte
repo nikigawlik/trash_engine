@@ -6,12 +6,13 @@ import type { ContextMenuData } from "./ContextMenu.svelte";
 import { asyncYesNoPopup } from "../modules/ui";
 import Folder from "../modules/structs/folder";
 import { data } from "../modules/globalData";
-import { onMount } from "svelte";
+import { afterUpdate, onMount } from "svelte";
 import Sprite from "../modules/structs/sprite";
 import Room from "../modules/structs/room";
 import { openCard } from "../modules/cardManager";
 import SpriteEditor from "./SpriteEditor.svelte";
 import RoomEditor from "./RoomEditor.svelte";
+import SpriteIcon from "./SpriteIcon.svelte";
 // import { currentContextMenu } from "./ContextMenu.svelte";
     export let selfResource: Resource;
 
@@ -52,7 +53,7 @@ import RoomEditor from "./RoomEditor.svelte";
                 id: "delete",
                 text: `delete`,
                 callback: async () => {
-                    let confirmed = await asyncYesNoPopup(`Delete ${resource.name}?`); // TODO
+                    let confirmed = await asyncYesNoPopup(`Delete ${resource.name}?`);
         
                     if(confirmed) {   
                         resource.removeSelf();
@@ -70,10 +71,6 @@ import RoomEditor from "./RoomEditor.svelte";
                     if(name) {
                         resource.name = name;
                         resource._resourceManager.refresh();
-                        // TODO
-                        // update name on card
-                        // let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${resource.uuid}"]`);
-                        // resourceWindow.querySelector("h3 .name").innerText = name; // not super elegant, but ok
                     }
                 }
             }
@@ -94,7 +91,6 @@ import RoomEditor from "./RoomEditor.svelte";
                             let newResource = new resourceConstructor(name, resource._resourceManager);
                             resource.add(newResource);
                             resource._resourceManager?.refresh();
-                            newResource.openEditorWindow(); // sus
                         }
                     }
                 },
@@ -175,29 +171,52 @@ import RoomEditor from "./RoomEditor.svelte";
             }
         }
     }
-
-    let iconContainer: HTMLElement;
-    onMount(() => {
-        let elmt = selfResource.getIconElement();
-        iconContainer.append(elmt);
-    });
 </script>
 
 
-<button draggable="true" class="grabbable" class:drag-hover={hover}
-on:click={onclick}
-on:dragover={ondragover}
-on:dragenter={ondragenter}
-on:dragleave={ondragleave}
-on:dragstart={ondragstart}
-on:drop={ondrop}
->
-    {#if currentContextMenu}
-    <ContextMenu bind:data={currentContextMenu}></ContextMenu>
-    {/if}
-    <span class={`resource-link  resource-${selfResource.type}`}>
-        <!-- TODO BUG icons!! are not reactiove -->
-        <span class="icon" bind:this={iconContainer}></span>
-        {selfResource.name} 
-    </span>
-</button>
+<span class={`resource-link  resource-${selfResource.type}`}>
+    <button draggable="true" class="grabbable" class:drag-hover={hover}
+    on:click={onclick}
+    on:dragover={ondragover}
+    on:dragenter={ondragenter}
+    on:dragleave={ondragleave}
+    on:dragstart={ondragstart}
+    on:drop={ondrop}
+    >
+        {#if currentContextMenu}
+        <ContextMenu bind:data={currentContextMenu}></ContextMenu>
+        {/if}
+        <span class=icon>
+            {#if selfResource instanceof Sprite}
+                <SpriteIcon sprite={selfResource}></SpriteIcon>
+            {:else}
+                {selfResource.getIconElement()}
+            {/if}
+        </span>
+        <span>{selfResource.name}</span> 
+    </button>
+</span>
+
+<style>
+    button {    
+        /* do not style like other buttons */
+        border: none;
+        box-shadow: none;
+        text-align: left;
+        
+        /* alignment stuff */
+        display: table-cell;
+        vertical-align: middle;
+        /* padding-top: auto; */
+        /* padding-bottom: auto; */
+    }
+
+    button > span {
+        vertical-align: middle;
+    }
+
+    .icon {
+        /* height: fit-content; */
+        height: 1.5em;
+    }
+</style>

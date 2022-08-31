@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { html } from "./deps.mjs";
 
-console.log("components.mjs loading")
+console.log("components.ts loading")
 
 // ---- components ----
 

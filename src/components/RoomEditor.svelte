@@ -1,33 +1,28 @@
 <script lang="ts">
-import ResourceManager, { resourceManager } from "./../modules/ResourceManager";
+import { resourceManager } from "./../modules/ResourceManager";
 
 import Instance from "./../modules/structs/instance";
 
 import type Room from "./../modules/structs/room";
 import Sprite from "./../modules/structs/sprite";
-import { rectInside } from "./../modules/utils";
+import { assert,rectInside } from "./../modules/utils";
 
-import { onMount } from "svelte";
+import { afterUpdate, onMount } from "svelte";
 import type { CardInstance } from "../modules/cardManager";
-import Card from "./Card.svelte";
 import { data } from "../modules/globalData";
+import Card from "./Card.svelte";
+import SpriteIcon from "./SpriteIcon.svelte";
     
     export let card: CardInstance;
+    const uuid = card.uuid;
+    
+    $: room = $resourceManager?.findByUUID(uuid) as Room|null;
+    $: card.className = "room-editor";
+    $: card.name = room?.name || "room not loaded";
 
-    console.log(`open room ${card.uuid}`);
-    let self: Room = resourceManager.get()?.findByUUID(card.uuid) as Room;
-    $: card.name = self.name;
 
-
-    let icon = (spr: Sprite) => {
-        let canvas = spr.getCopy();
-        // canvas.style.width = 
-        canvas.style.height = 50 + "px";
-        return canvas;
-    }
-
-    // TODO reactive
-    let sprites = self._resourceManager.getAllOfResourceType(Sprite) as unknown as Sprite[];
+    let sprites = [] as Sprite[];
+    $: sprites = ($resourceManager.getAllOfResourceType(Sprite) || []) as unknown as Sprite[];
 
     let canvas: HTMLCanvasElement;
     let currentSprite: Sprite = sprites[0];
@@ -36,45 +31,41 @@ import { data } from "../modules/globalData";
     let gridWidth = 60;
     let gridHeight = 60;
 
-    let snapMode = "corner";
+    
+    // $: {$resourceManager; gridEnabled; gridWidth; gridHeight; }
 
-    onMount(async () => {
+    $: gridWidth = Math.max(gridWidth, 1)
+    $: gridHeight = Math.max(gridHeight, 1)
+    
+    let snapMode = "center";
+    
+    // default for when room is not loaded
+    $: canvasWidth = room?.width || 100;
+    $: canvasHeight = room?.height || 100;
+    
+    // TODO could use a general solution for sizing canvases (room code is similar to the one in the sprite editor)
+    const scaleFactor = 1;
+    $: canvasDisplayHeight = canvasHeight / window.devicePixelRatio * scaleFactor;
+    $: canvasDisplayWidth = canvasWidth / window.devicePixelRatio * scaleFactor; 
 
-        // TODO could use a general solution for sizing canvases (this code is similar to the one in the sprite editor)
-        let canvasDisplayWidth: number; 
-        let canvasDisplayHeight: number;
-        let resizeCanvas = (scaleFactor: number) => {
-            canvasDisplayWidth =  canvas.width / window.devicePixelRatio * scaleFactor;
-            canvasDisplayHeight =  canvas.height / window.devicePixelRatio * scaleFactor;
-            canvas.style.width = canvasDisplayWidth + "px";
-            canvas.style.height = canvasDisplayHeight + "px";
-        }
-        let adjustedX = (x: number) => x * (canvas.width / canvasDisplayWidth);
-        let adjustedY = (y: number) => y * (canvas.height / canvasDisplayHeight);
+    afterUpdate(() => {
+        refresh();
+    });
 
-        resizeCanvas(1); // default scale
+    
+    // placing
+    let canvasMouseDown = (evt: MouseEvent) => {
+            console.log("here")
+            if(!room || evt.button != 0) return;
 
+            const inputX = (evt.offsetX) * (canvas.width / canvasDisplayWidth);
+            const inputY = (evt.offsetY) * (canvas.height / canvasDisplayHeight);
 
-        // room settings
-        // - grid
-        // TODO find a way to do this validation
-        // gridWidthInput.onchange = () => (gridWidthInput.value = self.gridWidth = parseIntSafe(gridWidthInput.value, 1)) && self.refresh();
-        // gridHeightInput.onchange = () => (gridHeightInput.value = self.gridHeight = parseIntSafe(gridHeightInput.value, 1)) && self.refresh();
-
-        // - snap mode
-
-        // placing
-
-        // canvas.oncontextmenu = evt => false;
-        canvas.onmousedown = evt => {
-            if(evt.button != 0) return;
-            const inputX = adjustedX(evt.offsetX);
-            const inputY = adjustedY(evt.offsetY);
             // first remove stuff
             let mousepos = new DOMRect(inputX, inputY, 0, 0);
-            // TODO inefficient, but this should be replaced by a proper bounding box collision system anyways
+            // TODO inefficient, but room should be replaced by a proper bounding box collision system anyways
             let getBBRect = (inst: Instance) => {
-                let sprite = ResourceManager.resourceManager.findByUUID(inst.spriteID) as Sprite;
+                let sprite = $resourceManager.findByUUID(inst.spriteID) as Sprite;
                 return sprite? new DOMRect(
                     inst.x - sprite.originX, 
                     inst.y - sprite.originY, 
@@ -82,38 +73,72 @@ import { data } from "../modules/globalData";
                     sprite.canvas?.height || 0
                 ) : null;
             }
-            let filteredInstances = self.instances.filter(inst => {
+            let filteredInstances = room.instances.filter(inst => {
                 let rect = getBBRect(inst);
                 return rect && !rectInside(mousepos, rect);
             });
-            let deletedSomething = filteredInstances.length != self.instances.length;
-            self.instances = filteredInstances;
+            let deletedSomething = filteredInstances.length != room.instances.length;
+            room.instances = filteredInstances;
 
-            if(!deletedSomething) {
+            if(!deletedSomething && currentSprite) {
                 // place something
                 let x,y;
-                if(!self.gridEnabled) {
-                    x = inputX;
-                    y = inputY;
+                if(!gridEnabled) {
+                    x = Math.floor(inputX);
+                    y = Math.floor(inputY);
                 } else
-                if(self.gridSnap == "center") {
+                if(snapMode == "center") {
 
-                    x = (Math.floor(inputX / self.gridWidth) + 0.5) * self.gridWidth;
-                    y = (Math.floor(inputY / self.gridHeight) + 0.5) * self.gridHeight;
+                    x = (Math.floor(inputX / gridWidth) + 0.5) * gridWidth;
+                    y = (Math.floor(inputY / gridHeight) + 0.5) * gridHeight;
                 } else 
-                if(self.gridSnap == "corner") {
-                    x = (Math.round(inputX / self.gridWidth)) * self.gridWidth;
-                    y = (Math.round(inputY / self.gridHeight)) * self.gridHeight;
+                if(snapMode == "corner") {
+                    x = (Math.round(inputX / gridWidth)) * gridWidth;
+                    y = (Math.round(inputY / gridHeight)) * gridHeight;
                 } else {
                     x = y = 0;
                 }
                 let instance = new Instance(currentSprite.uuid, x, y);
-                self.instances.push(instance);
+                room.instances.push(instance);
             }
-            self.refresh();
+
+            refresh();
         };
 
-    })
+    
+    function refresh() {
+        /** @type {CanvasRenderingContext2D} */
+        if(!room) return;
+        let ctx = canvas?.getContext("2d")!;
+        if(!ctx) return;
+
+        // ctx.clearRect(0, 0, room.width, room.height);
+        ctx.fillStyle = room.backgroundColor;
+        ctx.fillRect(0, 0, room.width, room.height);
+
+        for(let inst of room.instances) {
+            inst.draw(ctx);
+        }
+
+        // draw grid
+        if(gridEnabled) {
+            ctx.strokeStyle = "gray";
+            ctx.globalCompositeOperation = "difference";
+            ctx.beginPath();
+            assert(gridWidth >= 1 && gridHeight >= 1)
+            for(let x = 0; x < room.width; x += gridWidth) {
+                ctx.moveTo(x + 0.5, 0);
+                ctx.lineTo(x + 0.5, room.height);
+            }
+            for(let y = 0; y < room.height; y += gridHeight) {
+                ctx.moveTo(0, y + 0.5);
+                ctx.lineTo(room.width, y + 0.5);
+            }
+            ctx.stroke();
+            ctx.closePath();
+            ctx.globalCompositeOperation = "source-over";
+        }
+    }
 
 </script>
 
@@ -129,7 +154,9 @@ import { data } from "../modules/globalData";
                     on:click={() => currentSprite = spr}
                     >
                         <h4>{spr.name}</h4> 
-                        {icon(spr)} 
+                        <div class="icon">
+                            <SpriteIcon sprite={spr} growToFit={false}></SpriteIcon>
+                        </div>
                     </button>
                 {/each}
             </div>
@@ -152,8 +179,97 @@ import { data } from "../modules/globalData";
                 <label><input type="radio" name="snap_mode" value="corner" bind:group={snapMode} /> corner </label>
             </div>
             <div class="canvas-container">
-                <canvas width={self.width} height={self.height} class="room-canvas" bind:this={canvas}/>
+                <canvas 
+                    width={canvasWidth} 
+                    height={canvasHeight} 
+                    style:width={canvasDisplayWidth}px
+                    style:height={canvasDisplayHeight}px
+                    class="room-canvas" 
+                    bind:this={canvas}
+                    on:mousedown={canvasMouseDown}
+                />
             </div>
+            hi!
         </div>
     </div>
 </Card>
+
+<style>
+    /* .icon {
+        height: 6em;
+        width: 6em;
+    } */
+
+    .left-rider {
+        flex: 1 1 120px;
+        max-width: 7em;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    .scroll-box {
+        flex: 1 1 50vh;
+        overflow: hidden;
+        overflow-y: scroll;
+    }
+
+    .sprite-select {
+        padding: 4px;
+        /* max-height: 50vh; */
+
+        display: flex;
+        /* flex-grow: 0; */
+        /* flex-direction: row; */
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        
+    }
+
+    .sprite-select button {
+        border: none;
+        box-shadow: none;
+    }
+
+    .room-edit {
+        flex: 1 1 120px;
+        flex-shrink: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 0;
+    }
+
+    .room-top-bar {
+        margin-bottom: 7px;
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .canvas-container {
+        overflow: scroll;
+        flex-shrink: 1;
+    }
+
+    .canvas-container canvas {
+        /* display: block; */
+        border: 1px dashed var(--main-color);
+    }
+
+    .room-top-bar span.spacer {
+        width: 8px;
+    }
+
+    .room-top-bar input[type=number] {
+        width: 3.5em;
+    }
+
+    .scroll-box button[data-selected="true"] {
+        background-color: var(--off-bg-color);
+    }
+
+
+</style>
