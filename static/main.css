@@ -47,18 +47,6 @@ body {
     flex-direction: column;
 }
 
-main {
-    /* width: 100vw; */
-    /* height: 100vh; */
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-}
-
-
 textarea {
     background-color: var(--bg-color);
     color: var(--main-color);

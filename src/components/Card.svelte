@@ -1,7 +1,5 @@
 
 <script lang="ts">
-import { setupDraggable } from "../modules/ui";
-import { createEventDispatcher } from "svelte";
 import { onMount } from "svelte";
 import { cards, type CardInstance } from "../modules/cardManager";
 
@@ -10,12 +8,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
     $: name = card.name;
     $: windowType = card.className || "";
 
-    let clientWidth = 200;
-    let clientHeight = 200;
-    // $: name = `${clientWidth} ${clientHeight}`;
-
     export let autoFocus = true;
-    let fresh = true;
 
     function closeWindow() {
         cards.remove(card.uuid);
@@ -25,8 +18,18 @@ import { cards, type CardInstance } from "../modules/cardManager";
         cards.focus(card.uuid);
     }
 
-    // click
-    let memory: { width: any; height: any; left: any; top: any; } | null = null;
+    // window stuff, rezizable stuff etc.:
+    
+    // these update automatically (using a bind: thingy)
+    let clientWidth = 200;
+    let clientHeight = 200;
+    // $: name = `${clientWidth} ${clientHeight}`;
+
+    // let width: number;
+    // let height: number;
+    let left: number = 0;
+    let top: number = 0;
+
     let elmt : HTMLElement | null = null;
 
     export let isMaximized: boolean = false;
@@ -34,52 +37,62 @@ import { cards, type CardInstance } from "../modules/cardManager";
     function maxWindow(): void {
         if(!elmt) return;
         isMaximized = !isMaximized;
-        if(isMaximized) {
-            focusWindow();
-            let rect = elmt.getBoundingClientRect();
-            memory = { 
-                width: elmt.style.width || rect.width + "px", 
-                height: elmt.style.height || rect.height + "px", 
-                left: elmt.style.left, 
-                top: elmt.style.top 
-            };
-            
-            elmt.style.position = "static";
-            elmt.style.width = "100%";
-            elmt.style.height = "100%";
-            elmt.style.resize = "none";
-        } else {
-            if(memory) {
-                elmt.style.width = memory.width;
-                elmt.style.height = memory.height;
-                elmt.style.left = memory.left;
-                elmt.style.top = memory.top;
-                elmt.style.resize = "both";
-                elmt.style.position = "absolute";
-                memory = null;
-            }
-        }
+        focusWindow();
     };
 
 
     onMount(() => {     
         console.log("new card elmt")
+        if(elmt && autoFocus) {
+            elmt.focus()
+        }
+    });
 
-        // TODO fix draggable and implement it in this component
-        if(elmt) setupDraggable(elmt, {
-            boundsElement: document.querySelector("main") as HTMLElement, 
-            handleQuery: "h3,h3 *,.inner-card", 
-            snap: 1
-        });
+    const handleQuery = "h3,h3 *,.inner-card";
 
-        if(fresh && elmt) {
-            if(autoFocus) elmt.focus()
-            fresh = false;
+    let isDragged = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function onMouseDown(event: MouseEvent) {
+        if(!event.target || !(event.target instanceof HTMLElement) || !event.target.matches(handleQuery)) {
+            return;
         }
 
-    });
-    // cards.push(elmt);
+        if(event.target.matches("button")) return;
+
+        cards.focus(uuid);
+
+        if(isMaximized) {
+            return;
+        }
+
+        
+        isDragged = true;
+
+        let rect = elmt!.getBoundingClientRect();
+        offsetX = rect.left - event.clientX;
+        offsetY = rect.top - event.clientY;
+    }
+
+    function onBodyMouseMove(event: MouseEvent) {
+        if(isDragged) {
+            let origin = document.querySelector("main")!.getBoundingClientRect();
+            left = event.clientX + offsetX - origin.x;
+            top = event.clientY + offsetY - origin.y;
+        }
+    }
+    
+    function onBodyMouseUp(event: MouseEvent) {
+        isDragged = false;
+    }
+
 </script>
+
+<svelte:body
+on:mousemove={onBodyMouseMove}
+on:mouseup={onBodyMouseUp}
+></svelte:body>
 
 <section 
 class={`card ${windowType || ''}`} 
@@ -89,6 +102,12 @@ bind:clientWidth={clientWidth}
 bind:clientHeight={clientHeight}
 tabindex=-1
 style:z-index={card.zIndex}
+style:height={isMaximized? "100%" : null}
+style:left={left}px
+style:top={top}px
+style:resize={isMaximized? 'none' : 'both'}
+style:position={isMaximized? 'static' : 'absolute'}
+on:mousedown={onMouseDown}
 >
     <div class="inner-card">
         <h3>
@@ -103,3 +122,7 @@ style:z-index={card.zIndex}
         <slot></slot>
     </div>
 </section>
+
+
+<style>
+</style>

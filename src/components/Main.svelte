@@ -14,3 +14,16 @@ openCard(Resources)
         <svelte:component this={$blockingPopup.componentType} bind:prompt={$blockingPopup} />
     {/if}
 </main>
+
+<style>
+    main {
+        /* width: 100vw; */
+        /* height: 100vh; */
+        flex-grow: 1;
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+    }
+</style>

@@ -139,10 +139,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
             ctx.globalCompositeOperation = "source-over";
         }
     }
-
 </script>
-
-<Card {card} isMaximized={$data.editor.settings.openResourcesMaximized}>
+<!-- isMaximized is intentionally non-reactive, still a bit sussy, might not work as expected -->
+<Card {card} isMaximized={data.get().editor.settings.openResourcesMaximized}>
     <div class="horizontal">    
         <div class="left-rider">
             <h4>sprites</h4>
