@@ -11,6 +11,7 @@ console.log("resource_manager.ts loading")
 
 export default class ResourceManager {
     root: Folder;
+    cache: any;
     constructor() {
         this.root = new Folder("root", this, 
             [
@@ -18,6 +19,7 @@ export default class ResourceManager {
                 new Folder("rooms", this, [], Room),
             ]
         );
+        this.cache = {};
     }
 
     static async init() {
@@ -51,7 +53,14 @@ export default class ResourceManager {
     }
 
     findByUUID(uuid: string) {
-        return this.root.findByUUID(uuid);
+        const cached = this.cache[uuid];
+        if(cached) {
+            return cached;
+        } else {
+            const resource = this.root.findByUUID(uuid);
+            if(resource) this.cache[uuid] = resource;
+            return resource
+        }
     }
 
     // render() {

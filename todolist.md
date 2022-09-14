@@ -8,7 +8,7 @@ vv START HERE vv
   ~~- update sprite list when sprite is added~~
   ~~- redraw room when sprite changes~~
 ~~- deletion of a resource -> how does it affect resources that reference it?~~
-- resource cache -> easy access
+~~- resource cache -> easy access~~
 ~~ room editor grid + placement etc ~~
 - calculate bounding boxes from transparency
 - kb shortcut -> ctrl-s
