@@ -1,6 +1,6 @@
 vv START HERE vv
 
-- redo undo
+~~- redo undo -> either in stores / or through some kind of command system~~
 - prevent cards from being outside of window, inaccesible, softlocked   OR   have a close all window button?
 ~~ sprite icons (easy peasy) ~~
 - listener/event type system
@@ -20,9 +20,13 @@ vv START HERE vv
   - play
   - scripts / anims
 - rename Card to Window?
+- horizontal flex window management (bitsy style)
+- mobile sprite editor support?
+- make drop down menu different (relative to resource, not mouse cursor; not cropped by scroll area)
+- redo undo -> either in stores / or through some kind of command system
 
 
 PORT STUFF
-
-- draggable logic in Card
-- save and load
+~~- draggable loic in Card~~
+~~- save and loa~~
+- rest of the CSS

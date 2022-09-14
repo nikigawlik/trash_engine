@@ -188,7 +188,6 @@ import SpriteIcon from "./SpriteIcon.svelte";
                     on:mousedown={canvasMouseDown}
                 />
             </div>
-            hi!
         </div>
     </div>
 </Card>

@@ -78,8 +78,10 @@ import { cards, type CardInstance } from "../modules/cardManager";
     function onBodyMouseMove(event: MouseEvent) {
         if(isDragged) {
             let origin = document.querySelector("main")!.getBoundingClientRect();
-            left = event.clientX + offsetX - origin.x;
-            top = event.clientY + offsetY - origin.y;
+            let l = event.clientX + offsetX - origin.x;
+            let t = event.clientY + offsetY - origin.y;
+            left = Math.max(0, l);
+            top = Math.max(0, t);
         }
     }
     
