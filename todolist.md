@@ -11,7 +11,7 @@ vv START HERE vv
 ~~- resource cache -> easy access~~
 ~~ room editor grid + placement etc ~~
 - calculate bounding boxes from transparency
-- kb shortcut -> ctrl-s
+~~- kb shortcut -> ctrl-s~~
 - did you know... type window with random tips
 - tutorial page
   - resizing windows

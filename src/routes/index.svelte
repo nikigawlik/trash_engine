@@ -30,11 +30,6 @@ import { openCard } from '../modules/cardManager';
 
     $: if(browser) $data.editor.settings.darkMode? document.body.classList.add("dark") : document.body.classList.remove("dark");
 
-    function save() {
-        // TODO STUB
-        resourceManager.get().save();
-        data.save();
-    }
 
     let init = async () => {
         console.log("--- window.onload ---")
@@ -55,6 +50,27 @@ import { openCard } from '../modules/cardManager';
     };
 
     let initPromise = init();
+    let savingPromise = new Promise<any>(resolve => resolve(null)); // default resolved promise
+
+    $: combinedPromise = Promise.all([initPromise, savingPromise]);
+
+
+    function save() {
+        // TODO STUB
+        let p1 = resourceManager.get().save();
+        let p2 = data.save();
+        savingPromise = Promise.all([p1, p2]);
+    }
+
+    function keyPress(event: KeyboardEvent) {
+        if(event.ctrlKey && event.key == "s") {
+            event.preventDefault();
+            save();
+        }
+    }
+
+    document.onkeydown = keyPress;
+
 </script>
 
 {#await initPromise}
@@ -63,7 +79,12 @@ import { openCard } from '../modules/cardManager';
         loading...
     </div>
 {:then} 
-    
+{#await savingPromise}
+    <div class=saving>
+        <img src="icon.png" alt="trashcan">
+        saving...
+    </div>
+{:then} 
     <header>
         <div><img src="icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
         <ul class="topbar">
@@ -79,4 +100,5 @@ import { openCard } from '../modules/cardManager';
     </header>
     <Main bind:this={main}></Main>
 
+{/await}
 {/await}

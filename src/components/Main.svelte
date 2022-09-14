@@ -3,7 +3,7 @@ import { blockingPopup } from "../modules/ui";
 import { cards, openCard } from "./../modules/cardManager";
 import Resources from "./Resources.svelte";
 
-openCard(Resources)
+openCard(Resources, false)
 </script>
 
 <main>
