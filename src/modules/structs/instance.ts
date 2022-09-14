@@ -17,6 +17,13 @@ export default class Instance {
         let sprite = resourceManager.get().findByUUID(this.spriteID);
         if(sprite && sprite instanceof Sprite && sprite.canvas) {
             ctx.drawImage(sprite.canvas, this.x - sprite.originX, this.y - sprite.originY);
+        } else {
+            console.log(`sprite ${this.spriteID} does not exist.`)
         }
+    }
+
+    isValid() {
+        let sprite = resourceManager.get().findByUUID(this.spriteID);
+        return sprite && sprite instanceof Sprite;
     }
 }

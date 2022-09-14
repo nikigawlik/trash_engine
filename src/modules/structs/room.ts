@@ -24,5 +24,9 @@ export default class Room extends Resource {
         return `🌳`;
     }
 
+    filterInstances() {
+        this.instances = this.instances.filter(inst => inst.isValid());
+    }
+
 }
 

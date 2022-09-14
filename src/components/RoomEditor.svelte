@@ -116,6 +116,8 @@ import SpriteIcon from "./SpriteIcon.svelte";
         ctx.fillStyle = room.backgroundColor;
         ctx.fillRect(0, 0, room.width, room.height);
 
+        room.filterInstances(); // TODO kind of unnecessary work
+
         for(let inst of room.instances) {
             inst.draw(ctx);
         }
