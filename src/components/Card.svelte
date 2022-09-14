@@ -144,18 +144,72 @@ on:mousedown={onMouseDown}
         margin: 0;
     }
 
+    :global(*) {
+        scrollbar-color: var(--off-bg-color) var(--bg-color);
+    }
+
+    :global(::-webkit-scrollbar) {
+        /* display: none; */
+        background-color: var(--bg-color);
+        color: var(--main-color);
+        width: 16px;
+        height: 16px;
+
+    }
+
+    /* disable 'double buttons' */
+    :global(::-webkit-scrollbar-button:vertical:start:increment,
+    ::-webkit-scrollbar-button:vertical:end:decrement,
+    ::-webkit-scrollbar-button:horizontal:start:increment, 
+    ::-webkit-scrollbar-button:horizontal:end:decrement)
+    {
+        display: none;
+    }
+
+    :global(::-webkit-scrollbar-button:hover, ::-webkit-scrollbar-thumb:hover) {
+        background-color: var(--off-bg-color);
+    }
+    :global(::-webkit-scrollbar-button:active, ::-webkit-scrollbar-thumb:active) {
+        background-color: var(--neutral-color);
+    }
+    :global(::-webkit-scrollbar-button:vertical:decrement) { background-image: url("up-arrow.svg"); }
+    :global(::-webkit-scrollbar-button:vertical:increment) { background-image: url("down-arrow.svg"); }
+    :global(::-webkit-scrollbar-button:horizontal:decrement) { background-image: url("left-arrow.svg"); }
+    :global(::-webkit-scrollbar-button:horizontal:increment) { background-image: url("right-arrow.svg"); }
+    
+    :global(::-webkit-scrollbar-button) {
+        /* background-color: var(--off-bg-color); */
+        color: var(--main-color);
+        height: 1em;
+        width: 16px;
+        height: 16px;
+    }
+
+    :global(::-webkit-scrollbar-track) { /* Background */
+        background-color: var(--bg-color);
+    }
+
+    :global(::-webkit-scrollbar-thumb) { /* Foreground */
+        background-color: var(--off-bg-color);
+    }
+
+    :global(::-webkit-scrollbar-corner) {
+        background-color: var(--bg-color);
+    }
+
 
     h3 {
         margin-top: 0px;
         margin-bottom: 10px;
+        border-bottom: 1px solid var(--main-color);
 
         display: flex; 
         flex-direction: row; 
         justify-content: space-between;
         align-items: center;
 
-        background-color: var(--main-color);
-        color: var(--bg-color);
+        color: var(--main-color);
+        background-color: var(--bg-color);
     }
 
     h3>div {
@@ -176,7 +230,7 @@ on:mousedown={onMouseDown}
     button {
         border: none;
         /* background-color: var(--bg-color); */
-        color: var(--bg-color);
+        color: var(--main-color);
         /* border: 1px solid var(--bg-color); */
         background: none;
         padding: 0;
@@ -197,7 +251,7 @@ on:mousedown={onMouseDown}
 
     button:hover {
         color: var(--main-color);
-        background-color: var(--bg-color);
+        background-color: var(--off-bg-color);
     }
 
 </style>

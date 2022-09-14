@@ -20,9 +20,12 @@ openCard(Resources)
         /* width: 100vw; */
         /* height: 100vh; */
         flex-grow: 1;
+
         display: flex;
         justify-content: left;
         align-items: center;
+        gap: 4px;
+        
         overflow: hidden;
         position: relative;
     }
