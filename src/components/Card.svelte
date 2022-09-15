@@ -121,7 +121,9 @@ on:mousedown={onMouseDown}
                 <button class="closeWindow" on:click={closeWindow}>🞩</button>
             </div>
         </h3>
-        <slot></slot>
+        <div class=content>
+            <slot></slot>
+        </div>
     </div>
 </section>
 
@@ -144,6 +146,15 @@ on:mousedown={onMouseDown}
         /* border-image: image(url("/engineAssets/corners.png"), var(--bg-color)) 8 8 repeat; */
         padding: 0;
         margin: 0;
+    }
+
+    .content {
+        padding: 4px;
+        flex-grow: 1;
+        flex-shrink: 1;
+        min-height: 0;
+        flex-direction: column;
+        display: flex;
     }
 
     :global(*) {

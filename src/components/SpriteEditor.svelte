@@ -46,7 +46,7 @@ import { onMount } from "svelte";
 
 import type { CardInstance } from "../modules/cardManager";
 import { html } from "../modules/deps.mjs";
-import { resourceManager } from "../modules/ResourceManager";
+import { resourceManager } from "../modules/game/ResourceManager";
 import type Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
 

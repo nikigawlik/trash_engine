@@ -19,12 +19,13 @@ vv START HERE vv
   - rooms
   - play
   - scripts / anims
-- rename Card to Window?
+~~- rename Card to Window? -> wont fix~~
 - horizontal flex window management (bitsy style)
 - mobile sprite editor support?
 - make drop down menu different (relative to resource, not mouse cursor; not cropped by scroll area)
 - redo undo -> either in stores / or through some kind of command system
 - Clamp cards to the main area on bottom and right
+- scripting support and run game button
 
 
 PORT STUFF

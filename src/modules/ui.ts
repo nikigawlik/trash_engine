@@ -2,7 +2,7 @@ import type { SvelteComponent } from "svelte/internal";
 import { writable, type Writable } from "svelte/store";
 import BlockingPopUpSvelte from "../components/BlockingPopUp.svelte";
 import GetTextPopUpSvelte from "../components/GetTextPopUp.svelte";
-import { rectInside, rectIntersect } from "./utils";
+import { rectInside, rectIntersect } from "./game/utils";
 
 console.log("ui module loading")
 

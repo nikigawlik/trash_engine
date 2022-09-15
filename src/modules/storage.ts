@@ -1,4 +1,3 @@
-import { writable } from "svelte/store"
-import * as database from "./database"
+import { writable } from "svelte/store";
 
 export let resources = writable();

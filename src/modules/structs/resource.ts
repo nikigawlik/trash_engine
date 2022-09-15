@@ -1,4 +1,4 @@
-import type ResourceManager from "../ResourceManager";
+import type ResourceManager from "../game/ResourceManager";
 import Folder from "./folder";
 
 console.log("resources.ts loading")

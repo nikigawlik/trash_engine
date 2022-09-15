@@ -2,7 +2,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 
-import { resourceManager } from "../modules/ResourceManager";
+import { resourceManager } from "../modules/game/ResourceManager";
 import type Sprite from "../modules/structs/sprite";
     export let sprite: Sprite;
     export let growToFit: boolean = true;

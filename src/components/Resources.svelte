@@ -3,7 +3,7 @@ import type { CardInstance } from "../modules/cardManager";
 
 import type Folder from "../modules/structs/folder";
 
-import ResourceManager, { resourceManager } from "./../modules/ResourceManager";
+import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
 import Card from "./Card.svelte";
 import ResourceSubTree from "./ResourceSubTree.svelte";
 import ResourceTreeResource from "./ResourceTreeResource.svelte";
@@ -34,6 +34,6 @@ $: folders = ($resourceManager?.root.contents || []) as Folder[]
 
 <style>
     .scroll-box {
-        border: none;
+        border: 1px solid transparent;
     }
 </style>

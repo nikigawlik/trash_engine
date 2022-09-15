@@ -1,4 +1,4 @@
-import type ResourceManager from "../ResourceManager";
+import type ResourceManager from "../game/ResourceManager";
 import Resource from "./resource";
 
 console.log("sprite_editor.ts loading")

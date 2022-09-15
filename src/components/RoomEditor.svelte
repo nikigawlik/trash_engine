@@ -1,11 +1,11 @@
 <script lang="ts">
-import { resourceManager } from "./../modules/ResourceManager";
+import { resourceManager } from "../modules/game/ResourceManager";
 
 import Instance from "./../modules/structs/instance";
 
 import type Room from "./../modules/structs/room";
 import Sprite from "./../modules/structs/sprite";
-import { assert,rectInside } from "./../modules/utils";
+import { assert,rectInside } from "../modules/game/utils";
 
 import { afterUpdate, onMount } from "svelte";
 import type { CardInstance } from "../modules/cardManager";
@@ -212,6 +212,7 @@ import SpriteIcon from "./SpriteIcon.svelte";
         flex: 1 1 50vh;
         overflow: hidden;
         overflow-y: scroll;
+        border: 1px solid transparent;
     }
 
     .sprite-select {

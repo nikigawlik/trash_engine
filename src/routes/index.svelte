@@ -10,7 +10,7 @@ import { browser } from '$app/env';
 import { onMount } from "svelte";
 import Resources from "../components/Resources.svelte";
 import { data } from "../modules/globalData";
-import ResourceManager, { resourceManager } from "../modules/ResourceManager";
+import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
 import Log from "./../components/Log.svelte";
 import Main from "./../components/Main.svelte";
 import ScriptEditor from "./../components/ScriptEditor.svelte";
@@ -24,6 +24,7 @@ import Sprite from "./../modules/structs/sprite";
 import * as sprite_editor from "./../components/SpriteEditor.svelte";
 import * as ui from "./../modules/ui";
 import { openCard } from '../modules/cardManager';
+import GamePreview from '../components/GamePreview.svelte';
  
 
     let main: Main | null;
@@ -32,6 +33,7 @@ import { openCard } from '../modules/cardManager';
 
 
     let init = async () => {
+        if(!browser) return;
         console.log("--- window.onload ---")
         // initialize different modules
         await database.init([Sprite, Room, Folder, Instance]);
@@ -69,7 +71,7 @@ import { openCard } from '../modules/cardManager';
         }
     }
 
-    document.onkeydown = keyPress;
+    if(browser) document.onkeydown = keyPress;
 
 </script>
 
@@ -93,6 +95,7 @@ import { openCard } from '../modules/cardManager';
             <li><button on:click={() => openCard(Log)}>new log</button></li>
             <li><button on:click={() => openCard(Settings)}>settings</button></li>
             <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
+            <li><button on:click={() => openCard(GamePreview, false)}>game</button></li>
             <li><button on:click={() => save()}>save</button></li>
             <li><button on:click={() => location.reload()}>load</button></li>
             <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>

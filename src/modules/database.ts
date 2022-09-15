@@ -19,6 +19,7 @@ export async function init(additionalConstructors: Function[] = []) {
     console.log("opening database...");
     if (!window.indexedDB) {
         console.log("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
+        return;
     }
     
     let request = window.indexedDB.open(NAME, VERSION);
@@ -203,6 +204,10 @@ export async function deserialize(obj: any | null) {
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
+export function deepClone(obj: any) {
+    return deserialize(serialize(obj));
 }
 
 

@@ -1,9 +1,9 @@
 import { writable } from "svelte/store";
-import { db, deserialize, requestAsync, serialize, STORE_NAME_RESOURCES } from "./database";
-import Folder from "./structs/folder";
-import Resource from "./structs/resource";
-import Room from "./structs/room";
-import Sprite from "./structs/sprite";
+import { db, deserialize, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
+import Folder from "../structs/folder";
+import Resource from "../structs/resource";
+import Room from "../structs/room";
+import Sprite from "../structs/sprite";
 
 console.log("resource_manager.ts loading")
 
