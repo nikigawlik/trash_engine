@@ -1,24 +1,8 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import mkcert from'vite-plugin-mkcert';
-import path from 'path';
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
 
-/** @type {import('vite').UserConfig} */
-const config = {
-	plugins: [
-		sveltekit(),
-		mkcert(),
-	],
-	server: {
-		host: "192.168.0.140",
-		https: true,
-		// proxy: {},
-	},
-	// base: "",
-	// resolve: {
-	// 	alias: [
-	// 		{ find:/^(.*)\.js$/, replacement: '$1.alias' }
-	// 	]
-	// }
-};
-
-export default config;
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [svelte()],
+  base: "",
+})
