@@ -38,6 +38,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
     $: gridHeight = Math.max(gridHeight, 1)
     
     let snapMode = "center";
+
+    // let bgColor = room?.backgroundColor || "#222222";
+    // $: room && (room.backgroundColor = bgColor);
     
     // default for when room is not loaded
     $: canvasWidth = room?.width || 100;
@@ -176,8 +179,10 @@ import SpriteIcon from "./SpriteIcon.svelte";
                 <input name="grid_height" type="number" bind:value={gridHeight} />
                 <span class="spacer" />
                 <label for="snap_mode">snap</label>
-                <label><input type="radio" name="snap_mode" value="center" checked bind:group={snapMode} />  center </label>
-                <label><input type="radio" name="snap_mode" value="corner" bind:group={snapMode} /> corner </label>
+                <label><input type="radio" value="center" checked bind:group={snapMode} />  center </label>
+                <label><input type="radio" value="corner" bind:group={snapMode} /> corner </label>
+                <!-- <span class="spacer" />
+                <label for="background_color">background: </label><input name="background_color" type="color" bind:value={bgColor}/> -->
             </div>
             <div class="canvas-container">
                 <canvas 
@@ -247,7 +252,8 @@ import SpriteIcon from "./SpriteIcon.svelte";
         display: flex;
         flex-direction: row;
         gap: 4px;
-        align-items: center;
+        align-items: stretch;
+        
     }
 
     .canvas-container {
@@ -268,9 +274,24 @@ import SpriteIcon from "./SpriteIcon.svelte";
         width: 3.5em;
     }
 
-    .scroll-box button[data-selected="true"] {
+    button[data-selected="true"] {
         background-color: var(--off-bg-color);
     }
 
+    /* input[type=color] {
+        border: none;
+        padding: 0;
+        height: 2em;
+        width: 2em;
+    } */
+
+    label {
+        vertical-align: middle;
+        margin: auto 0;
+    }
+
+    label>* {
+        vertical-align: middle;
+    }
 
 </style>

@@ -82,12 +82,39 @@ export default class ResourceManager {
         update(x => x);
     }
 
+    async getSerializedData() {
+        return await serialize(this.root);
+    }
+
+    async setFromSerializedData(data: any) {
+        // console.log(result);   
+        data = await deserialize(data);
+        console.log(`- resources loaded`)
+        console.log(data); 
+        this.root = data;  
+
+        let postProcess = (obj: any, parent: Folder | null) => {
+            if(obj instanceof Resource) {
+                obj._parent = parent;
+                obj._resourceManager = this;
+                if(obj instanceof Folder) {
+                    for(let child of obj.contents) {
+                        postProcess(child, obj);
+                    }
+                }
+            }
+        }
+        postProcess(this.root, null);
+        this.cache = {};
+        this.refresh();
+    }
+
     async save() {
         if(!db || !db.transaction) return;
         
         // we just need to save the root, actually
         // let rootClone = JSON.parse(JSON.stringify(this, replacer));
-        let rootClone = await serialize(this.root);
+        let rootClone = await this.getSerializedData();
         let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
         let request = objectStore.put(rootClone);
@@ -103,33 +130,19 @@ export default class ResourceManager {
     }
 
     async load() {
-        if(!db || !db.transaction) return;
+        if(!db || !db.transaction) {
+            // throw Error("Database not initialized!")
+            console.log("no database...")
+            return;
+        }
         console.log(`- load resource tree...`)
         let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
         let results = await requestAsync(objectStore.getAll());
         let result = results[results.length - 1];
         
-        if(result) {       
-            // console.log(result);   
-            result = await deserialize(result);
-            console.log(`- resources loaded`)
-            console.log(result); 
-            this.root = result;  
-
-            let postProcess = (obj: any, parent: Folder | null) => {
-                if(obj instanceof Resource) {
-                    obj._parent = parent;
-                    obj._resourceManager = this;
-                    if(obj instanceof Folder) {
-                        for(let child of obj.contents) {
-                            postProcess(child, obj);
-                        }
-                    }
-                }
-            }
-            postProcess(this.root, null);
-            this.refresh();
+        if(result) {
+            await this.setFromSerializedData(result);
         } else {
             console.log("!! no save data found")
         }

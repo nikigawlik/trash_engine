@@ -1,5 +1,5 @@
 import type ResourceManager from "../game/ResourceManager";
-import Folder from "./folder";
+import type Folder from "./folder";
 
 console.log("resources.ts loading")
 
@@ -32,8 +32,10 @@ export default class Resource {
     getTopFolder() : Folder|null {
         if(!this._parent) 
             return null;
+        if(this._parent == this._resourceManager.root)
+            return this as unknown as Folder; // kinda hacky, but who cares
         
-        let current: Folder = this instanceof Folder ? this : this._parent;
+        let current: Folder = this._parent;
         while(current._parent && current._parent != this._resourceManager.root) {
             current = current._parent;
         }

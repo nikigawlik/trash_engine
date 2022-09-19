@@ -12,7 +12,7 @@ export default class Room extends Resource {
         this.width = ~~(540 * 12/9);
         this.height = 540;
         this.instances = [];
-        this.backgroundColor = "#222";
+        this.backgroundColor = "#222222";
         // this.gridEnabled = true;
         // this.gridWidth = 60;
         // this.gridHeight = 60;

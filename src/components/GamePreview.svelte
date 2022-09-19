@@ -1,38 +1,43 @@
+
 <script lang="ts">
-import { onMount } from "svelte";
 
 import type { CardInstance } from "../modules/cardManager";
-import Game from "../modules/game/game";
 import { resourceManager } from "../modules/game/ResourceManager";
 import Card from "./Card.svelte";
 
     export let card: CardInstance;
     $: card.name = "game preview";
 
-    let canvas: HTMLCanvasElement;
-    let game: Game|null;
+    let iframe: HTMLIFrameElement|null;
 
-    $: canvasWidth = canvas?.width || 100;
-    $: canvasHeight = canvas?.height || 100;
-    const scaleFactor = 1;
-    $: canvasDisplayWidth = canvasWidth / window.devicePixelRatio * scaleFactor;
-    $: canvasDisplayHeight = canvasHeight / window.devicePixelRatio * scaleFactor; 
-
-    onMount(() => {
-        game = new Game(resourceManager.get(), canvas);
-        canvas = canvas;
-
-        return () => game?.quit();
-    });
-
-    function reload() {
-        game = new Game(resourceManager.get(), canvas);
-        canvas = canvas;
+    async function reload() {
+        if(!iframe) return;
+        let resourceData = await resourceManager.get().getSerializedData();
+        const messageData = {
+            type: "dataUpdate",
+            resourceData,
+        };
+        iframe.contentWindow?.postMessage(messageData);
+        // iframe.contentWindow?.postMessage({
+        //     type: "reload",
+        // });
     }
 
 </script>
 
 <Card {card}>
+    <p><a href="/game" target="_blank">separate window</a></p>
     <p><button on:click={reload}>reload ↺</button></p>
-    <canvas bind:this={canvas} style:width={canvasDisplayWidth}px style:height={canvasDisplayHeight}px></canvas>
+    <iframe title="gametest" src="game" bind:this={iframe} />
 </Card>
+
+<style>
+    iframe {
+        width: 100%;
+        height: 100%;
+    }
+
+    a {
+        font-size: small;
+    }
+</style>

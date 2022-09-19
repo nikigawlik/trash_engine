@@ -1,4 +1,4 @@
-import type ResourceManager from "../game/ResourceManager.js";
+import type ResourceManager from "../game/ResourceManager";
 import Resource from "./resource";
 
 export default class Folder extends Resource {

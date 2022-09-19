@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import mkcert from'vite-plugin-mkcert';
+import path from 'path';
 
 /** @type {import('vite').UserConfig} */
 const config = {
@@ -12,6 +13,12 @@ const config = {
 		https: true,
 		// proxy: {},
 	},
+	// base: "",
+	// resolve: {
+	// 	alias: [
+	// 		{ find:/^(.*)\.js$/, replacement: '$1.alias' }
+	// 	]
+	// }
 };
 
 export default config;

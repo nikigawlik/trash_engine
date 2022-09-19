@@ -1,30 +1,24 @@
-<svelte:head>
-    <title>ngine</title>
-    <link rel="stylesheet" href="reset.css">
-    <link rel="stylesheet" href="main.css"> 
-</svelte:head>
-
 <script lang="ts">
-import { asyncYesNoPopup } from './../modules/ui';
 import { browser } from '$app/env';
-import { onMount } from "svelte";
+import GamePreview from '../components/GamePreview.svelte';
 import Resources from "../components/Resources.svelte";
+import { openCard } from '../modules/cardManager';
+import { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
-import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
 import Log from "./../components/Log.svelte";
 import Main from "./../components/Main.svelte";
 import ScriptEditor from "./../components/ScriptEditor.svelte";
 import Settings from "./../components/Settings.svelte";
+import * as sprite_editor from "./../components/SpriteEditor.svelte";
 import * as database from "./../modules/database";
 import * as globalData from "./../modules/globalData";
 import Folder from "./../modules/structs/folder";
 import Instance from "./../modules/structs/instance";
 import Room from "./../modules/structs/room";
 import Sprite from "./../modules/structs/sprite";
-import * as sprite_editor from "./../components/SpriteEditor.svelte";
 import * as ui from "./../modules/ui";
-import { openCard } from '../modules/cardManager';
-import GamePreview from '../components/GamePreview.svelte';
+import { asyncYesNoPopup } from './../modules/ui';
+import { base } from '$app/paths'
  
 
     let main: Main | null;
@@ -75,20 +69,26 @@ import GamePreview from '../components/GamePreview.svelte';
 
 </script>
 
+<svelte:head>
+    <title>trash engine</title>
+    <link rel="stylesheet" href="{base}/reset.css">
+    <link rel="stylesheet" href="{base}/main.css"> 
+</svelte:head>
+
 {#await initPromise}
     <div class=loading>
-        <img src="icon.png" alt="trashcan">
+        <img src="{base}/icon.png" alt="trashcan">
         loading...
     </div>
 {:then} 
 {#await savingPromise}
     <div class=saving>
-        <img src="icon.png" alt="trashcan">
+        <img src="{base}/icon.png" alt="trashcan">
         saving...
     </div>
 {:then} 
     <header>
-        <div><img src="icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
+        <div><img src="{base}/icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
         <ul class="topbar">
             <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
             <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li>
