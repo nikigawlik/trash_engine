@@ -54,6 +54,7 @@ import { blockingPopup } from "../modules/ui";
 
 import Card from "./Card.svelte";
 import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
+    import { writable } from "svelte/store";
 
     export let card: CardInstance;
 
@@ -61,6 +62,16 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     let sprite: Sprite = $resourceManager?.findByUUID(card.uuid) as Sprite;
     $: {card.name = sprite.name; $resourceManager;} // $resourceManager added for reactivity
     $: card.className = "sprite-editor"
+
+    // let scriptText = writable(sprite.initCode); // TODO different events
+    // scriptText.subscribe(x => sprite.initCode = x);
+
+    let script1Text = sprite.initCode; // TODO different events
+    let script2Text = sprite.updateCode; // TODO different events
+    $: sprite.initCode = script1Text;
+    $: sprite.updateCode = script2Text;
+
+    let mode: "draw" | "script1" | "script2" = "draw";
 
     // silly lil hack (bec. of module hot reloading)
     if(!brushesSrcImage) init();
@@ -92,8 +103,9 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     
     brushes.length = numberOfIcons; // hack lol (makes svelte generate html as if there were this many icons)
 
-    onMount(() => {     
+    $: {
         for(let i = 0; i < numberOfIcons; i++) {
+            if(!brushes[i]) break;
             // let brushCanvas = document.createElement("canvas");
             let brushCanvas = brushes[i];
             brushCanvas.width = brushCanvas.height = brushWidth;
@@ -106,7 +118,7 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
             // display width accounts for device pixel ratio
             brushCanvas.style.width = brushCanvas.style.height = iconDisplayWidth + "px";
         } 
-    });
+    }
     
     let dummyIcon = () => `<canvas width=${~~iconDisplayWidth + "px"} height=${~~iconDisplayWidth + "px"} />`
     
@@ -191,19 +203,22 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     let selectColor = (i: number) => {
         let color = colors[i];
         currentColor = color;
+    }
 
-        const eraser = isEraser(color);
+    $: {
+        console.log("brush redraw")
+        const eraser = isEraser(currentColor);
 
         for(let brush of brushes) {
+            if(!brush) break;
             let ctx = brush.getContext("2d")!;
             ctx.globalCompositeOperation = "source-in";
-            ctx.fillStyle = !eraser? color : "#fff"; // TODO not white
+            ctx.fillStyle = !eraser? currentColor : "#fff"; // TODO not white
             ctx.fillRect(0, 0, brushWidth, brushWidth);
             // main canvas
             currentCanvasOP = eraser? "destination-out" : "source-over";
         }
     }
-
 
     onMount(() => selectColor(colors.length - 1));
 
@@ -271,8 +286,8 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
 
     let canvasContainer: HTMLElement;
 
-    onMount(() => {
-    canvasContainer.append(canvas);
+    $: {
+        if(canvasContainer) canvasContainer.append(canvas);
         
         // // after load hack
         // setTimeout(() => {
@@ -280,16 +295,22 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
         //     elmt.style.width = style.width;
         //     elmt.querySelector(".toolbar-container").style.flexDirection = "row";
         // }, 50);
-    });
+    }
 
 </script>
 
 <Card autoFocus={true} {card}>
+    <div class="modes">
+        <button on:click={() => mode = "draw" } class:selected={mode == "draw"}>drawing</button>
+        <button on:click={() => mode = "script1" } class:selected={mode == "script1"}>init code</button>
+        <button on:click={() => mode = "script2" } class:selected={mode == "script2"}>update code</button>
+    </div>
+    {#if mode=="draw"}
     <div class="card-settings"> 
         <p>
             <span>size: </span> <span class=size-description>{canvas.width} x {canvas.height}</span> 
             <button class=resize on:click={resizeButtonClick}> change </button>
-            <span><button on:click={centerOrigin} class=center-origin>center origin</button></span>
+            <!-- <span><button on:click={centerOrigin} class=center-origin>center origin</button></span> -->
         </p>
     </div>
     <div class="toolbar-container">
@@ -332,5 +353,32 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
         <!-- canvas -->
     </div>
     <!-- <div class="frame-select"><input step=1 min=0 max=4 type="range" /></div> -->
+    {:else if mode == "script1"}
+    <textarea bind:value={script1Text}></textarea>
+    {:else if mode == "script2"}
+    <textarea bind:value={script2Text}></textarea>
+    {/if}
 </Card>
 
+<style>
+    .modes {
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--main-color);
+    }
+
+    .modes button {
+        box-shadow: none;
+        border-bottom: none;
+        padding-bottom: 4px;
+    }
+
+    .modes button.selected {
+        border-bottom: none;
+        box-shadow: 0px 2px var(--bg-color);
+    }
+
+    textarea {
+        flex-grow: 1;
+        resize: none;
+    }
+</style>

@@ -1,17 +1,15 @@
 <script lang="ts">
-import type Resource from "src/modules/structs/resource";
-import { asyncGetTextPopup } from "../modules/ui";
-import ContextMenu from "./ContextMenu.svelte";
-import type { ContextMenuData } from "./ContextMenu.svelte";
-import { asyncYesNoPopup } from "../modules/ui";
-import Folder from "../modules/structs/folder";
-import { data } from "../modules/globalData";
-import { afterUpdate, onMount } from "svelte";
-import Sprite from "../modules/structs/sprite";
-import Room from "../modules/structs/room";
 import { openCard } from "../modules/cardManager";
-import SpriteEditor from "./SpriteEditor.svelte";
+import { data } from "../modules/globalData";
+import Folder from "../modules/structs/folder";
+import type Resource from "../modules/structs/resource";
+import Room from "../modules/structs/room";
+import Sprite from "../modules/structs/sprite";
+import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
+import type { ContextMenuData } from "./ContextMenu.svelte";
+import ContextMenu from "./ContextMenu.svelte";
 import RoomEditor from "./RoomEditor.svelte";
+import SpriteEditor from "./SpriteEditor.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
 // import { currentContextMenu } from "./ContextMenu.svelte";
     export let selfResource: Resource;

@@ -24,7 +24,7 @@ const { subscribe, set, update } = writable({
 } as GlobalSettings);
 
 let _value: GlobalSettings;
-subscribe(v => _value = v); // TODO evil code?
+subscribe(v => _value = v);
 
 export const data = {
     subscribe,

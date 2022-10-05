@@ -21,7 +21,6 @@ import { asyncYesNoPopup } from './../modules/ui';
 // import { base } from '$app/paths'
 import _ from "../../assets/reset.css";
 import __ from "../../assets/main.css";
-import iconURL from "../../assets/icon.png";
 
     const browser = true;
     const base = ".";
@@ -57,7 +56,6 @@ import iconURL from "../../assets/icon.png";
 
 
     function save() {
-        // TODO STUB
         let p1 = resourceManager.get().save();
         let p2 = data.save();
         savingPromise = Promise.all([p1, p2]);
@@ -74,32 +72,26 @@ import iconURL from "../../assets/icon.png";
 
 </script>
 
-<svelte:head>
-    <title>trash engine</title>
-    <!-- <link rel="stylesheet" href={resetCSSURL}>
-    <link rel="stylesheet" href={mainCSSURL}>  -->
-</svelte:head>
-
 {#await initPromise}
     <div class=loading>
-        <img src={iconURL} alt="trashcan">
+        <img src="/icon.png" alt="trashcan">
         loading...
     </div>
 {:then} 
 {#await savingPromise}
     <div class=saving>
-        <img src={iconURL} alt="trashcan">
+        <img src="/icon.png" alt="trashcan">
         saving...
     </div>
 {:then} 
     <header>
-        <div><img src={iconURL} alt="trashcan icon" /><h2>trash engine</h2></div>
+        <div><img src="/icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
         <ul class="topbar">
             <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
-            <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li>
-            <li><button on:click={() => openCard(Log)}>new log</button></li>
-            <li><button on:click={() => openCard(Settings)}>settings</button></li>
+            <!-- <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li> -->
+            <!-- <li><button on:click={() => openCard(Log)}>new log</button></li> -->
             <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
+            <li><button on:click={() => openCard(Settings)}>settings</button></li>
             <li><button on:click={() => openCard(GamePreview, false)}>game</button></li>
             <li><button on:click={() => save()}>save</button></li>
             <li><button on:click={() => location.reload()}>load</button></li>

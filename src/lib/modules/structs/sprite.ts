@@ -9,11 +9,18 @@ export default class Sprite extends Resource {
     originX: number;
     originY: number;
 
+    initCode: string;
+    updateCode: string;
+    _initFunction: Function;
+    _updateFunction: Function;
+
     constructor(name="sprite", resourceManager: ResourceManager) {
         super(name, resourceManager);
         this.canvas = null;
         this.originX = 0;
         this.originY = 0;
+        this.initCode = "// this code is executed when the sprite is created\n";
+        this.updateCode = "// this code is executed every update (60 times per second)\n";
     }
 
     getCopy() {

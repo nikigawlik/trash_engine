@@ -12,7 +12,6 @@ import Instance from "../modules/structs/instance";
 // import { base } from '$app/paths';
 
     const browser = true;
-    const base = ".";
     
     let init = async () => {
         if(!browser) return;
@@ -75,12 +74,6 @@ import Instance from "../modules/structs/instance";
             reload()
     }
 </script>
-
-<svelte:head>
-    <title>trash engine</title>
-    <link rel="stylesheet" href="{base}/reset.css">
-    <link rel="stylesheet" href="{base}/main.css"> 
-</svelte:head>
 
 <!-- <svelte:window on:message={onMessage} /> -->
 <svelte:window on:keydown={windowOnKeyDown} />

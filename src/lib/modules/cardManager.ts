@@ -21,7 +21,6 @@ let maxZ = 0;
 
 const { subscribe, set, update } = writable([]) as Writable<CardInstance[]>;
 
-// TODO use set/map instead of list to make more performant and to avoid filter(...)
 let _value: CardInstance[];
 subscribe(v => _value = v); // TODO evil code?
 
