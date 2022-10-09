@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { db, deserialize, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
+import { db, deserialize, getDocumentGameData, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
 import Folder from "../structs/folder";
 import Resource from "../structs/resource";
 import Room from "../structs/room";
@@ -115,6 +115,7 @@ export default class ResourceManager {
         // we just need to save the root, actually
         // let rootClone = JSON.parse(JSON.stringify(this, replacer));
         let rootClone = await this.getSerializedData();
+
         let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
         let request = objectStore.put(rootClone);
@@ -140,7 +141,14 @@ export default class ResourceManager {
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
         let results = await requestAsync(objectStore.getAll());
         let result = results[results.length - 1];
-        
+
+        if(!result) {
+            let docData = getDocumentGameData();
+            if(docData) {
+                result = JSON.parse(docData);
+            }
+        }
+
         if(result) {
             await this.setFromSerializedData(result);
         } else {
@@ -162,60 +170,3 @@ export let resourceManager = {
     get: () => _value,
     waitForLoad: () => isLoadedPromise,
 }
-
-
-// // helper html generator, not a component generator function!
-// let resourceList = (resources) => {
-//     return html`
-//     <ul class=resources>
-//         ${resources.map(x => html`
-//             <li>
-//                 <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>
-//             </li>
-//         `)}
-//     </ul>
-//     `;
-// }
-
-// let ResourceSubtree = (attrs = {}, ...children) => {
-//     let subtree = attrs.subtree;
-//     let elmt;
-//     if(attrs.self.type == "folder") {
-//         let e1 = attrs.self.render();
-//         let e2 = html`
-//             <ul>
-//                 ${subtree.map(x => html`
-//                 <li>
-//                     <${ResourceSubtree} subtree=${x.contents} name=${x.name} self=${x}><//>
-//                 </li>
-//                 `)}
-//             </ul>
-//         `;
-//         console.log(data.editor.settings.subFolders)
-//         elmt = data.editor.settings.subFolders? 
-//             html`
-//                 <${Details} summary=${e1} open=true>
-//                     ${e2}
-//                 <//>
-//             `
-//         :
-//             html`
-//                 ${e1}
-//                 ${e2}
-//             `
-//         ;
-
-//     } else {
-//         elmt = attrs.self.render();
-//     }
-//     return elmt;
-// }
-
-// let Details = (attrs = { summary: "", open: true }, ...children) => {
-//     return html`
-//         <details open=${attrs.open}>
-//             <summary>${attrs.summary}</summary>
-//             ${children.map(x => html`${x}`)}
-//         </details>
-//     `;
-// }

@@ -1,8 +1,8 @@
 <script lang="ts">
-// import { browser } from '$app/env';
-import GamePreview from '../components/GamePreview.svelte';
+// import { browser } from "$app/env";
+import GamePreview from "../components/GamePreview.svelte";
 import Resources from "../components/Resources.svelte";
-import { openCard } from '../modules/cardManager';
+import { openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
 import Log from "./../components/Log.svelte";
@@ -17,10 +17,11 @@ import Instance from "./../modules/structs/instance";
 import Room from "./../modules/structs/room";
 import Sprite from "./../modules/structs/sprite";
 import * as ui from "./../modules/ui";
-import { asyncYesNoPopup } from './../modules/ui';
-// import { base } from '$app/paths'
+import { asyncYesNoPopup } from "./../modules/ui";
+// import { base } from "$app/paths"
 import _ from "../../assets/reset.css";
 import __ from "../../assets/main.css";
+    import GameData from "../components/GameData.svelte";
 
     const browser = true;
     const base = ".";
@@ -61,6 +62,38 @@ import __ from "../../assets/main.css";
         savingPromise = Promise.all([p1, p2]);
     }
 
+    async function exportData() {
+        let obj = await resourceManager.get().getSerializedData();
+        let textData = JSON.stringify(obj);
+
+        let gameFileResponse = await fetch(location.href); // just fetches itself, works in a single-file build
+        let htmltext = await gameFileResponse.text();
+
+        // replace the contents of the gamedata script tag first with a placeholder
+        const placeholder = crypto.randomUUID();
+        let parser = new DOMParser();
+        let htmlDoc = parser.parseFromString(htmltext, "text/html");
+        htmlDoc.querySelector("script[type=gamedata]").textContent = textData;
+
+        let text = htmlDoc.documentElement.innerHTML;
+
+        // some hacks
+        
+        // let split = htmltext.split("!GAMEDATA!");
+        // let text = split[0] + textData + split[1];
+
+        const filename = "game.html";
+
+        // download
+        var element = document.createElement("a");
+        element.setAttribute("href", "data:text/html;charset=utf-8," + encodeURIComponent(text));
+        element.setAttribute("download", filename);
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
     function keyPress(event: KeyboardEvent) {
         if(event.ctrlKey && event.key == "s") {
             event.preventDefault();
@@ -87,7 +120,7 @@ import __ from "../../assets/main.css";
     <header>
         <div><img src="/icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
         <ul class="topbar">
-            <!-- <li><button onclick="cloneFromTemplate('#objectEditorCard')">new object</button></li> -->
+            <!-- <li><button onclick="cloneFromTemplate("#objectEditorCard")">new object</button></li> -->
             <!-- <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li> -->
             <!-- <li><button on:click={() => openCard(Log)}>new log</button></li> -->
             <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
@@ -95,6 +128,8 @@ import __ from "../../assets/main.css";
             <li><button on:click={() => openCard(GamePreview, false)}>game</button></li>
             <li><button on:click={() => save()}>save</button></li>
             <li><button on:click={() => location.reload()}>load</button></li>
+            <li><button on:click={() => openCard(GameData, false)}>game data</button></li>
+            <li><button on:click={() => exportData()}>export</button></li>
             <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>
         </ul>
     </header>

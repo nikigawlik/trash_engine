@@ -18,7 +18,7 @@ export async function init(additionalConstructors: Function[] = []) {
 
     console.log("opening database...");
     if (!window.indexedDB) {
-        console.log("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
+        console.log("Your browser doesn't support a stable version of IndexedDB. Damn.");
         return;
     }
     
@@ -48,6 +48,10 @@ export async function init(additionalConstructors: Function[] = []) {
 
     // let trans = db.transaction([STORE_NAME_RESOURCES, "readonly"]);
 
+}
+
+export function getDocumentGameData() : string | null {
+    return document.head.querySelector(`script[type="gamedata"]`)?.textContent.trim();
 }
 
 async function upgrade(database: IDBDatabase, fromVersion: number, toVersion: number | null) {
@@ -121,8 +125,11 @@ export async function serialize(obj: any | null) {
 
     // canvas
     if(obj instanceof HTMLCanvasElement) {
-        let blob = await new Promise(resolve => obj.toBlob(resolve, "image/png"));
-        return blob;
+        // let blob = await new Promise(resolve => obj.toBlob(resolve, "image/png"));
+        // return blob;
+        return {
+            _imageURL: obj.toDataURL("image/png")
+        }
     }
 
     // array
@@ -185,6 +192,19 @@ export async function deserialize(obj: any | null) {
         if(obj._func && constructors[obj._func]) {
             // reference to a known type/function
             return constructors[obj._func];
+        } else if(obj._imageURL) {
+            // from image data url
+            let img = new Image();
+            let promise = new Promise(resolve => img.onload = resolve);
+            img.src = obj._imageURL;
+            await promise;
+            let canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            let ctx = canvas.getContext("2d");
+            if(ctx) ctx.drawImage(img, 0, 0);
+
+            return canvas;
         } else {
             let constructor = constructors[obj._type]; // Can be undefined!
             if(constructor) {

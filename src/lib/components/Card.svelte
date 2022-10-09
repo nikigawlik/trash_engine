@@ -128,7 +128,13 @@ on:mousedown={onMouseDown}
 </section>
 
 
-<style>    
+<style>
+
+    section {
+        max-width: calc(100% - 8px);
+        max-height: calc(100% - 8px);
+    }
+
     * {
         box-sizing: border-box;
     }
@@ -136,9 +142,11 @@ on:mousedown={onMouseDown}
     .inner-card {
         box-sizing: border-box;
         display: flex;
-        flex-direction: column;;
+        flex-direction: column;
         width: 100%;
         height: 100%;
+        max-height: 100%;
+        overflow: hidden;
         border: 1px solid var(--main-color);
         /* border: 8px solid transparent; */
         /* border-image: var(--corner-image) 8 8 repeat; */

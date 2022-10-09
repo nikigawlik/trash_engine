@@ -26,9 +26,9 @@ import Card from "./Card.svelte";
 </script>
 
 <Card {card}>
-    <p><a href="/game.html" target="_blank">separate window</a></p>
+    <p><a href={`${location.href}?game`} target="_blank">separate window</a></p>
     <p><button on:click={reload}>reload ↺</button></p>
-    <iframe title="gametest" src="game.html" bind:this={iframe} />
+    <iframe title="gametest" src={`${location.href}?game`} bind:this={iframe} />
 </Card>
 
 <style>

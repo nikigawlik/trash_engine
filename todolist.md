@@ -37,8 +37,16 @@ vv START HERE vv
 - sprite sheet support (there is a build in pixi packer, i think?)
 - alternative resources -> shapes, text
 - delta time
-- export game data (json)
+~~- export game data (json)~~
 - room editor persistent data -> grid & snap settings
+- multiple projects? -> export/import/project-select or bitsy-style ?
+- export game (html)
+- prevent ofuscation of save-critical class names like "Sprite", "Room", etc.
+- room change should change game size in browser (pixi resize vs. svelte size code)7
+- indexed db -> some kind of game id (also useful for file protocol stuff)
+- ability to name game (changes title in export too)
+- corrupt save data? -> ability to delete data if game doesn't load after X seconds
+- cards should have default size & not reset on load (implementation overlap)
 
 PORT STUFF
 ~~- draggable loic in Card~~

@@ -37,8 +37,8 @@ import Instance from "../modules/structs/instance";
 
     $: (canvas && !game)? reload() : null
 
-    $: canvasWidth = canvas?.width || 100;
-    $: canvasHeight = canvas?.height || 100;
+    $: canvasWidth = canvas? canvas.width : 100;
+    $: canvasHeight = canvas? canvas.height : 100;
     const scaleFactor = 1;
     const ratio = browser? window.devicePixelRatio : 1;
     $: canvasDisplayWidth = canvasWidth / ratio * scaleFactor;
