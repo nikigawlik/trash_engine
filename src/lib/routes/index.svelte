@@ -1,50 +1,35 @@
 <script lang="ts">
-// import { browser } from "$app/env";
+import "../../assets/main.css";
+import "../../assets/reset.css";
+import GameData from "../components/GameData.svelte";
 import GamePreview from "../components/GamePreview.svelte";
+    import Icon from "../components/Icon.svelte";
 import Resources from "../components/Resources.svelte";
 import { openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
-import Log from "./../components/Log.svelte";
 import Main from "./../components/Main.svelte";
-import ScriptEditor from "./../components/ScriptEditor.svelte";
 import Settings from "./../components/Settings.svelte";
 import * as sprite_editor from "./../components/SpriteEditor.svelte";
 import * as database from "./../modules/database";
 import * as globalData from "./../modules/globalData";
-import Folder from "./../modules/structs/folder";
-import Instance from "./../modules/structs/instance";
-import Room from "./../modules/structs/room";
-import Sprite from "./../modules/structs/sprite";
+import { nameConstructorMap } from "./../modules/structs/savenames";
 import * as ui from "./../modules/ui";
 import { asyncYesNoPopup } from "./../modules/ui";
-// import { base } from "$app/paths"
-import _ from "../../assets/reset.css";
-import __ from "../../assets/main.css";
-    import GameData from "../components/GameData.svelte";
-
-    const browser = true;
-    const base = ".";
 
     let main: Main|null;
 
-    $: if(browser) $data.editor.settings.darkMode? document.body.classList.add("dark") : document.body.classList.remove("dark");
-
+    $: $data.editor.settings.darkMode? document.body.classList.add("dark") : document.body.classList.remove("dark");
 
     let init = async () => {
-        if(!browser) return;
         console.log("--- window.onload ---")
         // initialize different modules
-        await database.init([Sprite, Room, Folder, Instance]);
-        // await ResourceManager.init();
-        {
-            console.log("load app...");
-            await globalData.load();
-            await resourceManager.get().load();
-        }
+        await database.init(nameConstructorMap);
+        console.log("load app...");
+        await globalData.load();
+        await resourceManager.get().load();
         await ui.init();
         await sprite_editor.init();
-        // await SaveSystem.init();
         console.log("--- --- ---- --- ---")
         console.log("--- loading done ---")
         console.log("--- --- ---- --- ---")
@@ -66,11 +51,14 @@ import __ from "../../assets/main.css";
         let obj = await resourceManager.get().getSerializedData();
         let textData = JSON.stringify(obj);
 
-        let gameFileResponse = await fetch(location.href); // just fetches itself, works in a single-file build
-        let htmltext = await gameFileResponse.text();
+        let htmltext;
+        try {
+            let gameFileResponse = await fetch(location.href); // just fetches itself, works in a single-file build
+            htmltext = await gameFileResponse.text();
+        } catch(e) {
+            if(window["origText"]) htmltext = window["origText"]; // hack, refers to hack in the index.html
+        }
 
-        // replace the contents of the gamedata script tag first with a placeholder
-        const placeholder = crypto.randomUUID();
         let parser = new DOMParser();
         let htmlDoc = parser.parseFromString(htmltext, "text/html");
         htmlDoc.querySelector("script[type=gamedata]").textContent = textData;
@@ -93,6 +81,38 @@ import __ from "../../assets/main.css";
         element.click();
         document.body.removeChild(element);
     }
+    
+    async function importData() {
+        let element = document.createElement("input");
+        element.setAttribute("type", "file");
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        let result: File = await new Promise((resolve) => element.addEventListener("change", () => {
+            if (element.files && element.files[0]) {
+                element.innerHTML = element.files[0].name;
+                resolve(element.files[0]);
+            } else {
+                resolve(null);
+            }
+        }));
+        document.body.removeChild(element);
+
+        if(result) {
+            let fileTextContent = await result.text();
+            let gameData = "";
+
+            if(result.type == "text/html") {
+                let parser = new DOMParser();
+                let htmlDoc = parser.parseFromString(fileTextContent, "text/html");
+                gameData = htmlDoc.querySelector("script[type=gamedata]").textContent;
+            } else {
+                gameData = fileTextContent;
+            }
+
+            await resourceManager.get().load(gameData);
+        }
+    }
 
     function keyPress(event: KeyboardEvent) {
         if(event.ctrlKey && event.key == "s") {
@@ -101,24 +121,24 @@ import __ from "../../assets/main.css";
         }
     }
 
-    if(browser) document.onkeydown = keyPress;
+    document.onkeydown = keyPress;
 
 </script>
 
 {#await initPromise}
     <div class=loading>
-        <img src="/icon.png" alt="trashcan">
+        <Icon />
         loading...
     </div>
 {:then} 
 {#await savingPromise}
     <div class=saving>
-        <img src="/icon.png" alt="trashcan">
+        <Icon />
         saving...
     </div>
 {:then} 
     <header>
-        <div><img src="/icon.png" alt="trashcan icon" /><h2>trash engine</h2></div>
+        <div><Icon /><h2>trash engine</h2></div>
         <ul class="topbar">
             <!-- <li><button onclick="cloneFromTemplate("#objectEditorCard")">new object</button></li> -->
             <!-- <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li> -->
@@ -130,6 +150,7 @@ import __ from "../../assets/main.css";
             <li><button on:click={() => location.reload()}>load</button></li>
             <li><button on:click={() => openCard(GameData, false)}>game data</button></li>
             <li><button on:click={() => exportData()}>export</button></li>
+            <li><button on:click={() => importData()}>import</button></li>
             <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>
         </ul>
     </header>

@@ -6,14 +6,22 @@ const NAME = "ngine_Database"
 export const STORE_NAME_RESOURCES = "resources";
 export const STORE_NAME_GLOBAL_DATA = "global_data";
 
-let constructors: any = {};
+let constructors: Map<string, {new (): Object}> = new Map();
+let inverseConstructors: Map<{new (): Object}, string> = new Map();
 
 // database object
 export let db: IDBDatabase;
 
-export async function init(additionalConstructors: Function[] = []) {
-    for(let s of additionalConstructors) {
-        constructors[s.name] = s;
+export async function init(constructorMap?: Map<string, {new (): Object}>) {
+    if(constructorMap) {
+        constructors = constructorMap;
+
+        // set up the inverse map
+        inverseConstructors.clear();
+        for(let name of constructorMap.keys()) {
+            let constr = constructorMap.get(name);
+            inverseConstructors.set(constr, name);
+        }
     }
 
     console.log("opening database...");
@@ -116,7 +124,7 @@ export async function serialize(obj: any | null) {
     // function
     if(typeof obj === "function") {
         return {
-            _func: obj.name
+            _func: inverseConstructors.get(obj)
         };
     }
 
@@ -148,11 +156,33 @@ export async function serialize(obj: any | null) {
             if (obj.hasOwnProperty(attr) && attr[0] != "_") 
                 copy[attr] = await serialize(obj[attr]);
         }
-        copy._type = obj.constructor?.name;
+
+        if(inverseConstructors.has(obj.constructor)) {    
+            copy._type = inverseConstructors.get(obj.constructor);
+        }
+        else if(obj.constructor) {
+            let recogTypes = Array.from(inverseConstructors.keys()).map(x => x.name);
+            throw new UnrecognizedTypeError(`Unknown type: ${obj.constructor.name}. Recognized types: [${recogTypes.join(", ")}]`);
+        }
+
         return copy;
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
+class UnrecognizedTypeError extends Error {
+    constructor(message) {
+      super(message);
+      this.name = 'UnrecognizedTypeError';
+    }
+}
+
+
+// TODO refactor -> either inline or make a separate funtion for the equivalent code in serialize
+function makeUnrecognizedTypeError(typeName) {
+    let recogTypes = Array.from(constructors.keys());
+    return new UnrecognizedTypeError(`Unknown type: ${typeName}. Recognized types: ${recogTypes.join(", ")}`);
 }
 
 export async function deserialize(obj: any | null) {
@@ -189,9 +219,11 @@ export async function deserialize(obj: any | null) {
 
     // object
     if (obj instanceof Object) {
-        if(obj._func && constructors[obj._func]) {
+        if(obj._func) {
             // reference to a known type/function
-            return constructors[obj._func];
+            if(!constructors.has(obj._func)) throw makeUnrecognizedTypeError(obj._func);
+
+            return constructors.get(obj._func);
         } else if(obj._imageURL) {
             // from image data url
             let img = new Image();
@@ -206,18 +238,27 @@ export async function deserialize(obj: any | null) {
 
             return canvas;
         } else {
-            let constructor = constructors[obj._type]; // Can be undefined!
-            if(constructor) {
+            if(obj._type) {
+                if(!constructors.has(obj._type)) throw makeUnrecognizedTypeError(obj._type);
+
+                let constructor = constructors.get(obj._type);
                 // object of a known type/function
-                copy = new constructors[obj._type]();
+                copy = new constructor();
+                
+                for (var attr in obj) {
+                    if (
+                        obj.hasOwnProperty(attr) && attr[0] != "_"
+                        && copy.hasOwnProperty(attr) // for defined types the property needs to already exist
+                    )
+                        copy[attr] = await deserialize(obj[attr]);
+                }
             } else {
                 // other/unknown object
                 copy = {};
-            }
-            for (var attr in obj) {
-                if ((obj.hasOwnProperty(attr) && attr[0] != "_") 
-                && (!constructor || copy.hasOwnProperty(attr))) // for constructors the property needs to already exist
-                    copy[attr] = await deserialize(obj[attr]);
+                for (var attr in obj) {
+                    if (obj.hasOwnProperty(attr) && attr[0] != "_")
+                        copy[attr] = await deserialize(obj[attr]);
+                }
             }
         }
         return copy;

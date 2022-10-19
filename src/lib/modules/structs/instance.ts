@@ -13,7 +13,7 @@ export default class Instance {
     // _createFunc: Function;
     _pixiSprite: pixi.Sprite | null;
 
-    constructor(spriteID: string, x: number, y: number) {
+    constructor(spriteID?: string, x?: number, y?: number) {
         this.spriteID = spriteID; 
         this.x = x;
         this.y = y;
@@ -35,12 +35,22 @@ export default class Instance {
 
     create() {
         let sprite: Sprite = resourceManager.get().findByUUID(this.spriteID);
-        sprite._initFunction?.call(this);
+        try {
+            sprite._initFunction?.call(this);
+        } catch(e) {
+            console.log(`Error in instance of sprite ${sprite.name}: `);
+            console.error(e);
+        }
     }
 
     tick() {
         let sprite: Sprite = resourceManager.get().findByUUID(this.spriteID);
-        sprite._updateFunction?.call(this);
+        try {
+            sprite._updateFunction?.call(this);
+        } catch(e) {
+            console.log(`Error in instance of sprite ${sprite.name}: `);
+            console.error(e);
+        }
 
         if(this._pixiSprite) {
             this._pixiSprite.x = this.x;

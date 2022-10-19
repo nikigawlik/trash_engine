@@ -7,7 +7,7 @@ export default class Room extends Resource {
     height: number;
     instances: Instance[];
     backgroundColor: string;
-    constructor(name = "room", resourceManager: ResourceManager) {
+    constructor(name = "room", resourceManager?: ResourceManager) {
         super(name, resourceManager);
         this.width = ~~(540 * 12/9);
         this.height = 540;

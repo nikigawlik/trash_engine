@@ -1,15 +1,14 @@
 <script lang="ts">
+import "../../assets/reset.css";
 import { onMount } from "svelte";
+import * as database from "../modules/database";
 import Game from "../modules/game/game";
 import { resourceManager } from "../modules/game/ResourceManager";
-import * as database from "../modules/database";
+import { nameConstructorMap } from "../modules/structs/savenames";
 import * as globalData from "./../modules/globalData";
-import Sprite from "../modules/structs/sprite";
-import Room from "../modules/structs/room";
-import Folder from "../modules/structs/folder";
-import Instance from "../modules/structs/instance";
-// import { browser } from '$app/env';
-// import { base } from '$app/paths';
+import p5 from "../ext/p5.js";
+
+    // TODO lot's of code overlap with index.svelte
 
     const browser = true;
     
@@ -17,7 +16,7 @@ import Instance from "../modules/structs/instance";
         if(!browser) return;
         console.log("--- loading start ---")
         // initialize different modules
-        await database.init([Sprite, Room, Folder, Instance]);
+        await database.init(nameConstructorMap);
         // await ResourceManager.init();
         {
             console.log("load app...");

@@ -4,6 +4,7 @@ import type ResourceManager from "./ResourceManager";
 import * as pixi from 'pixi.js';
 import Sprite from "../structs/sprite";
 
+
 export default class Game {
     tickRate: number;
     currentRoomUUID: string;
@@ -17,6 +18,12 @@ export default class Game {
     renderer: pixi.Renderer;
     stage: pixi.Container;
 
+    mouseX: number
+    mouseY: number
+
+    roomNumber: number
+    actualRoomNumber: number
+
     constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement) {
         this.tickRate = 60;
         this.currentRoomUUID = ""; // actually set later using setRoom
@@ -26,14 +33,16 @@ export default class Game {
         this.tickNumber = 0;
         this.instances = [];
         this.isEnding = false;
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.roomNumber = 0;
+        this.actualRoomNumber = 0;
 
         this.renderer = new pixi.Renderer({
             view: canvas,
             autoDensity: false,
             antialias: false,
         });
-
-        this.setRoom(resourceManager.getAllOfResourceType(Room)[0].uuid);
         
         // TODO weird and hacky
         window.setTimeout(() => this.init(), 10);
@@ -86,19 +95,100 @@ export default class Game {
             get: () => this._cachedRoom?.height,
         })
 
+        Object.defineProperty(window, "mouseX", {
+            configurable: true,
+            get: () => this.mouseX,
+        })
+
+        Object.defineProperty(window, "mouseY", {
+            configurable: true,
+            get: () => this.mouseY,
+        })
+
         Object.defineProperty(window, "spawn", {
             configurable: true,
             writable: false,
-            value: (sprite: string, x: number, y: number) => this.createInstance(sprite, x, y),
+            value: (sprite: string, x: number, y: number): Instance => this.createInstance(sprite, x, y),
         })
 
-        // call create events
-        for(let inst of this.instances) {
-            inst.create();
+        Object.defineProperty(window, "destroy", {
+            configurable: true,
+            writable: false,
+            value: (instance: Instance) => this.destroyInstance(instance)
+        })
+
+        Object.defineProperty(window, "find", {
+            configurable: true,
+            writable: false,
+            value: (sprite: string) => this.instances.find(x => x.spriteID == sprite),
+        })
+
+        Object.defineProperty(window, "findAll", {
+            configurable: true,
+            writable: false,
+            value: (sprite: string) => this.instances.filter(x => x.spriteID == sprite),
+        })
+
+        Object.defineProperty(window, "callInit", {
+            configurable: true,
+            writable: false,
+            value: (sprite: string, self: Instance) => {
+                let spriteObj = (this.resourceManager.findByUUID(sprite) as Sprite);
+                try {
+                    spriteObj._initFunction.call(self);
+                } catch(e) {
+                    console.log(`Error in instance of sprite ${spriteObj.name}: `);
+                    console.error(e);
+                }
+            }
+        })
+
+        Object.defineProperty(window, "callUpdate", {
+            configurable: true,
+            writable: false,
+            value: (sprite: string, self: Instance) => {
+                let spriteObj = (this.resourceManager.findByUUID(sprite) as Sprite);
+                try {
+                    spriteObj._updateFunction.call(self);
+                } catch(e) {
+                    console.log(`Error in instance of sprite ${spriteObj.name}: `);
+                    console.error(e);
+                }
+            }
+        })
+
+        Object.defineProperty(window, "setDepth", {
+            configurable: true,
+            writable: false,
+            value: (self: Instance, depth: number) => {
+                if(self._pixiSprite) self._pixiSprite.zIndex = depth;
+            }
+        })
+
+        Object.defineProperty(window, "goToNextRoom", {
+            configurable: true,
+            writable: false,
+            value: (self: Instance, depth: number) => {
+                this.roomNumber++;
+            }
+        })
+
+
+
+        window.onmousemove = (ev: MouseEvent) => {
+            this.mouseX = ev.offsetX * devicePixelRatio;
+            this.mouseY = ev.offsetY * devicePixelRatio;
         }
 
-        // start
-        this.update();
+        let rooms = this.resourceManager.getAllOfResourceType(Room);
+        if(rooms.length == 0) {
+            console.warn("no rooms found. Possibly a side effect of invalid/missing game data.")
+        } else { 
+            this.setRoom(rooms[this.roomNumber].uuid);
+
+            // start
+            this.update();
+        }
     }
 
     createInstance(spriteUUID: string, x: number, y: number) {
@@ -106,6 +196,13 @@ export default class Game {
         this.instances.push(inst)
         this._registerInstance(inst);
         inst.create();
+        return inst;
+    }
+
+    destroyInstance(instance: Instance) {
+        let instID = this.instances.indexOf(instance);
+        if(instID >= 0) this.instances.splice(instID, 1);
+        if(instance._pixiSprite) this.stage.removeChild(instance._pixiSprite);
     }
 
     setRoom(roomUUID: string) {
@@ -124,10 +221,17 @@ export default class Game {
         document.body.style.backgroundColor = room.backgroundColor;
 
         this.instances = room.instances.map(i => i.clone());
-        this.stage = new pixi.Container();
+
+        if(this.stage) this.stage.removeChildren()
+        else this.stage = new pixi.Container();
 
         for(let inst of this.instances) {
             this._registerInstance(inst);
+        }
+        
+        // call create events
+        for(let inst of this.instances) {
+            inst.create();
         }
     }
 
@@ -156,15 +260,23 @@ export default class Game {
     }
 
     update() {
+        if(this.roomNumber != this.actualRoomNumber) {
+            let allRooms = this.resourceManager.getAllOfResourceType(Room);
+            this.roomNumber = this.roomNumber % allRooms.length;
+            this.actualRoomNumber = this.roomNumber;
+            this.setRoom(allRooms[this.actualRoomNumber].uuid);
+        }
+
         for(let inst of this.instances) {
             inst.tick();
         }
 
-    //     this.draw();
+        // this.draw();
+        this.stage.sortChildren();
         this.renderer.render(this.stage);
         
-        if(!this.isEnding) window.requestAnimationFrame(() => this.update());
         this.tickNumber ++;
+        if(!this.isEnding) window.requestAnimationFrame(() => this.update());
     }
 
     // draw() {

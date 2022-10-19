@@ -14,7 +14,7 @@ export default class Sprite extends Resource {
     _initFunction: Function;
     _updateFunction: Function;
 
-    constructor(name="sprite", resourceManager: ResourceManager) {
+    constructor(name="sprite", resourceManager?: ResourceManager) {
         super(name, resourceManager);
         this.canvas = null;
         this.originX = 0;

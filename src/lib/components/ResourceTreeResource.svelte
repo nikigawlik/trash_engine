@@ -4,6 +4,7 @@ import { data } from "../modules/globalData";
 import Folder from "../modules/structs/folder";
 import type Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
+    import { nameConstructorMap } from "../modules/structs/savenames";
 import Sprite from "../modules/structs/sprite";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
 import type { ContextMenuData } from "./ContextMenu.svelte";
@@ -78,7 +79,12 @@ import SpriteIcon from "./SpriteIcon.svelte";
 
         if(resource instanceof Folder) {
             const resourceConstructor = resource.getTopFolder()?.resourceType;
-            const resourceName = resourceConstructor?.name.toLowerCase();
+            // const resourceName = resourceConstructor?.name.toLowerCase();
+            const resourceName = 
+                resourceConstructor == Sprite?  "sprite": 
+                resourceConstructor == Room?  "room":
+                "null" 
+            ;
             options = resourceConstructor? [
                 {
                     id: "new_resource",

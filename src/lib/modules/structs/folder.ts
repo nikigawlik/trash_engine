@@ -5,7 +5,7 @@ export default class Folder extends Resource {
     contents: Resource[]
     resourceType: typeof Resource | null
     
-    constructor(name = "folder", resourceManager: ResourceManager, contents: Resource[] = [], resourceType: (typeof Resource)|null = null) {
+    constructor(name = "folder", resourceManager?: ResourceManager, contents: Resource[] = [], resourceType: (typeof Resource)|null = null) {
         super(name, resourceManager);
         this.contents = [];
         for (let x of contents) {

@@ -130,17 +130,29 @@ export default class ResourceManager {
         });
     }
 
-    async load() {
+    async load(customData? : string) {
         if(!db || !db.transaction) {
             // throw Error("Database not initialized!")
             console.log("no database...")
             return;
         }
-        console.log(`- load resource tree...`)
-        let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
-        let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
-        let results = await requestAsync(objectStore.getAll());
-        let result = results[results.length - 1];
+
+        let result;
+
+        if(customData) {
+            result = JSON.parse(customData);
+        } else {
+            console.log(`- load resource tree from indexed db...`)
+            try {
+                let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
+                let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
+                let results = await requestAsync(objectStore.getAll());
+                result = results[results.length - 1];
+            } catch (e) {
+                console.log(`getting data failed: ${(e as Error)?.message}`);
+                result = null;
+            }
+        }
 
         if(!result) {
             let docData = getDocumentGameData();
@@ -150,7 +162,11 @@ export default class ResourceManager {
         }
 
         if(result) {
-            await this.setFromSerializedData(result);
+            try {
+                await this.setFromSerializedData(result);
+            } catch(e) {
+                console.log("!! save data potentially corrupted, loading failed")
+            }
         } else {
             console.log("!! no save data found")
         }

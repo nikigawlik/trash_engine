@@ -173,6 +173,56 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
         }
     };
 
+    let uploadButtonClick = async() => {
+        let element = document.createElement("input");
+        element.setAttribute("type", "file");
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        // TODO if user clicks cancel this will just never resolve
+        let imgFile: File = await new Promise((resolve) => element.addEventListener("change", () => {
+            if (element.files && element.files[0]) {
+                element.innerHTML = element.files[0].name;
+                resolve(element.files[0]);
+            } else {
+                resolve(null); // doesn't happen probably?
+            }
+        }));
+        document.body.removeChild(element);
+
+        if(imgFile) {
+            let width;
+            let height;
+            let fileSize;
+            let reader = new FileReader();
+            let readPromise: Promise<ProgressEvent<FileReader>> = new Promise((resolve, reject) => { reader.onload = event => resolve(event); reader.onerror = reject });
+            
+            reader.readAsDataURL(imgFile);
+            let event: ProgressEvent<FileReader> = await readPromise;
+            
+            let dataUri = event.target.result as string,
+            img = document.createElement("img");
+            let imgLoadPromise = new Promise(resolve => img.onload = resolve)
+            img.src = dataUri;
+            width = img.width;
+            height = img.height;
+            fileSize = imgFile.size;
+
+            await imgLoadPromise;
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+            sprite.originX = ~~(canvas.width / 2);
+            sprite.originY = ~~(canvas.height / 2);
+
+            canvas.getContext("2d").drawImage(img, 0, 0);
+            autoResizeCanvas();
+            // alert(width);
+            // alert(height);
+            // alert(fileSize);
+        }
+    }
+
     let centerOrigin = () => {
         sprite.originX = ~~(canvas.width / 2);
         sprite.originY = ~~(canvas.height / 2);
@@ -312,6 +362,9 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
             <button class=resize on:click={resizeButtonClick}> change </button>
             <!-- <span><button on:click={centerOrigin} class=center-origin>center origin</button></span> -->
         </p>
+        <p>
+            <button class=upload on:click={uploadButtonClick}> upload image </button>
+        </p>
     </div>
     <div class="toolbar-container">
         <div class="toolbar colors">
@@ -354,16 +407,16 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     </div>
     <!-- <div class="frame-select"><input step=1 min=0 max=4 type="range" /></div> -->
     {:else if mode == "script1"}
-    <textarea bind:value={script1Text}></textarea>
+    <textarea bind:value={script1Text} spellcheck=false></textarea>
     {:else if mode == "script2"}
-    <textarea bind:value={script2Text}></textarea>
+    <textarea bind:value={script2Text} spellcheck=false></textarea>
     {/if}
 </Card>
 
 <style>
     .modes {
         margin-bottom: 8px;
-        border-bottom: 1px solid var(--main-color);
+        border-bottom: 1px solid let(--main-color);
     }
 
     .modes button {
@@ -374,7 +427,7 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
 
     .modes button.selected {
         border-bottom: none;
-        box-shadow: 0px 2px var(--bg-color);
+        box-shadow: 0px 2px let(--bg-color);
     }
 
     textarea {
