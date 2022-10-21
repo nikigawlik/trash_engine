@@ -1,5 +1,6 @@
 import type { SvelteComponent } from "svelte";
 import { writable, type Writable } from "svelte/store";
+import { findWindowPos } from "./ui";
 
 export interface CardInstance {
     componentType: (typeof SvelteComponent)
@@ -52,10 +53,7 @@ export function openCard(
     type: any, 
     allowDuplicate: boolean = true, 
     uuid?: string, 
-    x: number = 0, 
-    y: number = 0, 
-    w: number = 0,
-    h: number = 0,
+    position: DOMRect = new DOMRect(),
 ) {
         
     // either an existing card or false/undefined
@@ -66,6 +64,17 @@ export function openCard(
     if(existing) {
         cards.focus(existing.uuid);
     } else {
-        cards.add(type, "", new DOMRect(x, y, w, h), uuid);
+        // if(position == undefined) {
+        //     console.log("here")
+        //     let bounds = document.querySelector("main")?.getBoundingClientRect() || new DOMRect(0, 0, 1000, 1000);
+        //     let result = findWindowPos(
+        //         new DOMRect(0, 0, 100, 100), 
+        //         new DOMRect(0, 0, bounds.width, bounds.height),
+        //         cards.get().map(x => x.position)
+        //     )
+        //     position = new DOMRect(result.x, result.y, 0, 0);
+        // }
+
+        cards.add(type, "", position, uuid);
     }
 }

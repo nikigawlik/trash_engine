@@ -148,24 +148,44 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     };
 
     $: {availableHeight; availableWidth; autoResizeCanvas(); }
-    $: { console.log(`w/h: ${availableWidth} ${availableHeight}`) }
+    // $: { console.log(`w/h: ${availableWidth} ${availableHeight}`) }
     // window.setInterval(() => {console.log(`w/h: ${availableWidth} ${availableHeight}`)}, 1000)
 
     let initialResize = () => {
         
         console.log(`canvas: ${canvas.width} ${canvas.height}`)
-            let initialScaleFactor = Math.round(
-                250 / (canvas.width/2 + canvas.height/2)
-            );
-            initialScaleFactor = Math.max(1, initialScaleFactor);
-            resizeCanvas(initialScaleFactor);
-            console.log("initial scale.")
+        let initialScaleFactor = Math.round(
+            250 / (canvas.width/2 + canvas.height/2)
+        );
+        initialScaleFactor = Math.max(1, initialScaleFactor);
+        resizeCanvas(initialScaleFactor);
+        console.log("initial scale.")
+    }
+
+    let proxy = () => {
+        if(card.position.width && card.position.height) {
+                console.log("hacky res change")
+                availableWidth = canvasContainer.clientWidth;
+                availableHeight = canvasContainer.clientHeight;
+                autoResizeCanvas();
+            } 
+            else if(!availableWidth || !availableHeight) {
+                console.log("initial res change")
+                initialResize();
+                // console.log(`inires: ${availableWidth}/${availableHeight} ${canvasContainer.clientWidth}/${canvasContainer.clientHeight}`)
+            }
+            // I strongly suspect, this else is never visited
+            else {
+                console.log("auto res change")
+                autoResizeCanvas();
+                // console.log(`autores: ${availableWidth}/${availableHeight} ${canvasContainer.clientWidth}/${canvasContainer.clientHeight}`)
+            }
     }
 
     // establish some default scale for the canvas, based on it's resolution
     $: { 
         if(canvasContainer) {
-            initialResize();
+            proxy();
         }
     }
 

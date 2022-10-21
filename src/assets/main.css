@@ -174,7 +174,7 @@ canvas {
     position: absolute;
     user-select: none;
 
-    resize: both;
+    /* resize: both; */
     overflow: hidden;
     /* min-width: fit-content;
     min-height: fit-content; */

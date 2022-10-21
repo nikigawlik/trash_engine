@@ -23,7 +23,7 @@ openCard(Resources, false)
 
         display: flex;
         justify-content: left;
-        align-items: center;
+        align-items: top;
         gap: 4px;
         
         overflow: hidden;

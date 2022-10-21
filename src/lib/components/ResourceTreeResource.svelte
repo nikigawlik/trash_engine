@@ -202,6 +202,10 @@ import SpriteIcon from "./SpriteIcon.svelte";
 </span>
 
 <style>
+    * {
+        white-space: nowrap;
+    }
+
     button {    
         /* do not style like other buttons */
         border: none;

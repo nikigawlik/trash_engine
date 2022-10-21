@@ -23,12 +23,13 @@ import { cards, type CardInstance } from "../modules/cardManager";
     // these update automatically (using a bind: thingy)
     let clientWidth = card.position.width;
     let clientHeight = card.position.height;
+
     $: console.log(`width: ${clientWidth}`)
     $: console.log(`height: ${clientHeight}`)
     // $: name = `${clientWidth} ${clientHeight}`;
     $: {
         clientWidth; clientHeight;
-        console.log(`card pos: ${card.position.width} ${card.position.width}`)
+        // console.log(`card pos: ${card.position.width} ${card.position.width}`)
     }
 
 
@@ -36,11 +37,13 @@ import { cards, type CardInstance } from "../modules/cardManager";
     // let height: number;
     let left: number = card.position.x;
     let top: number = card.position.y;
+    let width: number = card.position.width || undefined;
+    let height: number = card.position.height || undefined;
 
     $: { 
-        card.position = new DOMRect(left, top, clientWidth, clientHeight); 
-        console.log("card updated"); 
-        console.log(`: ${card.position.width} ${card.position.height}`)
+        card.position = new DOMRect(left, top, width, height); 
+        // console.log("card updated"); 
+        // console.log(`: ${card.position.width} ${card.position.height}`)
     }
 
     let elmt : HTMLElement | null = null;
@@ -102,11 +105,72 @@ import { cards, type CardInstance } from "../modules/cardManager";
         isDragged = false;
     }
 
+    let initialX = 0;
+    let initialY = 0;
+
+    let initialPos = null;
+    
+    let resizeLeft = false;
+    let resizeRight = false;
+    let resizeTop = false;
+    let resizeBottom = false;
+
+    function onResizeMouseDown(event: MouseEvent){
+        let target = (event.target as HTMLElement);
+        resizeRight = target.classList.contains("right");
+        resizeLeft = !isMaximized && target.classList.contains("left");
+        resizeTop = !isMaximized && target.classList.contains("top");
+        resizeBottom = !isMaximized && target.classList.contains("bottom");
+        
+        initialX = event.clientX;
+        initialY = event.clientY;
+        initialPos = elmt.getBoundingClientRect();
+    }
+    
+    function onResizeMouseMove(event: MouseEvent){
+        let offset = document.querySelector("main").getBoundingClientRect();
+
+        if(resizeRight) {
+            width = initialPos.width + (event.clientX - initialX);
+            width = Math.max(width, 20);
+        }
+        if(resizeBottom) {
+            height = initialPos.height + (event.clientY - initialY);
+            height = Math.max(height, 20);
+        }
+        if(resizeLeft) {
+            left = initialPos.left + (event.clientX - initialX) - offset.left;
+            left = Math.max(left, 0);
+            left = Math.min(left, initialPos.left - offset.left + initialPos.width - 20);
+
+            width = initialPos.width - (left - initialPos.left + offset.left);
+        }
+        if(resizeTop) {
+            top = initialPos.top + (event.clientY - initialY) - offset.top;
+            top = Math.max(top, 0);
+            top = Math.min(top, initialPos.top - offset.top + initialPos.height - 20);
+
+            height = initialPos.height - (top - initialPos.top + offset.top);
+        }
+    }
+
+    function onResizeMouseUp(event: MouseEvent){
+        resizeLeft = false;
+        resizeRight = false;
+        resizeTop = false;
+        resizeBottom = false;
+    }
+
+
 </script>
 
 <svelte:body
 on:mousemove={onBodyMouseMove}
+on:mousemove={onResizeMouseMove}
 on:mouseup={onBodyMouseUp}
+on:mouseup={onResizeMouseUp}
+on:mouseleave={onBodyMouseUp}
+on:mouseleave={onResizeMouseUp}
 ></svelte:body>
 
 <!-- 
@@ -114,6 +178,11 @@ style:width={isMaximized? "100%" : (clientWidth? `${(clientWidth)}px` : null)}
 style:height={isMaximized? "100%" : (clientHeight? `${(clientHeight)}px` : null)} 
 style:width={ clientWidth? `${(clientWidth)}px` : undefined }
 style:height={ clientHeight? `${(clientHeight)}px` : undefined } 
+
+
+style:resize={isMaximized? 'none' : 'both'}
+bind:clientWidth={clientWidth}
+bind:clientHeight={clientHeight}
 -->
 
 <section 
@@ -122,16 +191,23 @@ data-resource-uuid={uuid}
 bind:this={elmt}
 tabindex=-1
 style:z-index={card.zIndex}
-style:resize={isMaximized? 'none' : 'both'}
 style:position={isMaximized? 'static' : 'absolute'}
-bind:clientWidth={clientWidth}
-bind:clientHeight={clientHeight}
 style:left={left}px
 style:top={top}px
-style:width={ undefined }
-style:height={ isMaximized? "100%" : undefined } 
+style:width={width}px
+style:height={isMaximized? "100%" : `${height}px`}
 on:mousedown={onMouseDown}
+style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}px;"
 >
+    <div on:mousedown={onResizeMouseDown} class="resize right"></div>
+    <div on:mousedown={onResizeMouseDown} class="resize left"></div>
+    <div on:mousedown={onResizeMouseDown} class="resize top"></div>
+    <div on:mousedown={onResizeMouseDown} class="resize bottom"></div>
+    <div on:mousedown={onResizeMouseDown} class="resize top right"></div>
+    <div on:mousedown={onResizeMouseDown} class="resize top left"></div>
+    <div on:mousedown={onResizeMouseDown} class="resize bottom right"></div>
+    <div on:mousedown={onResizeMouseDown} class="resize bottom left"></div>
+
     <div class="inner-card">
         <h3>
             <div class="name">{name}</div> 
@@ -151,17 +227,52 @@ on:mousedown={onMouseDown}
 
 <style>
 
+    /* * {
+        --border: 7px;
+        --half-border: 3px;
+    } */
+
     section {
         max-width: calc(100% - 8px);
         max-height: calc(100% - 8px);
         margin: 0;
+
+        display: grid;
+        grid-template-columns: var(--border) 1fr var(--border);
+        grid-template-rows: var(--border) 1fr var(--border);
     }
+
+    .resize {
+        /* defaults */
+        grid-row: 2;
+        grid-column: 2;
+        border: var(--half-border) solid var(--bg-color);
+        background-color: var(--main-color);
+    }
+
+    .resize.top { grid-row: 1; }
+    .resize.bottom { grid-row: 3; }
+    .resize.left { grid-column: 1; }
+    .resize.right { grid-column: 3; }
+
+    .resize.left { cursor: w-resize;}
+    .resize.right { cursor: e-resize;}
+    .resize.top { cursor: n-resize;}
+    .resize.bottom { cursor: s-resize;}
+    .resize.top.left { cursor: nw-resize;}
+    .resize.top.right { cursor: ne-resize;}
+    .resize.bottom.left { cursor: sw-resize;}
+    .resize.bottom.right { cursor: se-resize;}
 
     * {
         box-sizing: border-box;
     }
 
     .inner-card {
+        
+        grid-row: 2;
+        grid-column: 2;
+
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -169,7 +280,6 @@ on:mousedown={onMouseDown}
         height: 100%;
         max-height: 100%;
         overflow: hidden;
-        border: 1px solid var(--main-color);
         /* border: 8px solid transparent; */
         /* border-image: var(--corner-image) 8 8 repeat; */
         /* border-color: var(--main-color); */

@@ -57,26 +57,6 @@ export let asyncGetTextPopup = async (question: string, defaultText: string) : P
 
 /* ------- old stuff -------   */
 
-
-
-// export function cloneFromTemplate(queryStr, parent, customProcessor=null) {
-//     parent = parent || document.querySelector("main");
-
-//     let fragment = document.querySelector(queryStr).content.cloneNode(true);
-//     let rootElement = fragment.firstElementChild; // by convention we assume there is only one element anyways
-//     if(customProcessor) {
-//         customProcessor(fragment);
-//     }
-//     // elementsRegister(fragment, parent);
-//     parent.append(fragment);
-//     return rootElement;
-// }
-
-if(typeof window !== 'undefined') {
-    // @ts-ignore
-    // window.cloneFromTemplate = cloneFromTemplate;
-} 
-
 /**
  * @param {HTMLElement} root 
  * @param {HTMLElement} bounds 
@@ -98,18 +78,12 @@ export function init() {
     // elementsRegister(bounds, document.querySelector("main"));
 }
 
-export function findWindowPos(elmt: HTMLElement) {
-    let boundsElmt = document.querySelector("main");
-    let meRect = elmt.getBoundingClientRect();
-    if(!boundsElmt) return meRect;
-    let bounds = boundsElmt.getBoundingClientRect();
-    let others = 
-        new Array(...boundsElmt.querySelectorAll(".card"))
-        .filter(x => x != elmt)
-        .map(x => x.getBoundingClientRect())
-    ;
+export function findWindowPos(elementRect: DOMRect, boundsRect: DOMRect, otherCardsRects: DOMRect[]) {
+    let meRect = elementRect;
+    let bounds = boundsRect;
+    let others = otherCardsRects;
 
-    let cans = [];
+    let cans: DOMRect[] = [];
 
     let freeAt = (rect: DOMRect) => {
         for(let otherRect of others) {
