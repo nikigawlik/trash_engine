@@ -3,11 +3,13 @@ import { blockingPopup } from "../modules/ui";
 import { cards, openCard } from "./../modules/cardManager";
 import Resources from "./Resources.svelte";
 
-openCard(Resources, false)
+    openCard(Resources, false)
+
+    $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 </script>
 
 <main>
-    {#each $cards as card (card.uuid)}
+    {#each sortedCards as card (card.uuid)}
         <svelte:component this={card.componentType} card={card} />
     {/each}
     {#if $blockingPopup}

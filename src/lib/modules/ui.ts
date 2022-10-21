@@ -1,4 +1,4 @@
-import type { SvelteComponent } from "svelte/internal";
+import type { SvelteComponent } from "svelte";
 import { writable, type Writable } from "svelte/store";
 import BlockingPopUpSvelte from "../components/BlockingPopUp.svelte";
 import GetTextPopUpSvelte from "../components/GetTextPopUp.svelte";

@@ -88,7 +88,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
         
         isDragged = true;
 
-        let rect = elmt!.getBoundingClientRect();
+        let rect = elmt.getBoundingClientRect();
         offsetX = rect.left - event.clientX;
         offsetY = rect.top - event.clientY;
     }
