@@ -48,7 +48,8 @@ import { cards, type CardInstance } from "../modules/cardManager";
 
     let elmt : HTMLElement | null = null;
 
-    export let isMaximized: boolean = false;
+    export let isMaximized: boolean = card.isMaximized;
+    $: card.isMaximized = isMaximized;
 
     function maxWindow(): void {
         if(!elmt) return;
@@ -199,14 +200,14 @@ style:height={isMaximized? "100%" : `${height}px`}
 on:mousedown={onMouseDown}
 style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}px;"
 >
-    <div on:mousedown={onResizeMouseDown} class="resize right"></div>
-    <div on:mousedown={onResizeMouseDown} class="resize left"></div>
-    <div on:mousedown={onResizeMouseDown} class="resize top"></div>
-    <div on:mousedown={onResizeMouseDown} class="resize bottom"></div>
-    <div on:mousedown={onResizeMouseDown} class="resize top right"></div>
-    <div on:mousedown={onResizeMouseDown} class="resize top left"></div>
-    <div on:mousedown={onResizeMouseDown} class="resize bottom right"></div>
-    <div on:mousedown={onResizeMouseDown} class="resize bottom left"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={true} class="right"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="left"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="top"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="bottom"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="top right"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="top left"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="bottom right"></div>
+    <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="bottom left"></div>
 
     <div class="inner-card">
         <h3>
