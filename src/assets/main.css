@@ -403,36 +403,3 @@ ul.context-menu button {
     padding: 5px;
 }
 
-.card.sprite-editor .toolbar {
-    /* margin-top: 6px; */
-    margin-bottom: 6px;
-}
-
-.card.sprite-editor .toolbar button {
-    padding: 3px;
-}
-.card.sprite-editor .toolbar.colors button[data-eraser="true"] {
-    background: var(--stripey-gradient);
-}
-
-.card.sprite-editor .canvas-container {
-    /* border: 1px solid var(--main-color); */
-    /* padding: 8px; */
-    /* background: #f44; */
-    /* height: initial; */
-    flex: 1 1 content;
-    overflow: hidden; /* scroll does not quite work */
-    display: flex;
-}
-
-.card.sprite-editor .canvas-container canvas {
-    display: block;
-    margin: auto;
-    border: 1px solid var(--main-color);
-    background-color: var(--stripey-gradient);
-    
-    /* overflow: hidden; */
-    /* flex-grow: 1; */
-    /* object-fit:none ; */
-    background: var(--stripey-gradient);
-}

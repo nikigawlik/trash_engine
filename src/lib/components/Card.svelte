@@ -19,16 +19,29 @@ import { cards, type CardInstance } from "../modules/cardManager";
     }
 
     // window stuff, rezizable stuff etc.:
-    
+
     // these update automatically (using a bind: thingy)
-    let clientWidth = 200;
-    let clientHeight = 200;
+    let clientWidth = card.position.width;
+    let clientHeight = card.position.height;
+    $: console.log(`width: ${clientWidth}`)
+    $: console.log(`height: ${clientHeight}`)
     // $: name = `${clientWidth} ${clientHeight}`;
+    $: {
+        clientWidth; clientHeight;
+        console.log(`card pos: ${card.position.width} ${card.position.width}`)
+    }
+
 
     // let width: number;
     // let height: number;
-    let left: number = 0;
-    let top: number = 0;
+    let left: number = card.position.x;
+    let top: number = card.position.y;
+
+    $: { 
+        card.position = new DOMRect(left, top, clientWidth, clientHeight); 
+        console.log("card updated"); 
+        console.log(`: ${card.position.width} ${card.position.height}`)
+    }
 
     let elmt : HTMLElement | null = null;
 
@@ -96,19 +109,27 @@ on:mousemove={onBodyMouseMove}
 on:mouseup={onBodyMouseUp}
 ></svelte:body>
 
+<!-- 
+style:width={isMaximized? "100%" : (clientWidth? `${(clientWidth)}px` : null)}
+style:height={isMaximized? "100%" : (clientHeight? `${(clientHeight)}px` : null)} 
+style:width={ clientWidth? `${(clientWidth)}px` : undefined }
+style:height={ clientHeight? `${(clientHeight)}px` : undefined } 
+-->
+
 <section 
 class={`card ${windowType || ''}`} 
 data-resource-uuid={uuid} 
 bind:this={elmt}
-bind:clientWidth={clientWidth} 
-bind:clientHeight={clientHeight}
 tabindex=-1
 style:z-index={card.zIndex}
-style:height={isMaximized? "100%" : null}
-style:left={left}px
-style:top={top}px
 style:resize={isMaximized? 'none' : 'both'}
 style:position={isMaximized? 'static' : 'absolute'}
+bind:clientWidth={clientWidth}
+bind:clientHeight={clientHeight}
+style:left={left}px
+style:top={top}px
+style:width={ undefined }
+style:height={ isMaximized? "100%" : undefined } 
 on:mousedown={onMouseDown}
 >
     <div class="inner-card">
@@ -133,6 +154,7 @@ on:mousedown={onMouseDown}
     section {
         max-width: calc(100% - 8px);
         max-height: calc(100% - 8px);
+        margin: 0;
     }
 
     * {
@@ -164,60 +186,6 @@ on:mousedown={onMouseDown}
         flex-direction: column;
         display: flex;
     }
-
-    :global(*) {
-        scrollbar-color: var(--off-bg-color) var(--bg-color);
-    }
-
-    :global(::-webkit-scrollbar) {
-        /* display: none; */
-        background-color: var(--bg-color);
-        color: var(--main-color);
-        width: 16px;
-        height: 16px;
-
-    }
-
-    /* disable 'double buttons' */
-    :global(::-webkit-scrollbar-button:vertical:start:increment,
-    ::-webkit-scrollbar-button:vertical:end:decrement,
-    ::-webkit-scrollbar-button:horizontal:start:increment, 
-    ::-webkit-scrollbar-button:horizontal:end:decrement)
-    {
-        display: none;
-    }
-
-    :global(::-webkit-scrollbar-button:hover, ::-webkit-scrollbar-thumb:hover) {
-        background-color: var(--off-bg-color);
-    }
-    :global(::-webkit-scrollbar-button:active, ::-webkit-scrollbar-thumb:active) {
-        background-color: var(--neutral-color);
-    }
-    :global(::-webkit-scrollbar-button:vertical:decrement) { background-image: url("up-arrow.svg"); }
-    :global(::-webkit-scrollbar-button:vertical:increment) { background-image: url("down-arrow.svg"); }
-    :global(::-webkit-scrollbar-button:horizontal:decrement) { background-image: url("left-arrow.svg"); }
-    :global(::-webkit-scrollbar-button:horizontal:increment) { background-image: url("right-arrow.svg"); }
-    
-    :global(::-webkit-scrollbar-button) {
-        /* background-color: var(--off-bg-color); */
-        color: var(--main-color);
-        height: 1em;
-        width: 16px;
-        height: 16px;
-    }
-
-    :global(::-webkit-scrollbar-track) { /* Background */
-        background-color: var(--bg-color);
-    }
-
-    :global(::-webkit-scrollbar-thumb) { /* Foreground */
-        background-color: var(--off-bg-color);
-    }
-
-    :global(::-webkit-scrollbar-corner) {
-        background-color: var(--bg-color);
-    }
-
 
     h3 {
         margin-top: 0px;
@@ -274,5 +242,62 @@ on:mousedown={onMouseDown}
         color: var(--main-color);
         background-color: var(--off-bg-color);
     }
+
+
+
+    :global(*) {
+        scrollbar-color: var(--off-bg-color) var(--bg-color);
+    }
+
+    :global(::-webkit-scrollbar) {
+        /* display: none; */
+        background-color: var(--bg-color);
+        color: var(--main-color);
+        width: 16px;
+        height: 16px;
+
+    }
+
+    /* disable 'double buttons' */
+    :global(::-webkit-scrollbar-button:vertical:start:increment,
+    ::-webkit-scrollbar-button:vertical:end:decrement,
+    ::-webkit-scrollbar-button:horizontal:start:increment, 
+    ::-webkit-scrollbar-button:horizontal:end:decrement)
+    {
+        display: none;
+    }
+
+    :global(::-webkit-scrollbar-button:hover, ::-webkit-scrollbar-thumb:hover) {
+        background-color: var(--off-bg-color);
+    }
+    :global(::-webkit-scrollbar-button:active, ::-webkit-scrollbar-thumb:active) {
+        background-color: var(--neutral-color);
+    }
+    :global(::-webkit-scrollbar-button:vertical:decrement) { background-image: url("up-arrow.svg"); }
+    :global(::-webkit-scrollbar-button:vertical:increment) { background-image: url("down-arrow.svg"); }
+    :global(::-webkit-scrollbar-button:horizontal:decrement) { background-image: url("left-arrow.svg"); }
+    :global(::-webkit-scrollbar-button:horizontal:increment) { background-image: url("right-arrow.svg"); }
+    
+    :global(::-webkit-scrollbar-button) {
+        /* background-color: var(--off-bg-color); */
+        color: var(--main-color);
+        height: 1em;
+        width: 16px;
+        height: 16px;
+    }
+
+    :global(::-webkit-scrollbar-track) { /* Background */
+        background-color: var(--bg-color);
+    }
+
+    :global(::-webkit-scrollbar-thumb) { /* Foreground */
+        background-color: var(--off-bg-color);
+    }
+
+    :global(::-webkit-scrollbar-corner) {
+        background-color: var(--bg-color);
+    }
+
+
 
 </style>

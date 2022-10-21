@@ -28,5 +28,7 @@ openCard(Resources, false)
         
         overflow: hidden;
         position: relative;
+
+        padding: 0;
     }
 </style>

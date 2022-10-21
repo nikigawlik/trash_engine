@@ -56,6 +56,7 @@ vv START HERE vv
 - [B] clean up main toolbar
 - (Chrome) reload button does not work in file:// protocol  -> something something same-origin
 - do something with "open resources maximized"
+- [B] Licensing: Include p5js with proper license, log license in console, reference it in engine.
 
 blockers:
 - tests (?)

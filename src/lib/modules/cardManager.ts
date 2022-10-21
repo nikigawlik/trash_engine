@@ -1,19 +1,12 @@
 import type { SvelteComponent } from "svelte";
 import { writable, type Writable } from "svelte/store";
 
-
-export enum CardType {
-    Window,
-    PopUp,
-    ContextMenu,
-}
-
 export interface CardInstance {
-    cardType: CardType
     componentType: (typeof SvelteComponent)
     uuid: string
     name: string
     zIndex: number
+    position: DOMRect
     className?: string
 }
 
@@ -26,15 +19,15 @@ subscribe(v => _value = v); // TODO evil code?
 
 export let cards = {
     subscribe,
-    add: (content: typeof SvelteComponent, name: string, uuid?: string, type: CardType = CardType.Window) => update(store => {
+    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), uuid?: string) => update(store => {
         console.log(`added ${uuid}`)
         if(!store.find(x => x.uuid === uuid)) {
             store.push({
                 uuid: uuid || crypto.randomUUID(),
                 componentType: content,
                 zIndex: ++maxZ,
-                name: name,
-                cardType: type,
+                name,
+                position,
             });
         }
         return store;
@@ -55,7 +48,15 @@ export function bringToFront(card: CardInstance) {
     card.zIndex = ++maxZ;
 }
 
-export function openCard(type: any, allowDuplicate: boolean = true, uuid?: string) {
+export function openCard(
+    type: any, 
+    allowDuplicate: boolean = true, 
+    uuid?: string, 
+    x: number = 0, 
+    y: number = 0, 
+    w: number = 0,
+    h: number = 0,
+) {
         
     // either an existing card or false/undefined
     let existing = !allowDuplicate && cards.get().find(x => x.componentType === type);
@@ -65,6 +66,6 @@ export function openCard(type: any, allowDuplicate: boolean = true, uuid?: strin
     if(existing) {
         cards.focus(existing.uuid);
     } else {
-        cards.add(type, "", uuid);
+        cards.add(type, "", new DOMRect(x, y, w, h), uuid);
     }
 }

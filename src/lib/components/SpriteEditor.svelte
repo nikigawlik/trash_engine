@@ -44,17 +44,15 @@
 
 
 <script lang="ts">
-import { onMount } from "svelte";
+import { onMount, afterUpdate } from "svelte";
 
 import type { CardInstance } from "../modules/cardManager";
-import { html } from "../modules/deps.mjs";
 import { resourceManager } from "../modules/game/ResourceManager";
 import type Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
 
 import Card from "./Card.svelte";
 import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
-    import { writable } from "svelte/store";
 
     export let card: CardInstance;
 
@@ -131,9 +129,6 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
         canvas.style.width = canvasDisplayWidth + "px";
         canvas.style.height = canvasDisplayHeight + "px";
     }
-
-    resizeCanvas(2); // default scale
-
     
     // ----------------------------------------------- plumbing
 
@@ -153,6 +148,28 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     };
 
     $: {availableHeight; availableWidth; autoResizeCanvas(); }
+    $: { console.log(`w/h: ${availableWidth} ${availableHeight}`) }
+    // window.setInterval(() => {console.log(`w/h: ${availableWidth} ${availableHeight}`)}, 1000)
+
+    let initialResize = () => {
+        
+        console.log(`canvas: ${canvas.width} ${canvas.height}`)
+            let initialScaleFactor = Math.round(
+                250 / (canvas.width/2 + canvas.height/2)
+            );
+            initialScaleFactor = Math.max(1, initialScaleFactor);
+            resizeCanvas(initialScaleFactor);
+            console.log("initial scale.")
+    }
+
+    // establish some default scale for the canvas, based on it's resolution
+    $: { 
+        if(canvasContainer) {
+            initialResize();
+        }
+    }
+
+
 
     // resize button
     let resizeButtonClick = async() => {
@@ -337,7 +354,9 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     let canvasContainer: HTMLElement;
 
     $: {
-        if(canvasContainer) canvasContainer.append(canvas);
+        if(canvasContainer) {
+            canvasContainer.append(canvas);   
+        }
         
         // // after load hack
         // setTimeout(() => {
@@ -346,6 +365,23 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
         //     elmt.querySelector(".toolbar-container").style.flexDirection = "row";
         // }, 50);
     }
+
+    // $: if(canvasContainer) forceResize();
+
+    // let forceResize = () => {
+    //     // hacks
+    //     let contentWindow = canvasContainer?.querySelector("iframe")?.contentWindow;
+        
+    //     if(contentWindow) {
+    //         contentWindow.onload = () => {
+    //             setTimeout(() => {
+    //                 contentWindow.dispatchEvent(new Event("resize"));
+    //             }, 1);
+    //         }
+    //     }
+    // };
+
+    // onMount(() => setTimeout(() => {delete canvasContainer.style.height, 200}))
 
 </script>
 
@@ -395,16 +431,19 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
             {/each}
         </div>
     </div>
-    <div 
-        class="canvas-container" 
-        bind:clientWidth={availableWidth} 
-        bind:clientHeight={availableHeight}
-        bind:this={canvasContainer}
-        on:mouseup={cancelDraw}
-        on:mouseleave={cancelDraw}
-    >
-        <!-- canvas -->
-    </div>
+    <!-- <div class="canvas-container-container"> -->
+        <div 
+            class="canvas-container" 
+            bind:clientWidth={availableWidth} 
+            bind:clientHeight={availableHeight}
+            bind:this={canvasContainer}
+            on:mouseup={cancelDraw}
+            on:mouseleave={cancelDraw}
+            style:min-height=0
+        >
+            <!-- canvas -->
+        </div>
+    <!-- </div> -->
     <!-- <div class="frame-select"><input step=1 min=0 max=4 type="range" /></div> -->
     {:else if mode == "script1"}
     <textarea bind:value={script1Text} spellcheck=false></textarea>
@@ -433,5 +472,45 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     textarea {
         flex-grow: 1;
         resize: none;
+    }
+
+    
+    .toolbar {
+        /* margin-top: 6px; */
+        margin-bottom: 6px;
+    }
+
+    .toolbar button {
+        padding: 3px;
+    }
+    .toolbar.colors button[data-eraser="true"] {
+        background: var(--stripey-gradient);
+    }
+
+    .canvas-container {
+        /* border: 1px solid var(--main-color); */
+        /* padding: 8px; */
+        /* background: #f44; */
+        /* height: initial; */
+        flex: 1 1;
+        /* flex-basis: 50px; */
+        /* flex-grow: 1; */
+        /* height: auto; */
+        /* height: 100px; */
+        /* overflow: hidden; scroll does not quite work */
+        display: flex;
+    }
+
+    /* TODO make non-global, but will have to restructure canvas stuff  */
+    :global(.card.sprite-editor .canvas-container canvas) {
+        display: block;
+        margin: auto;
+        border: 1px solid var(--main-color);
+        background-color: var(--stripey-gradient);
+        
+        /* overflow: hidden; */
+        /* flex-grow: 1; */
+        /* object-fit:none ; */
+        background: var(--stripey-gradient);
     }
 </style>
