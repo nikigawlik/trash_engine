@@ -9,6 +9,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
     $: windowType = card.className || "";
 
     export let autoFocus = true;
+    export let contentMinWidth = 90; // px
 
     function closeWindow() {
         cards.remove(card.uuid);
@@ -219,7 +220,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
                 <button class="closeWindow" on:click={closeWindow}>🞩</button>
             </div>
         </h3>
-        <div class=content>
+        <div class=content style:min-width={contentMinWidth}px>
             <slot></slot>
         </div>
     </div>
@@ -320,6 +321,9 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
         padding: 5px;
         padding-bottom: 7px;
         font-size: 90%;
+        flex: 1 1;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .buttons {

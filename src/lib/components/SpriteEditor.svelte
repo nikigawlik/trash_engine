@@ -405,7 +405,7 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
 
 </script>
 
-<Card autoFocus={true} {card}>
+<Card autoFocus={true} contentMinWidth={240} {card}>
     <div class="modes">
         <button on:click={() => mode = "draw" } class:selected={mode == "draw"}>drawing</button>
         <button on:click={() => mode = "script1" } class:selected={mode == "script1"}>init code</button>
