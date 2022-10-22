@@ -23,7 +23,22 @@ import Card from "./Card.svelte";
         // });
     }
 
+    function disableIFramePointerEvents() {
+        iframe.style.pointerEvents = "none";
+    }
+    
+    function enableIFramePointerEvents() {
+        iframe.style.removeProperty("pointer-events");
+    }
+    
 </script>
+
+<!-- Disabling pointer events is necessary for resizing cards to work -->
+<svelte:window 
+    on:mousedown={disableIFramePointerEvents}
+    on:mouseup={enableIFramePointerEvents}
+    on:mouseleave={enableIFramePointerEvents}
+></svelte:window>
 
 <Card {card}>
     <p><a href={`${location.href}?game`} target="_blank">separate window</a></p>
