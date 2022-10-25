@@ -7,10 +7,22 @@ import Sprite from "../structs/sprite";
 
 console.log("resource_manager.ts loading")
 
+const defaultSettings = {
+    title: "your game's name here",
+}
+
+const saveVersion = 1;
+interface SaveData {
+    root: Folder,
+    settings: typeof defaultSettings,
+    version: typeof saveVersion,
+}
+
 // /** @type {ResourceManager} */ export let resourceManager;
 
 export default class ResourceManager {
     root: Folder;
+    settings: typeof defaultSettings;
     cache: any;
     constructor() {
         this.root = new Folder("root", this, 
@@ -19,6 +31,7 @@ export default class ResourceManager {
                 new Folder("rooms", this, [], Room),
             ]
         );
+        this.settings = defaultSettings;
         this.cache = {};
     }
 
@@ -83,7 +96,13 @@ export default class ResourceManager {
     }
 
     async getSerializedData() {
-        return await serialize(this.root);
+        let data: SaveData = {
+            version: saveVersion,
+            root: this.root,
+            settings: this.settings,
+        }
+        
+        return await serialize(data);
     }
 
     async setFromSerializedData(data: any) {
@@ -91,7 +110,15 @@ export default class ResourceManager {
         data = await deserialize(data);
         console.log(`- resources loaded`)
         console.log(data); 
-        this.root = data;  
+
+        if(!data.version) {
+            // pre-versioning
+            this.root = data;  
+        } else if(data.version == 1) {
+            const d: SaveData = data; // just for typescript checking
+            this.root = d.root;
+            this.settings = d.settings;
+        }
 
         let postProcess = (obj: any, parent: Folder | null) => {
             if(obj instanceof Resource) {
@@ -184,5 +211,10 @@ let isLoadedPromise = _value.load();
 export let resourceManager = {
     subscribe,
     get: () => _value,
+    set: value => {
+        if(value != _value) 
+            throw new Error("When accessing the resourceManager object store, you are not allowed to change the instance of the manager, only change it's contents.")
+        set(value);
+    },
     waitForLoad: () => isLoadedPromise,
 }

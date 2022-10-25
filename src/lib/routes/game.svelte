@@ -6,7 +6,6 @@ import Game from "../modules/game/game";
 import { resourceManager } from "../modules/game/ResourceManager";
 import { nameConstructorMap } from "../modules/structs/savenames";
 import * as globalData from "./../modules/globalData";
-import p5 from "../ext/p5.js";
 
     // TODO lot's of code overlap with index.svelte
 
@@ -76,6 +75,9 @@ import p5 from "../ext/p5.js";
 
 <!-- <svelte:window on:message={onMessage} /> -->
 <svelte:window on:keydown={windowOnKeyDown} />
+<svelte:head>
+    <title>{$resourceManager.settings.title}</title>
+</svelte:head>
 
 {#await initPromise}
     <p>loading...</p>

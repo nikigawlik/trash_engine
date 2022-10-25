@@ -160,7 +160,7 @@ export async function serialize(obj: any | null) {
         if(inverseConstructors.has(obj.constructor)) {    
             copy._type = inverseConstructors.get(obj.constructor);
         }
-        else if(obj.constructor) {
+        else if(obj.constructor != Object) {
             let recogTypes = Array.from(inverseConstructors.keys()).map(x => x.name);
             throw new UnrecognizedTypeError(`Unknown type: ${obj.constructor.name}. Recognized types: [${recogTypes.join(", ")}]`);
         }

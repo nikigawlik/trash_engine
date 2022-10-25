@@ -33,7 +33,7 @@ vv START HERE vv
   - delete
   - place
 - room editor middle click -> pick
-- [B] (bug) save should preserve component state.
+~~- [B] (bug) save should preserve component state.~~
 - sprite sheet support (there is a build in pixi packer, i think?)
 - alternative resources -> shapes, text
 - delta time
@@ -57,6 +57,7 @@ vv START HERE vv
 - (Chrome) reload button does not work in file:// protocol  -> something something same-origin
 - do something with "open resources maximized"
 - [B] Licensing: Include p5js with proper license, log license in console, reference it in engine.
+- [B] sprite icon not reactive
 
 blockers:
 - tests (?)

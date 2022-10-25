@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { writable } from "svelte/store";
 import "../../assets/main.css";
 import "../../assets/reset.css";
 import GameData from "../components/GameData.svelte";
@@ -31,7 +32,7 @@ import { asyncYesNoPopup } from "./../modules/ui";
         await ui.init();
         await sprite_editor.init();
         console.log("--- --- ---- --- ---")
-        console.log("--- loading done ---")
+        console.log("--- loading done ---") 
         console.log("--- --- ---- --- ---")
     };
 
@@ -39,6 +40,10 @@ import { asyncYesNoPopup } from "./../modules/ui";
     let savingPromise = new Promise<any>(resolve => resolve(null)); // default resolved promise
 
     $: combinedPromise = Promise.all([initPromise, savingPromise]);
+
+    // // TODO save to game data somewhere
+    // $: gameName = $resourceManager.settings.title;
+    // $: resourceManager.update(rm => { rm.settings.title = gameName; return rm; })
 
 
     function save() {
@@ -70,7 +75,7 @@ import { asyncYesNoPopup } from "./../modules/ui";
         // let split = htmltext.split("!GAMEDATA!");
         // let text = split[0] + textData + split[1];
 
-        const filename = "game.html";
+        const filename = `${resourceManager.get().settings.title}.html`;
 
         // download
         var element = document.createElement("a");
@@ -125,6 +130,10 @@ import { asyncYesNoPopup } from "./../modules/ui";
 
 </script>
 
+<svelte:head>
+    <title>{$resourceManager.settings.title} | trash engine</title>
+</svelte:head>
+
 {#await initPromise}
     <div class=loading>
         <Icon />
@@ -138,7 +147,12 @@ import { asyncYesNoPopup } from "./../modules/ui";
     </div>
 {:then} 
     <header>
-        <div><Icon /><h2>trash engine</h2></div>
+        <div>
+            <Icon />
+            <!-- <h2>trash engine</h2> -->
+            <span class=spacer></span>
+            <input type="text" bind:value={$resourceManager.settings.title}>
+        </div>
         <ul class="topbar">
             <!-- <li><button onclick="cloneFromTemplate("#objectEditorCard")">new object</button></li> -->
             <!-- <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li> -->
@@ -158,3 +172,17 @@ import { asyncYesNoPopup } from "./../modules/ui";
 
 {/await}
 {/await}
+
+<style>
+    .spacer {
+        width: 4px;
+    }
+
+    input {
+        background-color: var(--bg-color);
+        border-color: var(--main-color);
+        color: var(--main-color);
+        margin: 0;
+        padding: 4px 6px;
+    }
+</style>
