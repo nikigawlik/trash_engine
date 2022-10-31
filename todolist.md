@@ -44,10 +44,10 @@ vv START HERE vv
 ~~- prevent ofuscation of save-critical class names like "Sprite", "Room", etc.~~
 ~~- room change should change game size in browser (pixi resize vs. svelte size code)~~
 - indexed db -> some kind of game id (also useful for file protocol stuff -> all html files share the same indexed db!!!)
-- [B] ability to name game (changes title in export too)
+~~- [B] ability to name game (changes title in export too)~~
 - corrupt save data? -> ability to delete data if game doesn't load after X seconds
-- [B] cards should have default size & not reset on load (implementation overlap)
-- [B] game does not work when ?editor / get rid of ?editor?game
+~~- [B] cards should have default size & not reset on load (implementation overlap)~~
+~~- [B] game does not work when ?editor / get rid of ?editor?game~~
 - [B] scrollbar arrows are excluded from build (only affects chrome)
 - export game in dev mode
 - differentiate "export game" and "export game data"

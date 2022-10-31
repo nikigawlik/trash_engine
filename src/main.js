@@ -9,7 +9,7 @@ const urlParams = new URLSearchParams(queryString);
 
 let app;
 let customGameData = getDocumentGameData();
-let isGame = (urlParams.has("game") || customGameData) && !urlParams.has("editor");
+let isGame = urlParams.has("game") || (customGameData && !urlParams.has("editor"));
 
 if(isGame) {
   app = new Game({

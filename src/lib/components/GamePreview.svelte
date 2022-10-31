@@ -42,6 +42,13 @@ import Card from "./Card.svelte";
             console.log("game size update")
         }
     }
+
+    function getIFrameURL() {
+        let url = new URL(location.href);
+        url.searchParams.delete("editor");
+        url.searchParams.set("game", "");
+        return url.href;
+    }
     
 </script>
 
@@ -58,7 +65,7 @@ import Card from "./Card.svelte";
     <p><button on:click={reload}>reload ↺</button></p>
     <iframe 
         title="gametest" 
-        src={`${location.href}?game`} 
+        src={getIFrameURL()} 
         bind:this={iframe} 
         style:width={iframeDisplayWidth}px
         style:height={iframeDisplayHeight}px
