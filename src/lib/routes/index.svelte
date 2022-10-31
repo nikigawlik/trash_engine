@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { writable } from "svelte/store";
 import "../../assets/main.css";
 import "../../assets/reset.css";
+import "../../assets/svg.css";
 import GameData from "../components/GameData.svelte";
 import GamePreview from "../components/GamePreview.svelte";
-    import Icon from "../components/Icon.svelte";
+import Icon from "../components/Icon.svelte";
 import Resources from "../components/Resources.svelte";
 import { openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";

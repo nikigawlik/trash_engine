@@ -48,7 +48,7 @@ vv START HERE vv
 - corrupt save data? -> ability to delete data if game doesn't load after X seconds
 ~~- [B] cards should have default size & not reset on load (implementation overlap)~~
 ~~- [B] game does not work when ?editor / get rid of ?editor?game~~
-- [B] scrollbar arrows are excluded from build (only affects chrome)
+~~- [B] scrollbar arrows are excluded from build (only affects chrome)~~
 - export game in dev mode
 - differentiate "export game" and "export game data"
 - [B] evaluate app from perspective of "user does not know how to resize windows"
@@ -60,6 +60,8 @@ vv START HERE vv
 - [B] sprite icon not reactive
 - game window size -> set iframe default size to size of start room
 - room editor drag to draw/delete
+- tidy up the projects folder structure, etc.
+- [B] auto save/load
 
 blockers:
 - tests (?)

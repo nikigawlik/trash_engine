@@ -145,3 +145,58 @@ p.log {
 }
 
 
+/* firefox scrollbars */
+
+* {
+    scrollbar-color: var(--off-bg-color) var(--bg-color);
+}
+
+/* chrome scrollbars lol */
+
+::-webkit-scrollbar {
+    /* display: none; */
+    background-color: var(--bg-color);
+    color: var(--main-color);
+    width: 16px;
+    height: 16px;
+
+}
+
+/* disable 'double buttons' */
+::-webkit-scrollbar-button:vertical:start:increment,
+::-webkit-scrollbar-button:vertical:end:decrement,
+::-webkit-scrollbar-button:horizontal:start:increment, 
+::-webkit-scrollbar-button:horizontal:end:decrement {
+    display: none;
+}
+
+::-webkit-scrollbar-button:hover, ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--off-bg-color);
+}
+::-webkit-scrollbar-button:active, ::-webkit-scrollbar-thumb:active {
+    background-color: var(--neutral-color);
+}
+::-webkit-scrollbar-button:vertical:decrement { background-image: var(--svg-up-arrow) }
+::-webkit-scrollbar-button:vertical:increment { background-image: var(--svg-down-arrow) }
+::-webkit-scrollbar-button:horizontal:decrement { background-image: var(--svg-left-arrow) }
+::-webkit-scrollbar-button:horizontal:increment { background-image: var(--svg-right-arrow) }
+
+::-webkit-scrollbar-button {
+    /* background-color: var(--off-bg-color); */
+    color: var(--main-color);
+    height: 1em;
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track { /* Background */
+    background-color: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb { /* Foreground */
+    background-color: var(--off-bg-color);
+}
+
+::-webkit-scrollbar-corner {
+    background-color: var(--bg-color);
+}
