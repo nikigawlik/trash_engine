@@ -268,7 +268,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     section {
         /* max-width: calc(100% - 8px);
         max-height: calc(100% - 8px); */
-        min-width: max-content;
+        /* min-width: max-content; */
         margin: 0;
 
         display: grid;

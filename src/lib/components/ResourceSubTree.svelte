@@ -7,7 +7,7 @@ import ResourceTreeResource from "./ResourceTreeResource.svelte";
 </script>
 
 <ul>
-    {#each folder.contents as childResource}
+    {#each folder.contents as childResource (childResource.uuid)}
     <li>
         <ResourceTreeResource selfResource={childResource}></ResourceTreeResource>
         {#if childResource instanceof Folder}

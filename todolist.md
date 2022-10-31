@@ -49,19 +49,20 @@ vv START HERE vv
 ~~- [B] cards should have default size & not reset on load (implementation overlap)~~
 ~~- [B] game does not work when ?editor / get rid of ?editor?game~~
 ~~- [B] scrollbar arrows are excluded from build (only affects chrome)~~
-- export game in dev mode
+- export game in dev mode -> wont fix?
 - differentiate "export game" and "export game data"
-- [B] evaluate app from perspective of "user does not know how to resize windows"
-- proper window resize bars (resize handle on all borders and corners)
-- [B] clean up main toolbar
+~~- [B] evaluate app from perspective of "user does not know how to resize windows"~~
+~~- proper window resize bars (resize handle on all borders and corners)~~
+- [B] clean up main toolbar, "new sprite" button!
 - (Chrome) reload button does not work in file:// protocol  -> something something same-origin
-- do something with "open resources maximized"
-- [B] Licensing: Include p5js with proper license, log license in console, reference it in engine.
-- [B] sprite icon not reactive
+~~- do something with "open resources maximized"~~
+~~- [B] Licensing: Include p5js with proper license, log license in console, reference it in engine. WONTFIX -> no p5js~~
+~~- [B] sprite icon not reactive~~
 - game window size -> set iframe default size to size of start room
 - room editor drag to draw/delete
 - tidy up the projects folder structure, etc.
 - [B] auto save/load
+~~- sprite resize bug introduced by fixing "drag sprite out of window" bug. T_T~~
 
 blockers:
 - tests (?)
