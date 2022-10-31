@@ -40,12 +40,9 @@ $: folders = ($resourceManager?.root.contents || []) as Folder[]
     }
     
     .resources {
+        /* margin-left: 10px; */
         height: 400px;
-        width: 220px;
-    }
-
-    ul.resources {
-        margin-left: 10px;
+        /* width: 220px; */
     }
 
     ul.resources li {

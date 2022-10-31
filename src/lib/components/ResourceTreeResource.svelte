@@ -178,28 +178,33 @@ import SpriteIcon from "./SpriteIcon.svelte";
 </script>
 
 
-<span class={`resource-link  resource-${selfResource.type}`}>
-    <button draggable="true" class="grabbable" class:drag-hover={hover}
-    on:click={onclick}
+<div draggable="true" class={`resource-link  resource-${selfResource.type}`}
     on:dragover={ondragover}
     on:dragenter={ondragenter}
     on:dragleave={ondragleave}
     on:dragstart={ondragstart}
     on:drop={ondrop}
-    >
-        {#if currentContextMenu}
-        <ContextMenu bind:data={currentContextMenu}></ContextMenu>
-        {/if}
-        <span class=icon>
-            {#if selfResource instanceof Sprite}
-                <SpriteIcon sprite={selfResource}></SpriteIcon>
-            {:else}
-                {selfResource.getIconElement()}
-            {/if}
-        </span>
-        <span class=name>{selfResource.name}</span> 
-    </button>
-</span>
+>
+    <ContextMenu bind:data={currentContextMenu}>
+        <!-- 
+draggable="true" 
+         -->
+        <button class="grabbable" class:drag-hover={hover}
+        on:click={onclick}
+        >
+            <span class=icon>
+                {#if selfResource instanceof Sprite}
+                    <SpriteIcon sprite={selfResource}></SpriteIcon>
+                {:else}
+                    {selfResource.getIconElement()}
+                {/if}
+            </span>
+            <span class=name>{selfResource.name}</span> 
+        </button>
+    </ContextMenu>
+    <!-- {#if currentContextMenu}
+    {/if} -->
+</div>
 
 <style>
     * {
@@ -214,6 +219,7 @@ import SpriteIcon from "./SpriteIcon.svelte";
         
         /* alignment stuff */
         display: table-cell;
+        width: 100%;
         vertical-align: middle;
         /* padding-top: auto; */
         /* padding-bottom: auto; */
@@ -231,5 +237,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
         margin-right: 4px;
         padding: auto;
         text-align: end;
+    }
+
+    .resource-link {
+        width: 100%;
     }
 </style>

@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     --sqrt2: 1.4142;
     --pattern-stop1: calc(var(--sqrt2) * 7px);

@@ -20,9 +20,7 @@
     let buttonElements: HTMLElement[];
     $: buttonElements = []
 
-    onMount(() => {
-        buttonElements[0]?.focus();
-    });
+    $: data && buttonElements[0]?.focus()
 
     function loseFocus() {
         data = null;
@@ -43,51 +41,64 @@
 </script>
 
 {#if data}
-    <span class=dummy>
-        <ul 
-        class="context-menu" 
+    <!-- <span class=dummy> -->
+        <!-- 
+
+         -->
+        <ul
         style:left={data.x - 5}px 
         style:top={data.y - 5}px
         on:mouseleave={loseFocus}
         on:focusout={onFocusOut}
         >
+            <li class=resource><slot></slot></li>
             {#each data.options as opt, i}
                 <li><button 
                     bind:this={buttonElements[i]} 
                     on:click={ evt => onClickOption(evt, opt) }
                 >
-                    {opt.text}
+                🠖 {opt.text}
                 </button></li>
             {/each}
         </ul>
-    </span>
+    <!-- </span> -->
+{:else}
+    <slot></slot>
 {/if}
 
 <style>
-    .dummy {
+    /* .dummy {
         position: relative;
         width: 0;
         height: 0;
-    }
+    } */
     ul {
-        position: absolute;
+        /* position: absolute; */
         background-color: var(--bg-color);
         display: flex;
         flex-direction: column;
         align-items: stretch;
 
-        width: fit-content;
+        width: 100%;
         min-width: 10px;
         min-height: 10px;
+
+        border: 1px solid var(--main-color);
     }
 
     li {
+        box-sizing: border-box;
         margin: 0;
+        width: 100%;
     }
 
     button {
         display: block;
         width: 100%;
         min-width: 100px;
+        box-shadow: none;
+        border: none;
+        text-align: left;
     }
+    
 </style>

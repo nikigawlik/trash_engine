@@ -21,7 +21,7 @@ vv START HERE vv
 ~~- rename Card to Window? -> wont fix~~
 - horizontal flex window management (bitsy style)
 - mobile sprite editor support?
-- make drop down menu different (relative to resource, not mouse cursor; not cropped by scroll area)
+~~- make drop down menu different (relative to resource, not mouse cursor; not cropped by scroll area)~~
 - redo undo -> either in stores / or through some kind of command system
 - Clamp cards to the main area on bottom and right
 ~~- scripting support and run game button~~
@@ -58,6 +58,8 @@ vv START HERE vv
 - do something with "open resources maximized"
 - [B] Licensing: Include p5js with proper license, log license in console, reference it in engine.
 - [B] sprite icon not reactive
+- game window size -> set iframe default size to size of start room
+- room editor drag to draw/delete
 
 blockers:
 - tests (?)
