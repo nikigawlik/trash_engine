@@ -9,6 +9,7 @@ import Card from "./Card.svelte";
     $: card.name = "game preview";
 
     let iframe: HTMLIFrameElement|null;
+    
 
     async function reload() {
         if(!iframe) return;
@@ -30,6 +31,17 @@ import Card from "./Card.svelte";
     function enableIFramePointerEvents() {
         iframe.style.removeProperty("pointer-events");
     }
+
+    let iframeDisplayWidth = null;
+    let iframeDisplayHeight = null;
+
+    function onMessage(msg: any) {
+        if(msg.data.type == "canvasSizeUpdate") {
+            iframeDisplayWidth = msg.data.displayWidth;
+            iframeDisplayHeight = msg.data.displayHeight;
+            console.log("game size update")
+        }
+    }
     
 </script>
 
@@ -38,12 +50,19 @@ import Card from "./Card.svelte";
     on:mousedown={disableIFramePointerEvents}
     on:mouseup={enableIFramePointerEvents}
     on:mouseleave={enableIFramePointerEvents}
+    on:message={onMessage}
 ></svelte:window>
 
 <Card {card}>
     <p><a href={`${location.href}?game`} target="_blank">separate window</a></p>
     <p><button on:click={reload}>reload ↺</button></p>
-    <iframe title="gametest" src={`${location.href}?game`} bind:this={iframe} />
+    <iframe 
+        title="gametest" 
+        src={`${location.href}?game`} 
+        bind:this={iframe} 
+        style:width={iframeDisplayWidth}px
+        style:height={iframeDisplayHeight}px
+    />
 </Card>
 
 <style>

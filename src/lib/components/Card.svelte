@@ -1,6 +1,6 @@
 
 <script lang="ts">
-import { onMount } from "svelte";
+import { getContext, onMount } from "svelte";
 import { cards, type CardInstance } from "../modules/cardManager";
 
     export let card: CardInstance;
@@ -18,6 +18,8 @@ import { cards, type CardInstance } from "../modules/cardManager";
     function focusWindow() {
         cards.focus(card.uuid);
     }
+
+    let getCardsBounds = getContext<() => HTMLElement|null>("getCardsBounds");
 
     // window stuff, rezizable stuff etc.:
 
@@ -95,7 +97,9 @@ import { cards, type CardInstance } from "../modules/cardManager";
 
     function onBodyMouseMove(event: MouseEvent) {
         if(isDragged) {
-            let origin = document.querySelector("main")!.getBoundingClientRect();
+            let bounds = getCardsBounds();
+            if(!bounds) return;
+            let origin = bounds.getBoundingClientRect();
             let l = event.clientX + offsetX - origin.x;
             let t = event.clientY + offsetY - origin.y;
             left = Math.max(0, l);
@@ -130,7 +134,9 @@ import { cards, type CardInstance } from "../modules/cardManager";
     }
     
     function onResizeMouseMove(event: MouseEvent){
-        let offset = document.querySelector("main").getBoundingClientRect();
+        let bounds = getCardsBounds();
+        if(!bounds) return;
+        let offset = bounds.getBoundingClientRect();
 
         if(resizeRight) {
             width = initialPos.width + (event.clientX - initialX);
@@ -260,8 +266,9 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     }
     
     section {
-        max-width: calc(100% - 8px);
-        max-height: calc(100% - 8px);
+        /* max-width: calc(100% - 8px);
+        max-height: calc(100% - 8px); */
+        min-width: max-content;
         margin: 0;
 
         display: grid;

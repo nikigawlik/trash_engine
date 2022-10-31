@@ -18,7 +18,7 @@ const { subscribe, set, update } = writable({
         settings: {
             darkMode: false,
             subFolders: false,
-            openResourcesMaximized: false,
+            openResourcesMaximized: true,
         }
     }
 } as GlobalSettings);

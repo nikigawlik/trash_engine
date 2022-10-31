@@ -42,6 +42,24 @@ import * as globalData from "./../modules/globalData";
     $: canvasDisplayWidth = canvasWidth / ratio * scaleFactor;
     $: canvasDisplayHeight = canvasHeight / ratio * scaleFactor; 
 
+    $: {
+        canvasDisplayHeight;
+        canvasDisplayWidth;
+        sendSizeUpdate();
+    }
+
+    function sendSizeUpdate() {
+        let parent = window.parent;
+        if(parent) {
+            parent.postMessage({
+                type: "canvasSizeUpdate",
+                displayWidth: canvasDisplayWidth,
+                displayHeight: canvasDisplayHeight,
+            })
+            console.log("send game resize message")
+        }
+    }
+
 
     function reload() {
         if(!canvas) return;
