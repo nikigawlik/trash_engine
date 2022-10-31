@@ -48,6 +48,7 @@ import { onMount, afterUpdate } from "svelte";
 
 import type { CardInstance } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
+    import { data } from "../modules/globalData";
 import type Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
 
@@ -129,6 +130,8 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
         canvas.style.width = canvasDisplayWidth + "px";
         canvas.style.height = canvasDisplayHeight + "px";
     }
+
+    $: colorMode = $data.editor.settings.darkMode? "dark" : "light";
     
     // ----------------------------------------------- plumbing
 
@@ -300,7 +303,7 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
             if(!brush) break;
             let ctx = brush.getContext("2d")!;
             ctx.globalCompositeOperation = "source-in";
-            ctx.fillStyle = !eraser? currentColor : "#fff"; // TODO not white
+            ctx.fillStyle = !eraser? currentColor : $data.editor.settings.darkMode? '#fff' : '#000'; // TODO not white
             ctx.fillRect(0, 0, brushWidth, brushWidth);
             // main canvas
             currentCanvasOP = eraser? "destination-out" : "source-over";
@@ -422,31 +425,32 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
             <button class=upload on:click={uploadButtonClick}> upload image </button>
         </p>
     </div>
+    {@const tweak = colorUIAdjust[currentColor] == colorMode}
     <div class="toolbar-container">
         <div class="toolbar colors">
             {#each colors as color, i}
-                {@const tweak = colorUIAdjust[color]}
                 <button 
                     on:click={() => selectColor(i)}
                     data-id={i} 
                     data-eraser={isEraser(color)}
                     data-selected={currentColor == color}
-                    data-background-tweak={tweak}
                     style:background-color={color}
                 >
                     <!-- TODO this is werid-->
-                    {@html dummyIcon()} 
+                    <!-- {@html dummyIcon()} -->
+                    <canvas width=1 height=1 style:width={iconDisplayWidth}px style:height={iconDisplayWidth}px /> 
                 </button>
             {/each}
         </div>
         <div class="toolbar brushes">
             {#each brushes as brush, i}
-              <button 
+            <button 
                 on:click={() => selectBrush(i)} 
                 data-selected={brush == currentBrush} 
                 data-id={i}
+                style:background-color={tweak? 'var(--off-bg-color)' : ""}
             >
-                <canvas bind:this={brushes[i]}></canvas>
+                <canvas bind:this={brushes[i]} style:width={iconDisplayWidth}px style:height={iconDisplayWidth}px></canvas>
             </button>
             {/each}
         </div>
@@ -491,34 +495,64 @@ import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
 
     textarea {
         flex-grow: 1;
-        resize: none;
+        overflow-wrap: normal;
+        /* white-space: pre; */
+        /* overflow: scroll; */
     }
 
-    
     .toolbar {
         /* margin-top: 6px; */
         margin-bottom: 6px;
+        /* width: 100%; */
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        /* justify-content: space-between; */
+        justify-content: center;
+        gap: 4px;
     }
 
     .toolbar button {
         padding: 3px;
+        display: block;
+        /* padding: 0; */
+        /* padding-bottom: 2px; */
     }
     .toolbar.colors button[data-eraser="true"] {
         background: var(--stripey-gradient);
     }
 
-    .canvas-container {
-        /* border: 1px solid var(--main-color); */
-        /* padding: 8px; */
-        /* background: #f44; */
-        /* height: initial; */
-        flex: 1 1;
-        /* flex-basis: 50px; */
-        /* flex-grow: 1; */
-        /* height: auto; */
-        /* height: 100px; */
-        /* overflow: hidden; scroll does not quite work */
+    .toolbar canvas{
+        display: block;
+    }
+    
+    .toolbar-container {
         display: flex;
+        flex-direction: column; /* hack: changed in js */ 
+        flex-wrap: wrap;
+        column-gap: 16px;
+        justify-content: center;
+    }
+
+    .canvas-container {
+        flex: 1 1;
+        display: flex;
+    }
+
+    .card-settings {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .card-settings>p {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .card-settings>p>* {
+        font-size: small;
+        display: inline-block;
+        flex-grow: 1;
     }
 
     /* TODO make non-global, but will have to restructure canvas stuff  */

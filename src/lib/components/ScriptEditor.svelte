@@ -53,4 +53,12 @@ import Card from "./Card.svelte";
     <textarea cols="40" rows="10" bind:value={scriptText}></textarea>
 </Card>
 
+<style>
+    textarea {
+        flex-grow: 1;
+        white-space: pre;
+        overflow-wrap: normal;
+        overflow: scroll;
+    }
+</style>
 

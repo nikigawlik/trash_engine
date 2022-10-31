@@ -1,9 +1,3 @@
-* {
-    margin: 0;
-}
-
-
-
 body {
     --sqrt2: 1.4142;
     --pattern-stop1: calc(var(--sqrt2) * 7px);
@@ -50,6 +44,7 @@ body {
 textarea {
     background-color: var(--bg-color);
     color: var(--main-color);
+    resize: none;
 }
 
 button {
@@ -60,33 +55,21 @@ button {
     box-shadow: 2px 2px var(--main-color);
 }
 
-html[data-dark="false"] *[data-background-tweak="light"] button {
+.dark *[data-background-tweak="light"] button {
     background-color: var(--off-bg-color);
 }
 
-html[data-dark="true"] *[data-background-tweak="dark"] button {
+.light *[data-background-tweak="dark"] button {
     background-color: var(--off-bg-color);
 }
 
 button:hover {
-    /* background-color: red; */
     background-color: var(--neutral-color);
-    /* color: var(--bg-color); */
 }
 
 button[data-selected="true"] {
-    /* background-color: var(--neutral-color); */
-    /* width: 1000px; */
-    /* transform: scale(125%); */
     transform: translate(0, -3px);
-    /* transform: scale(120%); */
     transition: transform .1s cubic-bezier(0.075, 0.82, 0.165, 1);
-    /* transition: transform .08s cubic-bezier(0.19, 1, 0.22, 1); */
-    /* border-radius: 4px; */
-    /* border-color: yellow; */
-    /* box-shadow: -1px -1px var(--main-color); */
-    /* transform: translate(2px, 2px); */
-    /* transition: border-radius .5s cubic-bezier(0.075, 0.82, 0.165, 1); */
 }
 
 button:active {
@@ -100,145 +83,26 @@ em {
     font-weight: bold;
 }
 
-header div {
-    display: flex;
-    flex-direction: row;
-    padding: 4px;
-    /* vertical-align: middle; */
-    font-family: sans-serif;
-}
-
-header img {
-    margin-right: 8px;
-}
-
-ul.topbar {
-    display: flex;
-    flex-direction: row;
-
-    border-bottom: 1px solid var(--main-color);
-    background-color: var(--bg-color);
-    /* padding: 8px; */
-
-    margin-bottom: 4px;;
-}
-
-ul.topbar > li {
-    /* border-right: 1px solid var(--main-color); */
-    padding: 4px;
-
-}
 canvas {
     /* display: block; */
     /* image-rendering: crisp-edges; */
     image-rendering: pixelated;
 }
 
-.overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.41);
-    z-index: 10000;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.popup {
-    width: fit-content;
-    height: fit-content;
-    padding: 8px;
-    background-color: var(--bg-color);
-    margin: auto;
-
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.horizontal {
-    min-height: 0;
-    flex: 1 1 auto;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.card {
-    position: absolute;
-    user-select: none;
-
-    /* resize: both; */
-    overflow: hidden;
-    /* min-width: fit-content;
-    min-height: fit-content; */
-    /* padding: -8px; */
-    /* border: 2px solid var(--main-color); */
-    /* box-shadow: 2px 2px 8px -2px var(--main-color); */
-    background-color: var(--bg-color);
-    width: fit-content;
-    height: fit-content;
-    /* padding: 8px; */
-}
-
-.card img {
+img {
+    image-rendering: pixelated;
     pointer-events: none;
 }
 
-.card textarea {
-    resize: none;
-}
 
 .card p {
     margin-bottom: 10px;
-}
-
-.inner-card>textarea {
-    flex-grow: 1;
-    white-space: pre;
-    overflow-wrap: normal;
-    overflow: scroll;
-}
-
-
-.flex-row {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
 }
 
 h4 {
     font-size: small;
     font-style: italic;
     margin-bottom: 10px;
-}
-
-/* settings at top of card like width in sprite editor */
-.card .card-settings {
-    padding-left: 8px;
-    padding-right: 8px;
-}
-
-.card .card-settings>p {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.card .card-settings>p>* {
-    font-size: small;
-    display: inline-block;
-    flex-grow: 1;
-}
-
-.card.log {
-    width: 200px;
-    height: 200px;
 }
 
 p.log {
@@ -250,75 +114,10 @@ p.log {
     user-select: text;
 }
 
-.error-msg {
-    border: 3px dashed var(--main-color);
-    filter: none;
-    font-family: monospace;
-    padding: 5px;
-    color: #f44;
-}
-
-img {
-    image-rendering: pixelated;
-}
-
 .scroll-box {
     border: 1px dashed var(--main-color);
     overflow: scroll;
 }
-
-.card.resources {
-    height: 400px;
-    width: 220px;
-}
-
-.card.resources .scroll-box {
-    box-sizing: border-box;
-    /* loooool */
-    flex-grow: 1;
-}
-
-ul.resources {
-    margin-left: 10px;
-}
-
-ul.resources li {
-    /* margin: 4px; */
-    margin-left: 10px;
-    list-style-position: outside;
-}
-
-ul.resources .icon {
-    width: 1em;
-    display: inline-block;
-    margin-right: 4px;
-    padding: auto;
-    text-align: end;
-}
-
-/* ul.resources .resource-link {
-    vertical-align: middle;
-} */
-
-/* ul.resources .resource-link::before {
-    content: "❔";
-}
-
-ul.resources .resource-sprite::before {
-    list-style-image: url('/engineAssets/corners.png');
-    content: "👺";
-    content: "🎨";
-}
-
-ul.resources .resource-folder::before {
-    content: "📁";
-    list-style-image: url('/engineAssets/icon_folder.png');
-}
-
-ul.resources .resource-object::before {
-    content: "🎱";
-    list-style-image: url('/engineAssets/icon_folder.png');
-} */
 
 .grabbable {
     cursor: pointer;
@@ -341,65 +140,4 @@ ul.resources .resource-object::before {
     background-color: var(--neutral-color);
 }
 
-.toolbar-container {
-    display: flex;
-    flex-direction: column; /* hack: changed in js */ 
-    flex-wrap: wrap;
-    column-gap: 16px;
-    justify-content: center;
-}
-
-.toolbar {
-    /* width: 100%; */
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    /* justify-content: space-between; */
-    justify-content: center;
-    gap: 4px;
-}
-
-.toolbar>button {
-    display: block;
-    padding: 0;
-}
-
-.toolbar canvas{
-    display: block;
-}
-
-ul.context-menu {
-    position: absolute;
-    background-color: var(--bg-color);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-
-    width: fit-content;
-    min-width: 10px;
-    min-height: 10px;
-}
-
-ul.context-menu li {
-    margin: 0;
-}
-
-ul.context-menu button {
-    display: block;
-    width: 100%;
-    min-width: 100px;
-}
-
-/* --- components --- */
-
-.card.settings {
-    min-width: 200px;
-}
-
-.card.obj-editor .subsection {
-    width: 128px;
-    height: 256px;
-    border: 1px dashed var(--main-color);
-    padding: 5px;
-}
 

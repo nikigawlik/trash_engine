@@ -35,5 +35,22 @@ $: folders = ($resourceManager?.root.contents || []) as Folder[]
 <style>
     .scroll-box {
         border: 1px solid transparent;
+        box-sizing: border-box;
+        flex-grow: 1;
+    }
+    
+    .resources {
+        height: 400px;
+        width: 220px;
+    }
+
+    ul.resources {
+        margin-left: 10px;
+    }
+
+    ul.resources li {
+        /* margin: 4px; */
+        margin-left: 10px;
+        list-style-position: outside;
     }
 </style>

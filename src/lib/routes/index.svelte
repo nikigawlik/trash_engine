@@ -20,7 +20,15 @@ import { asyncYesNoPopup } from "./../modules/ui";
 
     let main: Main|null;
 
-    $: $data.editor.settings.darkMode? document.body.classList.add("dark") : document.body.classList.remove("dark");
+    $: {
+        if($data.editor.settings.darkMode){
+            document.body.classList.add("dark"); 
+            document.body.classList.remove("light"); 
+        } else {
+            document.body.classList.add("light"); 
+            document.body.classList.remove("dark");
+        }
+    }
 
     let init = async () => {
         console.log("--- window.onload ---")
@@ -184,5 +192,34 @@ import { asyncYesNoPopup } from "./../modules/ui";
         color: var(--main-color);
         margin: 0;
         padding: 4px 6px;
+    }
+
+    /* header img {
+        margin-right: 8px;
+    } */
+    
+    header div {
+        display: flex;
+        flex-direction: row;
+        padding: 4px;
+        /* vertical-align: middle; */
+        font-family: sans-serif;
+    }
+
+    ul.topbar {
+        display: flex;
+        flex-direction: row;
+
+        border-bottom: 1px solid var(--main-color);
+        background-color: var(--bg-color);
+        /* padding: 8px; */
+
+        margin-bottom: 4px;;
+    }
+
+    ul.topbar > li {
+        /* border-right: 1px solid var(--main-color); */
+        padding: 4px;
+
     }
 </style>

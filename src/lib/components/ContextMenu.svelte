@@ -71,5 +71,23 @@
     }
     ul {
         position: absolute;
+        background-color: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
+        width: fit-content;
+        min-width: 10px;
+        min-height: 10px;
+    }
+
+    li {
+        margin: 0;
+    }
+
+    button {
+        display: block;
+        width: 100%;
+        min-width: 100px;
     }
 </style>

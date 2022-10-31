@@ -23,3 +23,5 @@ import Card from "./Card.svelte";
     <p><label>open resources maximized &nbsp <input type="checkbox" bind:checked={openResourcesMaximized} /></label></p>
 </Card>
 
+<style>
+</style>

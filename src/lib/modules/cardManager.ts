@@ -60,7 +60,7 @@ export function openCard(
 ) {
         
     // either an existing card or false/undefined
-    let existing = !allowDuplicate && cards.get().find(x => x.componentType === type);
+    let existing = !allowDuplicate && cards.get().find(x => x.componentType.name === type.name);
     let existingUUID = !!uuid && cards.get().find(x => x.uuid == uuid)
     existing ||= existingUUID;
 

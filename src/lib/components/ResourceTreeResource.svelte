@@ -227,5 +227,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
         /* height: fit-content; */
         height: 1.5em;
         width: 1.5em;
+        display: inline-block;
+        margin-right: 4px;
+        padding: auto;
+        text-align: end;
     }
 </style>

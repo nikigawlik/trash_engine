@@ -233,17 +233,6 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
         --border: 7px;
         --half-border: 3px;
     } */
-
-    section {
-        max-width: calc(100% - 8px);
-        max-height: calc(100% - 8px);
-        margin: 0;
-
-        display: grid;
-        grid-template-columns: var(--border) 1fr var(--border);
-        grid-template-rows: var(--border) 1fr var(--border);
-    }
-
     .resize {
         /* defaults */
         grid-row: 2;
@@ -269,6 +258,32 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     * {
         box-sizing: border-box;
     }
+    
+    section {
+        max-width: calc(100% - 8px);
+        max-height: calc(100% - 8px);
+        margin: 0;
+
+        display: grid;
+        grid-template-columns: var(--border) 1fr var(--border);
+        grid-template-rows: var(--border) 1fr var(--border);
+
+        position: absolute;
+        user-select: none;
+
+        /* resize: both; */
+        overflow: hidden;
+        /* min-width: fit-content;
+        min-height: fit-content; */
+        /* padding: -8px; */
+        /* border: 2px solid var(--main-color); */
+        /* box-shadow: 2px 2px 8px -2px var(--main-color); */
+        background-color: var(--bg-color);
+        width: fit-content;
+        height: fit-content;
+        /* padding: 8px; */
+    }
+
 
     .inner-card {
         
