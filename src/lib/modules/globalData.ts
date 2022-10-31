@@ -16,7 +16,7 @@ interface GlobalSettings {
 const { subscribe, set, update } = writable({
     editor: {
         settings: {
-            darkMode: false,
+            darkMode: true,
             subFolders: false,
             openResourcesMaximized: true,
         }
