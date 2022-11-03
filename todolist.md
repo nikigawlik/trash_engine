@@ -63,6 +63,14 @@ vv START HERE vv
 - tidy up the projects folder structure, etc.
 - [B] auto save/load
 ~~- sprite resize bug introduced by fixing "drag sprite out of window" bug. T_T~~
+- Refactor save data -> no complicated tree, more readable?
+- [B] dont' clutter index db without reason
+- [B] how are people going to make even a simple game?
+- [B] Redo pop ups (modals) to actually block stuff and cover whole screen
+- Resources card should have larger default width
+- Change image save format -> paletted
+- [B] simple scripting doc -> can be opened next to scripting window
+- Sprite editor tabs dont look right
 
 blockers:
 - tests (?)

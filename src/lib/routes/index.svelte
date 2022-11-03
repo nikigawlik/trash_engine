@@ -5,8 +5,10 @@ import "../../assets/svg.css";
 import GameData from "../components/GameData.svelte";
 import GamePreview from "../components/GamePreview.svelte";
 import Icon from "../components/Icon.svelte";
+import LoadProjectPopUp from "../components/LoadProjectPopUp.svelte";
 import Resources from "../components/Resources.svelte";
-import { openCard } from "../modules/cardManager";
+import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
+import { cards, openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
 import Main from "./../components/Main.svelte";
@@ -58,6 +60,40 @@ import { asyncYesNoPopup } from "./../modules/ui";
         let p1 = resourceManager.get().save();
         let p2 = data.save();
         savingPromise = Promise.all([p1, p2]);
+    }
+
+    async function asyncSave() {
+        let result: {id:number, name:string} = await new Promise(resolve => {
+            // this is a AbstractGetTextPrompt
+            ui.blockingPopup.set({
+                componentType: SaveProjectPopUp as any,
+                data: {},
+                resolve,
+            });
+        });
+        if(result) {
+            let p1 = result.id < 0? resourceManager.get().save() : resourceManager.get().save(result.id);
+            let p2 = data.save();
+            savingPromise = Promise.all([p1, p2]);
+
+        }
+    }
+
+    async function asyncLoad() {
+        let result: {id:number, name:string} = await new Promise(resolve => {
+            // this is a AbstractGetTextPrompt
+            ui.blockingPopup.set({
+                componentType: LoadProjectPopUp as any,
+                data: {},
+                resolve,
+            });
+        });
+        if(result) {
+            let p1 = resourceManager.get().load(undefined, result.id);
+            let p2 = globalData.load();
+            savingPromise = Promise.all([p1, p2]);
+            cards.reset();
+        }
     }
 
     async function exportData() {
@@ -168,8 +204,8 @@ import { asyncYesNoPopup } from "./../modules/ui";
             <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
             <li><button on:click={() => openCard(Settings)}>settings</button></li>
             <li><button on:click={() => openCard(GamePreview, false)}>game</button></li>
-            <li><button on:click={() => save()}>save</button></li>
-            <li><button on:click={() => location.reload()}>load</button></li>
+            <li><button on:click={async() => await asyncSave()}>save</button></li>
+            <li><button on:click={async() => await asyncLoad()}>load</button></li>
             <li><button on:click={() => openCard(GameData, false)}>game data</button></li>
             <li><button on:click={() => exportData()}>export</button></li>
             <li><button on:click={() => importData()}>import</button></li>

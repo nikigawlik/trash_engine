@@ -20,6 +20,7 @@ export interface AbstractPrompt {
 export interface AbstractButton {
     text: string
     callback: () => Promise<void>|void
+    disabled?: boolean
 }
 
 

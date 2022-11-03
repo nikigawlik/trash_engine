@@ -4,6 +4,7 @@ import Folder from "../structs/folder";
 import Resource from "../structs/resource";
 import Room from "../structs/room";
 import Sprite from "../structs/sprite";
+import { assert } from "./utils";
 
 console.log("resource_manager.ts loading")
 
@@ -136,7 +137,7 @@ export default class ResourceManager {
         this.refresh();
     }
 
-    async save() {
+    async save(replaceKey?: number) {
         if(!db || !db.transaction) return;
         
         // we just need to save the root, actually
@@ -145,7 +146,8 @@ export default class ResourceManager {
 
         let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
-        let request = objectStore.put(rootClone);
+
+        let request = replaceKey != undefined? objectStore.put(rootClone, replaceKey) : objectStore.put(rootClone);
         request.onsuccess = event => {
             // event.target.result === customer.ssn;
             console.log(`saved resource ${request.result}`);
@@ -157,7 +159,7 @@ export default class ResourceManager {
         });
     }
 
-    async load(customData? : string) {
+    async load(customData? : string, customKey? : any) {
         if(!db || !db.transaction) {
             // throw Error("Database not initialized!")
             console.log("no database...")
@@ -171,10 +173,15 @@ export default class ResourceManager {
         } else {
             console.log(`- load resource tree from indexed db...`)
             try {
-                let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
-                let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
-                let results = await requestAsync(objectStore.getAll());
-                result = results[results.length - 1];
+                if(customKey == undefined) {
+                    let results = await ResourceManager.getSaveFiles();
+                    result = results[results.length - 1].value;
+                } else {
+                    let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
+                    let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
+
+                    result = await requestAsync(objectStore.get(customKey));
+                }
             } catch (e) {
                 console.log(`getting data failed: ${(e as Error)?.message}`);
                 result = null;
@@ -197,6 +204,22 @@ export default class ResourceManager {
         } else {
             console.log("!! no save data found")
         }
+    }
+
+    public static async getSaveFiles(): Promise<{key:any, value:any}[]> {
+        let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
+        let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
+
+        let pKeys = requestAsync(objectStore.getAllKeys());
+        let pValues = requestAsync(objectStore.getAll());
+        
+        let [keys, values] = await Promise.all([pKeys, pValues]);
+        assert(keys.length == values.length);
+        let results: {key:any, value:any}[] = keys.map((_, i:number) => ({
+            key: keys[i],
+            value: values[i],
+        }))
+        return results;
     }
 }
 

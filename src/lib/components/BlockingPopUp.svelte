@@ -24,7 +24,7 @@ import type { AbstractButton, AbstractPrompt } from "../modules/ui";
             <slot></slot>
             <ul class=horizontal>
                 {#each prompt.buttons as but}
-                <li><button on:click={ () => buttonClick(but) }>{but.text}</button></li>
+                <li><button on:click={() => buttonClick(but)} disabled={but.disabled} >{but.text}</button></li>
                 {/each}
             </ul>
         </div>

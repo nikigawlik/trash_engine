@@ -67,6 +67,7 @@ button {
     background-color: var(--off-bg-color);
 }
 
+
 button:hover {
     background-color: var(--neutral-color);
 }
@@ -81,6 +82,19 @@ button:active {
     box-shadow: 1px 1px;
     color: var(--bg-color);
     background-color: var(--main-color);
+}
+
+button:disabled {
+    color: var(--off-bg-color);
+    border-color: var(--off-bg-color);
+    box-shadow: 2px 2px var(--off-bg-color);
+    background-color: var(--bg-color);
+    transform: none;
+}
+
+button.plain {
+    transform: none;
+    box-shadow: none;
 }
 
 em {
