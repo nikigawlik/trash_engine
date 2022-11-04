@@ -288,6 +288,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
         background-color: var(--bg-color);
         width: fit-content;
         height: fit-content;
+        max-height: 100%;
         /* padding: 8px; */
     }
 

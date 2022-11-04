@@ -6,6 +6,7 @@ import GameData from "../components/GameData.svelte";
 import GamePreview from "../components/GamePreview.svelte";
 import Icon from "../components/Icon.svelte";
 import LoadProjectPopUp from "../components/LoadProjectPopUp.svelte";
+import Reference from "../components/Reference.svelte";
 import Resources from "../components/Resources.svelte";
 import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
 import { cards, openCard } from "../modules/cardManager";
@@ -204,6 +205,7 @@ import { asyncYesNoPopup } from "./../modules/ui";
             <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
             <li><button on:click={() => openCard(Settings)}>settings</button></li>
             <li><button on:click={() => openCard(GamePreview, false)}>game</button></li>
+            <li><button on:click={() => openCard(Reference, false)}>help</button></li>
             <li><button on:click={async() => await asyncSave()}>save</button></li>
             <li><button on:click={async() => await asyncLoad()}>load</button></li>
             <li><button on:click={() => openCard(GameData, false)}>game data</button></li>

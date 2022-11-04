@@ -35,6 +35,73 @@ document.worker.onmessage = (event) => {
 };
 window.onload = () => { w.postMessage(''); };
 
+## Getting rid of 'this' 
+
+### Transpiled language
+
+We just transpile stuff. -> all unrecognized variables are pre-pended with `this.`
+
+### using `with(...) { ... }`
+
+Just no, please
+
+### Closure solution
+
+Every instance has it's own closure, like;
+
+```
+function newInstance() {
+  // start of init
+  let x = 0; 
+  let y = 0;
+  let xspd = 2;
+  let yspd = 3;
+  // end of init
+
+
+  let update = function() {
+    // start of update
+    x += xspd;
+    y += yspd;
+
+    console.log(`${x}, ${y}`)
+    // end of update
+  }
+
+  return {update, get x() {return x;}, set x(v) {x=v} };
+}
+```
+
+Some research and experimentation later:
+
+Closures use about the same memory as a object which contains the captured variables:
+
+=> Closure memory footprint is dependent on the amount of captured variables!
+
+In firefox using update.call(instance) is about 2-3x slower than creating a bunch of update-functions with their own closures.
+
+In chrome it's the same.
+
+The problem with closures is how other objects are gonna access the vars?
+
+```
+let constr = (v1, v2, v3, v4) => {
+  let update = () => {
+    // update code
+    v1 += 4;
+    // /update code
+  }
+
+  return {
+    update,
+    get v1() {return v1}, set v1(value) {v1 = value},
+    get v2() {return v2}, set v2(value) {v2 = value},
+    get v3() {return v3}, set v3(value) {v3 = value},
+    get v4() {return v4}, set v4(value) {v4 = value},
+  }
+}
+```
+
 
 ## Packaging / exporting a game ##
 

@@ -214,3 +214,86 @@ p.log {
 ::-webkit-scrollbar-corner {
     background-color: var(--bg-color);
 }
+
+
+/* text-like environments */
+
+.document {
+    user-select: text;
+}
+
+.document h1 {
+    font-size: larger;
+    font-weight: bold;
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+.document h2 {
+    font-size: large;
+    font-weight: bold;
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+
+.document h3 {
+    /* font-weight: bold; */
+    text-decoration: underline;
+    margin-top: .8em;
+    margin-bottom: .5em;
+}
+
+.document p, .document ol, .document ul {
+    margin-top: .5em;
+    margin-bottom: 1em;
+
+    font-size: 90%;
+    line-height: 150%;
+}
+
+.document li>ol, .document li>ul {
+    margin-top: .25em;
+    margin-bottom: .25em;
+}
+
+.document ul {
+    list-style: circle; 
+}
+
+.document ol {
+    list-style: decimal;
+}
+
+.document li {
+    margin-left: 1.5em;
+    margin-top: .25em;
+    margin-bottom: .25em;
+}
+
+.document table {
+    border-collapse: collapse;
+    /* empty-cells: hide; */
+}
+
+.document td, .document th {
+    border: 1px solid var(--main-color);
+    padding: .5em;
+}
+
+.document code {
+    font-family: monospace;
+    background-color: var(--off-bg-color);
+}
+
+.document pre {
+    overflow-x: scroll;
+}
+
+.document pre code {
+    background-color: var(--bg-color);
+}
+
+.document pre {
+    border: 1px solid var(--main-color);
+    padding: .6em .4em;
+}
