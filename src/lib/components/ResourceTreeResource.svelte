@@ -95,6 +95,8 @@ import SpriteIcon from "./SpriteIcon.svelte";
                             let newResource = new resourceConstructor(name, resource._resourceManager);
                             resource.add(newResource);
                             resource._resourceManager?.refresh();
+
+                           await openEditorWindow(newResource)
                         }
                     }
                 },

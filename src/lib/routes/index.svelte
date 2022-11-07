@@ -40,7 +40,6 @@ import { asyncYesNoPopup } from "./../modules/ui";
         console.log("load app...");
         await globalData.load();
         await resourceManager.get().load();
-        await ui.init();
         await sprite_editor.init();
         console.log("--- --- ---- --- ---")
         console.log("--- loading done ---") 
@@ -208,10 +207,10 @@ import { asyncYesNoPopup } from "./../modules/ui";
             <li><button on:click={() => openCard(Reference, false)}>help</button></li>
             <li><button on:click={async() => await asyncSave()}>save</button></li>
             <li><button on:click={async() => await asyncLoad()}>load</button></li>
-            <li><button on:click={() => openCard(GameData, false)}>game data</button></li>
+            <!-- <li><button on:click={() => openCard(GameData, false)}>game data</button></li> -->
             <li><button on:click={() => exportData()}>export</button></li>
             <li><button on:click={() => importData()}>import</button></li>
-            <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li>
+            <!-- <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li> -->
         </ul>
     </header>
     <Main bind:this={main}></Main>

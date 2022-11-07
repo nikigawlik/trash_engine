@@ -58,27 +58,6 @@ export let asyncGetTextPopup = async (question: string, defaultText: string) : P
 
 /* ------- old stuff -------   */
 
-/**
- * @param {HTMLElement} root 
- * @param {HTMLElement} bounds 
- */
-export function elementsRegister(root: HTMLElement, bounds: HTMLElement) {
-    // elements that are protected from drag actions, other kinds of default actions
-    
-    for(let e of root.querySelectorAll(".resource-link")) {
-        if(e instanceof HTMLElement) e.onclick = evt => {
-            evt.preventDefault();
-        }
-    }
-
-}
-
-export function init() {
-    console.log("init ui...")
-    // let bounds = document.querySelector("body");
-    // elementsRegister(bounds, document.querySelector("main"));
-}
-
 export function findWindowPos(elementRect: DOMRect, boundsRect: DOMRect, otherCardsRects: DOMRect[]) {
     let meRect = elementRect;
     let bounds = boundsRect;

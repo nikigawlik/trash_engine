@@ -1,10 +1,13 @@
 
 <script lang="ts">
 import { onMount } from "svelte";
+    import { text } from "svelte/internal";
 
 import type { AbstractButton, AbstractPrompt } from "../modules/ui";
 
     export let prompt: AbstractPrompt|null;
+
+    $: lines = prompt? prompt.text.split("\n") : [];
 
     function buttonClick(button: AbstractButton) {
         console.log("click")
@@ -20,7 +23,9 @@ import type { AbstractButton, AbstractPrompt } from "../modules/ui";
 {#if prompt}
     <div class="overlay">
         <div class="popup">
-            <p>{prompt.text}</p>
+            {#each lines as line}
+                <p>{line}</p>
+            {/each}
             <slot></slot>
             <ul class=horizontal>
                 {#each prompt.buttons as but}
