@@ -224,7 +224,7 @@ import * as ui from "./../modules/ui";
             <!-- <li><button on:click={() => openCard(Log)}>new log</button></li> -->
             <!-- <li><button on:click={() => openCard(GameData, false)}>game data</button></li> -->
             <li><button on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </button></li>
-            <li><button on:click={() => openCard(Settings)}>           <AtlasIcon id={43} /> settings  </button></li>
+            <li><button on:click={() => openCard(Settings, false)}>           <AtlasIcon id={43} /> settings  </button></li>
             <li><button on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> game      </button></li>
             <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </button></li>
             <li><button on:click={async() => await asyncSave()}>       <AtlasIcon id={7}  /> save      </button></li>

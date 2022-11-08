@@ -60,12 +60,15 @@
 
     let s_sprite = resourceManager.get().getResourceStore(spriteID) as Writable<Sprite>;
     
-    console.log("hEre")
     let canvasWidth = $s_sprite.canvas?.width || 60;
     let canvasHeight = $s_sprite.canvas?.height || 60;
     // reactively create a canvas in sprite and/or update it's width/height
     $: {
-        if(!$s_sprite.canvas) $s_sprite.canvas = document.createElement("canvas");
+        if(!$s_sprite.canvas) {
+            $s_sprite.canvas = document.createElement("canvas");
+            $s_sprite.originX = ~~(canvasWidth / 2);
+            $s_sprite.originY = ~~(canvasHeight / 2);
+        }
         if($s_sprite.canvas.width != canvasWidth) $s_sprite.canvas.width = canvasWidth;
         if($s_sprite.canvas.height != canvasHeight) $s_sprite.canvas.height = canvasHeight;
     }
@@ -111,89 +114,12 @@
     $: canvasCtx = canvas?.getContext("2d")!;
 
     onMount(() => {
-        console.log("here")
         let ctx = canvas.getContext("2d");
         ctx.fillStyle = "black";
         console.log($s_sprite.canvas);
         // document.querySelector(".canvas-container").append($s_sprite.canvas)
         ctx.drawImage($s_sprite.canvas, 0, 0);
     })
-
-    // resize button
-    // TODO doesn't work
-    let resizeButtonClick = async() => {
-        // make a popup
-        let result = await new Promise<any>(resolve =>
-        blockingPopup.set({
-            componentType: ResizeSpritePopUp as any,
-            data: {width: canvasWidth, height: canvasHeight},
-            resolve,
-        }));
-
-        if(result) {
-            canvasWidth = Math.max(1, result.width);
-            canvasHeight = Math.max(1, result.height);
-            s_sprite.update(s => { 
-                s.originX = ~~(canvasWidth / 2);
-                s.originY = ~~(canvasHeight / 2);
-                return s;
-            });
-        }
-    };
-
-    let uploadButtonClick = async() => {
-        let element = document.createElement("input");
-        element.setAttribute("type", "file");
-        element.style.display = "none";
-        document.body.appendChild(element);
-        element.click();
-        // TODO if user clicks cancel this will just never resolve
-        let imgFile: File = await new Promise((resolve) => element.addEventListener("change", () => {
-            if (element.files && element.files[0]) {
-                element.innerHTML = element.files[0].name;
-                resolve(element.files[0]);
-            } else {
-                resolve(null); // doesn't happen probably?
-            }
-        }));
-        document.body.removeChild(element);
-
-        if(imgFile) {
-            let width: number;
-            let height: number;
-            let fileSize: number;
-            let reader = new FileReader();
-            let readPromise: Promise<ProgressEvent<FileReader>> = new Promise((resolve, reject) => { reader.onload = event => resolve(event); reader.onerror = reject });
-            
-            reader.readAsDataURL(imgFile);
-            let event: ProgressEvent<FileReader> = await readPromise;
-            
-            let dataUri = event.target.result as string,
-            img = document.createElement("img");
-            let imgLoadPromise = new Promise(resolve => img.onload = resolve)
-            img.src = dataUri;
-            width = img.width;
-            height = img.height;
-            fileSize = imgFile.size;
-
-            await imgLoadPromise;
-
-            s_sprite.update(sprite => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                sprite.originX = ~~(canvas.width / 2);
-                sprite.originY = ~~(canvas.height / 2);
-                canvas.getContext("2d").drawImage(img, 0, 0);
-                return sprite;
-            });
-        }
-    }
-
-    // let centerOrigin = () => s_sprite.update(sprite => {
-    //     sprite.originX = ~~(canvas.width / 2);
-    //     sprite.originY = ~~(canvas.height / 2);
-    //     return sprite;
-    // });
 
     // stroke select
     let currentBrush: HTMLCanvasElement;
@@ -315,6 +241,89 @@
     }
 
     let canvasContainer: HTMLElement;
+
+    // resize button
+    // TODO doesn't work
+    let resizeButtonClick = async() => {
+        // make a popup
+        let result = await new Promise<any>(resolve =>
+        blockingPopup.set({
+            componentType: ResizeSpritePopUp as any,
+            data: {width: canvasWidth, height: canvasHeight},
+            resolve,
+        }));
+
+        if(result) {
+            canvasWidth = Math.max(1, result.width);
+            canvasHeight = Math.max(1, result.height);
+            s_sprite.update(s => { 
+                s.originX = ~~(canvasWidth / 2);
+                s.originY = ~~(canvasHeight / 2);
+                return s;
+            });
+        }
+    };
+
+    let uploadButtonClick = async() => {
+        let element = document.createElement("input");
+        element.setAttribute("type", "file");
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        // TODO if user clicks cancel this will just never resolve
+        let imgFile: File = await new Promise((resolve) => element.addEventListener("change", () => {
+            if (element.files && element.files[0]) {
+                element.innerHTML = element.files[0].name;
+                resolve(element.files[0]);
+            } else {
+                resolve(null); // doesn't happen probably?
+            }
+        }));
+        document.body.removeChild(element);
+
+        if(imgFile) {
+            let width: number;
+            let height: number;
+            let fileSize: number;
+            let reader = new FileReader();
+            let readPromise: Promise<ProgressEvent<FileReader>> = new Promise((resolve, reject) => { reader.onload = event => resolve(event); reader.onerror = reject });
+            
+            reader.readAsDataURL(imgFile);
+            let event: ProgressEvent<FileReader> = await readPromise;
+            
+            let dataUri = event.target.result as string,
+            img = document.createElement("img");
+            let imgLoadPromise = new Promise(resolve => img.onload = resolve)
+            img.src = dataUri;
+            width = img.width;
+            height = img.height;
+            fileSize = imgFile.size;
+
+            await imgLoadPromise;
+
+            canvasWidth = img.width;
+            canvasHeight = img.height;
+            s_sprite.update(sprite => {
+                const _canvas = sprite.canvas;
+                _canvas.width = img.width;
+                _canvas.height = img.height;
+                sprite.originX = ~~(_canvas.width / 2);
+                sprite.originY = ~~(_canvas.height / 2);
+                _canvas.getContext("2d").drawImage(img, 0, 0);
+                return sprite;
+            });
+            
+            requestAnimationFrame(() => resetDisplayCanvas()); // TODO this is hacky
+        }
+    }
+
+    // $: { canvasWidth; canvasHeight; if($s_sprite.canvas && canvas) resetDisplayCanvas(); }
+
+    // let centerOrigin = () => s_sprite.update(sprite => {
+    //     sprite.originX = ~~(canvas.width / 2);
+    //     sprite.originY = ~~(canvas.height / 2);
+    //     return sprite;
+    // });
 
 </script>
 

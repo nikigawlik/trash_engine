@@ -9,6 +9,7 @@ import ImageEditor from "./ImageEditor.svelte";
 
     console.log(`open sprite ${card.uuid}`);
     let sprite: Sprite = $resourceManager?.findByUUID(card.uuid) as Sprite;
+
     $: {card.name = sprite.name; $resourceManager;} // $resourceManager added for reactivity
     $: card.className = "sprite-editor"
 

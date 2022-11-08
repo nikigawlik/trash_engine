@@ -18,12 +18,6 @@
 </section>
 
 <style>
-    :global(body) {
-        overflow: scroll;
-        background-color: var(--bg-color);
-        color: var(--main-color);
-    }
-
     h2 {
         margin: 1rem;
     }
