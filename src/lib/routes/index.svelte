@@ -16,12 +16,11 @@ import { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
 import Main from "./../components/Main.svelte";
 import Settings from "./../components/Settings.svelte";
-import * as sprite_editor from "./../components/SpriteEditor.svelte";
+import * as image_editor from "./../components/ImageEditor.svelte";
 import * as database from "./../modules/database";
 import * as globalData from "./../modules/globalData";
 import { nameConstructorMap } from "./../modules/structs/savenames";
 import * as ui from "./../modules/ui";
-import { asyncYesNoPopup } from "./../modules/ui";
 
     let main: Main|null;
 
@@ -42,7 +41,7 @@ import { asyncYesNoPopup } from "./../modules/ui";
         console.log("load app...");
         await globalData.load();
         await resourceManager.get().load();
-        await sprite_editor.init();
+        await image_editor.init();
         console.log("--- --- ---- --- ---")
         console.log("--- loading done ---") 
         console.log("--- --- ---- --- ---")

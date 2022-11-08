@@ -196,7 +196,7 @@ draggable="true"
         >
             <span class=icon>
                 {#if selfResource instanceof Sprite}
-                    <SpriteIcon sprite={selfResource}></SpriteIcon>
+                    <SpriteIcon spriteID={selfResource.uuid}></SpriteIcon>
                 {:else}
                     {selfResource.getIconElement()}
                 {/if}

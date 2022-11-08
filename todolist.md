@@ -65,7 +65,7 @@ vv START HERE vv
 <!-- ~~- sprite resize bug introduced by fixing "drag sprite out of window" bug. T_T~~ -->
 - Refactor save data -> no complicated tree, more readable?
 <!-- ~~- [B] dont' clutter index db without reason~~ -->
-- [B] how are people going to make even a simple game?
+- [B] how are people going to make even a simple game? -> behaviour blocks
 - [B] Redo pop ups (modals) to actually block stuff and cover whole screen
 - Resources card should have larger default width
 - Change image save format -> paletted
@@ -80,6 +80,7 @@ vv START HERE vv
 - Support TouchEvents
 - Game iframe fullscreen button
 - Shorter uuids
+- General way to show errors to the user
 
 blockers:
 - tests (?)

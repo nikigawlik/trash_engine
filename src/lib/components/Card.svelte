@@ -76,6 +76,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
     let offsetY = 0;
 
     function onMouseDown(event: MouseEvent) {
+        if(event.button != 0) return;
         if(!event.target || !(event.target instanceof HTMLElement) || !event.target.matches(handleQuery)) {
             return;
         }
@@ -123,6 +124,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
     let resizeBottom = false;
 
     function onResizeMouseDown(event: MouseEvent){
+        if(event.button != 0) return;
         let target = (event.target as HTMLElement);
         resizeRight = target.classList.contains("right");
         resizeLeft = !isMaximized && target.classList.contains("left");

@@ -7,7 +7,7 @@ import type { AbstractButton, AbstractPrompt } from "../modules/ui";
 
     export let prompt: AbstractPrompt|null;
 
-    $: lines = prompt? prompt.text.split("\n") : [];
+    $: lines = prompt?.text?.split("\n") || [];
 
     function buttonClick(button: AbstractButton) {
         console.log("click")

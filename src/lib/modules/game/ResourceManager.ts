@@ -1,10 +1,10 @@
-import { writable } from "svelte/store";
+import { Writable, writable } from "svelte/store";
 import { db, deserialize, getDocumentGameData, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
 import Folder from "../structs/folder";
 import Resource from "../structs/resource";
 import Room from "../structs/room";
 import Sprite from "../structs/sprite";
-import { assert } from "./utils";
+import { assert, rectInside } from "./utils";
 
 console.log("resource_manager.ts loading")
 
@@ -25,6 +25,7 @@ export default class ResourceManager {
     root: Folder;
     settings: typeof defaultSettings;
     cache: any;
+    stores: Map<string, Writable<Resource>>
     constructor() {
         this.root = new Folder("root", this, 
             [
@@ -34,6 +35,7 @@ export default class ResourceManager {
         );
         this.settings = defaultSettings;
         this.cache = {};
+        this.stores = new Map();
     }
 
     static async init() {
@@ -46,17 +48,12 @@ export default class ResourceManager {
     }
 
     addSprite(sprite: Sprite) { this.addResource("sprites", sprite); }
-    // addThing(thing) { this.addResource("things", thing); }
     addRoom(room: Room) { this.addResource("rooms", room); }
 
     getAllOfResourceType(type: typeof Resource) {
         let folder: Folder = this.root.contents.find(x => (x instanceof Folder) && x.resourceType == type) as Folder;
         let resources = Array.from(folder.iterateAllResources());
         return resources;
-    }
-
-    toJSON() {
-        return this.root;
     }
 
     findByUUIDInFolder(uuid: string, folderName: string) {
@@ -66,33 +63,42 @@ export default class ResourceManager {
         else return result;
     }
 
-    findByUUID(uuid: string) {
-        const cached = this.cache[uuid];
-        if(cached) {
-            return cached;
-        } else {
+    findByUUID(uuid: string): Resource|null {
+        // const cached = this.cache[uuid];
+        // if(cached) {
+        //     return cached;
+        // } else {
             const resource = this.root.findByUUID(uuid);
             if(resource) this.cache[uuid] = resource;
             return resource
-        }
+        // }
     }
 
-    // render() {
-    //     let elmt = html`
-    //         <${Card} name=resources class=resources>
-    //         <//>
-    //     `;
-    //     this.resourceWindowElmt = elmt;
-    //     this.refresh();
-    //     return elmt;
-    // }
+    getResourceStore(uuid: string): Writable<Resource>|null {
+        let store = this.stores.get(uuid);
+        if(store) return store;
+        
+        let resource = this.findByUUID(uuid);
+        if(!resource) return null;
+        
+        store = writable(resource);
+        store.subscribe(value => {
+            // let current = this.findByUUID(uuid);
+            // if(current != resource) debugger;
+
+            if(!value && resource) resource.removeSelf(); // set to null/falsy -> delete resource
+            else if(value != resource) throw Error("You can not replace a Resource with another Resource using a store.")
+            resource = value; // keep track 
+
+            //always also triggers a general update (should maybe be refactored out eventually)
+            this.refresh();
+        });
+
+        this.stores.set(uuid, store);
+        return store;
+    }
 
     refresh() {
-        // if(!this.resourceWindowElmt) return;
-        // this.resourceWindowElmt.querySelector("ul.resources")?.remove();
-        // this.resourceWindowElmt.querySelector("div.scroll-box")
-        //     .append(resourceList(this.root.contents));
-        // elementsRegister(this.resourceWindowElmt.querySelector("ul.resources"));
         update(x => x);
     }
 
@@ -119,6 +125,9 @@ export default class ResourceManager {
             const d: SaveData = data; // just for typescript checking
             this.root = d.root;
             this.settings = d.settings;
+        } else {
+            console.error(`Unrecognized version ${data.version}`);
+            return;
         }
 
         let postProcess = (obj: any, parent: Folder | null) => {
@@ -140,14 +149,12 @@ export default class ResourceManager {
     async save(replaceKey?: number) {
         if(!db || !db.transaction) return;
         
-        // we just need to save the root, actually
-        // let rootClone = JSON.parse(JSON.stringify(this, replacer));
-        let rootClone = await this.getSerializedData();
+        let dataObject = await this.getSerializedData();
 
         let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
 
-        let request = replaceKey != undefined? objectStore.put(rootClone, replaceKey) : objectStore.put(rootClone);
+        let request = replaceKey != undefined? objectStore.put(dataObject, replaceKey) : objectStore.put(dataObject);
         request.onsuccess = event => {
             // event.target.result === customer.ssn;
             console.log(`saved resource ${request.result}`);
@@ -161,12 +168,11 @@ export default class ResourceManager {
 
     async load(customData? : string, customKey? : any) {
         if(!db || !db.transaction) {
-            // throw Error("Database not initialized!")
             console.log("no database...")
             return;
         }
 
-        let result;
+        let result: any;
 
         if(customData) {
             result = JSON.parse(customData);

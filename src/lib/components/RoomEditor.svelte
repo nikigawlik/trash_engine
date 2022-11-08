@@ -157,7 +157,7 @@ import SpriteIcon from "./SpriteIcon.svelte";
                     >
                         <h4>{spr.name}</h4> 
                         <div class="icon">
-                            <SpriteIcon sprite={spr} growToFit={false}></SpriteIcon>
+                            <SpriteIcon spriteID={spr.uuid} growToFit={false}></SpriteIcon>
                         </div>
                     </button>
                 {/each}
