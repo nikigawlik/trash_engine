@@ -2,6 +2,12 @@ export function assert(bool: boolean) {
     if(!bool) throw Error("Assertion failed.");
 }
 
+export function adjustedCanvasSize(size: number): number {
+    // 1px == devicePixelRatio physical pixels
+    const scaleFactor = Math.max(Math.round(devicePixelRatio), 1);
+    size = size / window.devicePixelRatio * scaleFactor; 
+    return size;
+}
 
 /**
  * @param {DOMRect} rect1 

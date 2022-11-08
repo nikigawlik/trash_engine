@@ -35,14 +35,18 @@ body.dark {
 } 
 
 body {
-    width: 100vw;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
     background-color: var(--bg-color);
     color: var(--main-color);
     font-family: sans-serif;
+
     display: flex;
     flex-direction: column;
+}
+
+h3 {
+    font-size: 1.2rem;
 }
 
 textarea {

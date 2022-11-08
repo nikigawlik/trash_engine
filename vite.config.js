@@ -22,6 +22,6 @@ export default defineConfig({
     //     game: resolve(__dirname, 'game.html')
     //   }
     // },
-    minify: false
+    minify: true
   }
 })

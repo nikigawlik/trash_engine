@@ -1,7 +1,9 @@
 <script lang="ts">
+import {blockingPopup} from "../modules/ui";
 import "../../assets/main.css";
 import "../../assets/reset.css";
 import "../../assets/svg.css";
+    import AtlasIcon from "../components/AtlasIcon.svelte";
 import GameData from "../components/GameData.svelte";
 import GamePreview from "../components/GamePreview.svelte";
 import Icon from "../components/Icon.svelte";
@@ -171,12 +173,32 @@ import { asyncYesNoPopup } from "./../modules/ui";
     }
 
     document.onkeydown = keyPress;
+    
+    function windowResize() {
+        document.body.style.height = `${innerHeight}px`
+    }
+    windowResize();
+
+    let isFullscreen = false;
+
+    function toggleFullscreen() {
+        if(document.fullscreenElement) {
+            document.exitFullscreen()
+            isFullscreen = false;
+        } else {
+            document.body.parentElement.requestFullscreen();
+            isFullscreen = true;
+        }
+    }
+
 
 </script>
 
 <svelte:head>
     <title>{$resourceManager.settings.title} | trash engine</title>
 </svelte:head>
+
+<svelte:window on:resize={windowResize}></svelte:window>
 
 {#await initPromise}
     <div class=loading>
@@ -201,20 +223,31 @@ import { asyncYesNoPopup } from "./../modules/ui";
             <!-- <li><button onclick="cloneFromTemplate("#objectEditorCard")">new object</button></li> -->
             <!-- <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li> -->
             <!-- <li><button on:click={() => openCard(Log)}>new log</button></li> -->
-            <li><button on:click={() => openCard(Resources, false)}>resources</button></li>
-            <li><button on:click={() => openCard(Settings)}>settings</button></li>
-            <li><button on:click={() => openCard(GamePreview, false)}>game</button></li>
-            <li><button on:click={() => openCard(Reference, false)}>help</button></li>
-            <li><button on:click={async() => await asyncSave()}>save</button></li>
-            <li><button on:click={async() => await asyncLoad()}>load</button></li>
             <!-- <li><button on:click={() => openCard(GameData, false)}>game data</button></li> -->
-            <li><button on:click={() => exportData()}>export</button></li>
-            <li><button on:click={() => importData()}>import</button></li>
+            <li><button on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </button></li>
+            <li><button on:click={() => openCard(Settings)}>           <AtlasIcon id={43} /> settings  </button></li>
+            <li><button on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> game      </button></li>
+            <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </button></li>
+            <li><button on:click={async() => await asyncSave()}>       <AtlasIcon id={7}  /> save      </button></li>
+            <li><button on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </button></li>
+            <li><button on:click={() => exportData()}>                 <AtlasIcon id={57} /> export    </button></li>
+            <li><button on:click={() => importData()}>                 <AtlasIcon id={58} /> import    </button></li>
+            <li><button on:click={toggleFullscreen}>
+                {#if isFullscreen}
+                    <AtlasIcon id={19} height={16}></AtlasIcon>
+                    {:else}
+                    <AtlasIcon id={20} height={16}></AtlasIcon>
+                {/if}
+                fullscreen
+            </button></li>
             <!-- <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li> -->
         </ul>
     </header>
     <Main bind:this={main}></Main>
 
+    {#if $blockingPopup}
+        <svelte:component this={$blockingPopup.componentType} bind:prompt={$blockingPopup} />
+    {/if}
 {/await}
 {/await}
 
@@ -246,6 +279,7 @@ import { asyncYesNoPopup } from "./../modules/ui";
     ul.topbar {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
 
         border-bottom: 1px solid var(--main-color);
         background-color: var(--bg-color);

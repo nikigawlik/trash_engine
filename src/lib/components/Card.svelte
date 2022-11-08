@@ -2,6 +2,7 @@
 <script lang="ts">
 import { getContext, onMount } from "svelte";
 import { cards, type CardInstance } from "../modules/cardManager";
+    import AtlasIcon from "./AtlasIcon.svelte";
 
     export let card: CardInstance;
     $: uuid = card.uuid;
@@ -221,9 +222,17 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
             <div class="name">{name}</div> 
             <div class="buttons">
                 <button class="maxWindow" on:click={maxWindow}>
-                    { isMaximized? "❐" : "☐" }
+                    <!-- { isMaximized? "❐" : "☐" } -->
+                    {#if isMaximized}
+                        <AtlasIcon id={19} height={20}></AtlasIcon>
+                    {:else}
+                        <AtlasIcon id={20} height={20}></AtlasIcon>
+                    {/if}
                 </button>
-                <button class="closeWindow" on:click={closeWindow}>🞩</button>
+                <!-- <button class="closeWindow" on:click={closeWindow}>🞩</button> -->
+                <button class="closeWindow" on:click={closeWindow}>
+                    <AtlasIcon id={32} height={20}></AtlasIcon>
+                </button>
             </div>
         </h3>
         <div class=content style:min-width={contentMinWidth}px>

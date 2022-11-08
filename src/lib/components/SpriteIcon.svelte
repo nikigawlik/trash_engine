@@ -1,9 +1,10 @@
 
 <script lang="ts">
 import { onMount } from "svelte";
-
 import { resourceManager } from "../modules/game/ResourceManager";
+import { adjustedCanvasSize } from "../modules/game/utils";
 import type Sprite from "../modules/structs/sprite";
+    
     export let sprite: Sprite;
     export let growToFit: boolean = true;
     let myCanvas: HTMLCanvasElement;
@@ -13,8 +14,8 @@ import type Sprite from "../modules/structs/sprite";
     $: height = sprite.canvas?.height || 1
     $: {$resourceManager; redraw();}
 
-    $: adjWidth = width / window.devicePixelRatio
-    $: adjHeight = height / window.devicePixelRatio
+    $: adjWidth = adjustedCanvasSize(width);
+    $: adjHeight = adjustedCanvasSize(height);
     
     function redraw() {
         if(myCanvas && sprite.canvas) {

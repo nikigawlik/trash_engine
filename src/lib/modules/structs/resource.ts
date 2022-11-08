@@ -20,10 +20,10 @@ export default class Resource {
     _parent: Folder | null;
     _resourceManager: ResourceManager;
     _icon: HTMLElement | null;
-    constructor(name = "", resourceManager?: ResourceManager) {
+    constructor(name = "", resourceManager: ResourceManager) {
         this.name = name;
         this.type = this.constructor.name.toLowerCase();
-        this.uuid = crypto.randomUUID();
+        this.uuid = crypto.randomUUID(),
         this._parent = null;
         this._resourceManager = resourceManager;
         this._icon = null;

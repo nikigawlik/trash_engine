@@ -77,6 +77,9 @@ vv START HERE vv
 - [B] Example/Skeleton project
 - use an about:blank iframe and fill it manually -> not relying on active internet connection
 - [B] Pixel perfect canvasses -> round to nearest multiple, instead of defaulting to fixed ratio
+- Support TouchEvents
+- Game iframe fullscreen button
+- Shorter uuids
 
 blockers:
 - tests (?)

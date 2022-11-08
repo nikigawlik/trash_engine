@@ -6,6 +6,7 @@ import Game from "../modules/game/game";
 import { resourceManager } from "../modules/game/ResourceManager";
 import { nameConstructorMap } from "../modules/structs/savenames";
 import * as globalData from "./../modules/globalData";
+    import { adjustedCanvasSize } from "../modules/game/utils";
 
     // TODO lot's of code overlap with index.svelte
 
@@ -37,10 +38,8 @@ import * as globalData from "./../modules/globalData";
 
     $: canvasWidth = canvas? canvas.width : 100;
     $: canvasHeight = canvas? canvas.height : 100;
-    const scaleFactor = 1;
-    const ratio = browser? window.devicePixelRatio : 1;
-    $: canvasDisplayWidth = canvasWidth / ratio * scaleFactor;
-    $: canvasDisplayHeight = canvasHeight / ratio * scaleFactor; 
+    $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth);
+    $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
     $: {
         canvasDisplayHeight;

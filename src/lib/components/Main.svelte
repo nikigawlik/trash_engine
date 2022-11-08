@@ -2,6 +2,7 @@
     import { setContext } from "svelte";
 import { blockingPopup } from "../modules/ui";
 import { cards, openCard } from "./../modules/cardManager";
+    import AtlasIcon from "./AtlasIcon.svelte";
 import Resources from "./Resources.svelte";
 
     openCard(Resources, false)
@@ -19,30 +20,31 @@ import Resources from "./Resources.svelte";
             <svelte:component this={card.componentType} card={card} />
         {/each}
     </div>
-    {#if $blockingPopup}
-        <svelte:component this={$blockingPopup.componentType} bind:prompt={$blockingPopup} />
-    {/if}
 </main>
 
 <style>
     .cards {
-        height: 100%;
         width: max-content;
-        display: flex;
+
+        height: 100%;
         justify-content: left;
+
+        display: flex;
         align-items: top;
         gap: 4px;
+        
     }
     main {
         /* width: 100vw; */
-        /* height: 100vh; */
+        /* max-height: 40vh; */
         flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+        position: relative;
 
         
-        overflow: hidden;
+        overflow-y: hidden;
         overflow-x: scroll;
-        position: relative;
-        flex-grow: 1;
 
         padding: 0;
     }

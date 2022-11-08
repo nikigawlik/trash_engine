@@ -5,7 +5,7 @@ import Instance from "./../modules/structs/instance";
 
 import type Room from "./../modules/structs/room";
 import Sprite from "./../modules/structs/sprite";
-import { assert,rectInside } from "../modules/game/utils";
+import { assert, rectInside, adjustedCanvasSize } from "../modules/game/utils";
 
 import { afterUpdate, onMount } from "svelte";
 import type { CardInstance } from "../modules/cardManager";
@@ -46,10 +46,8 @@ import SpriteIcon from "./SpriteIcon.svelte";
     $: canvasWidth = room?.width || 100;
     $: canvasHeight = room?.height || 100;
     
-    // TODO could use a general solution for sizing canvases (room code is similar to the one in the sprite editor)
-    const scaleFactor = 1;
-    $: canvasDisplayHeight = canvasHeight / window.devicePixelRatio * scaleFactor;
-    $: canvasDisplayWidth = canvasWidth / window.devicePixelRatio * scaleFactor; 
+    $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
+    $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth); 
 
     afterUpdate(() => {
         refresh();

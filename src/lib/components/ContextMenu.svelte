@@ -14,6 +14,7 @@
 
 <script lang="ts">
     import { onMount } from "svelte";
+    import AtlasIcon from "./AtlasIcon.svelte";
 
     export let data: ContextMenuData|null;
 
@@ -57,7 +58,7 @@
                     bind:this={buttonElements[i]} 
                     on:click={ evt => onClickOption(evt, opt) }
                 >
-                🠖 {opt.text}
+                <AtlasIcon id={0} /> {opt.text}
                 </button></li>
             {/each}
         </ul>
