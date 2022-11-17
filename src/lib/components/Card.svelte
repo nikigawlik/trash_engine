@@ -223,7 +223,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
         <h3>
             <div class="name">{name}</div> 
             <div class="buttons">
-                <button class="maxWindow" on:click={maxWindow}>
+                <button class="maxWindow borderless" on:click={maxWindow}>
                     <!-- { isMaximized? "❐" : "☐" } -->
                     {#if isMaximized}
                         <AtlasIcon id={19} height={20}></AtlasIcon>
@@ -232,7 +232,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
                     {/if}
                 </button>
                 <!-- <button class="closeWindow" on:click={closeWindow}>🞩</button> -->
-                <button class="closeWindow" on:click={closeWindow}>
+                <button class="closeWindow borderless" on:click={closeWindow}>
                     <AtlasIcon id={32} height={20}></AtlasIcon>
                 </button>
             </div>
@@ -366,30 +366,9 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     }
 
     button {
-        border: none;
-        /* background-color: var(--bg-color); */
-        color: var(--main-color);
-        /* border: 1px solid var(--bg-color); */
-        background: none;
-        padding: 0;
-        padding-bottom: 2px;
-        margin: 0;
-        box-shadow: none;
-
         width: 28px;
         height: 100%;
         display: block;
-
-        /* display: inline-block;
-        vertical-align: top; */
-        /* margin-top: -5px;
-        padding-left: 4px; */
-        /* padding-left: 8px; */
-    }
-
-    button:hover {
-        color: var(--main-color);
-        background-color: var(--off-bg-color);
     }
 
 </style>

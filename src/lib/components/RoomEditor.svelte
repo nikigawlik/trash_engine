@@ -12,6 +12,7 @@ import type { CardInstance } from "../modules/cardManager";
 import { data } from "../modules/globalData";
 import Card from "./Card.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
+    import type { Writable } from "svelte/store";
     
     export let card: CardInstance;
     const uuid = card.uuid;
@@ -38,6 +39,8 @@ import SpriteIcon from "./SpriteIcon.svelte";
     $: gridHeight = Math.max(gridHeight, 1)
     
     let snapMode = "center";
+
+    let roomStore = $resourceManager.getResourceStore(uuid) as Writable<Room>;
 
     // let bgColor = room?.backgroundColor || "#222222";
     // $: room && (room.backgroundColor = bgColor);
@@ -181,6 +184,10 @@ import SpriteIcon from "./SpriteIcon.svelte";
                 <label><input type="radio" value="corner" bind:group={snapMode} /> corner </label>
                 <!-- <span class="spacer" />
                 <label for="background_color">background: </label><input name="background_color" type="color" bind:value={bgColor}/> -->
+                <span class="spacer" />
+                <label>bg color <input type="color" bind:value={$roomStore.backgroundColor} /></label>
+                <label>width <input type="number" bind:value={$roomStore.width} /></label>
+                <label>height <input type="number" bind:value={$roomStore.height} /></label>
             </div>
             <div class="canvas-container">
                 <canvas 
@@ -262,10 +269,6 @@ import SpriteIcon from "./SpriteIcon.svelte";
     .canvas-container canvas {
         /* display: block; */
         border: 1px dashed var(--main-color);
-    }
-
-    .room-top-bar span.spacer {
-        width: 8px;
     }
 
     .room-top-bar input[type=number] {

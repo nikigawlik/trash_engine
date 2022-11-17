@@ -81,6 +81,15 @@ vv START HERE vv
 - Game iframe fullscreen button
 - Shorter uuids
 - General way to show errors to the user
+- ok...
+- pop out script editors
+- event system
+  - after create / first update (runs at first update)
+  - draw
+- revamp scripting system -> isolate components? less code gen? how to do props?
+- instance order menu
+- more stores, less `let blabla = external.prop; $: external.prop = blabla;`
+- make more cards have initial widths (like the sprite editor)
 
 blockers:
 - tests (?)

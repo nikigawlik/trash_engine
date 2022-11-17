@@ -1,9 +1,15 @@
-import Instance from "../structs/instance";
 import Room from "../structs/room";
 import type ResourceManager from "./ResourceManager";
 import * as pixi from 'pixi.js';
 import Sprite from "../structs/sprite";
 
+interface SpriteInstance {
+    x: number,
+    y: number,
+    spriteID: string,
+    pixiSprite: pixi.Sprite,
+    update: Function,
+}
 
 export default class Game {
     tickRate: number;
@@ -14,7 +20,7 @@ export default class Game {
     tickNumber: number;
     isEnding: boolean;
 
-    instances: Instance[];
+    instances: SpriteInstance[];
     renderer: pixi.Renderer;
     stage: pixi.Container;
 
@@ -23,6 +29,12 @@ export default class Game {
 
     roomNumber: number
     actualRoomNumber: number
+
+    keyMap: Map<string, boolean>
+    keyMapSnapshot: Map<string, boolean>
+    pressedMap: Map<string, boolean>
+    releasedMap: Map<string, boolean>
+
 
     constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement) {
         this.tickRate = 60;
@@ -37,6 +49,11 @@ export default class Game {
         this.mouseY = 0;
         this.roomNumber = 0;
         this.actualRoomNumber = 0;
+        
+        this.keyMap = new Map<string, boolean>();
+        this.keyMapSnapshot = new Map<string, boolean>();
+        this.pressedMap = new Map<string, boolean>();
+        this.releasedMap = new Map<string, boolean>();
 
         this.renderer = new pixi.Renderer({
             view: canvas,
@@ -45,7 +62,8 @@ export default class Game {
         });
         
         // TODO weird and hacky
-        window.setTimeout(() => this.init(), 10);
+        // window.setTimeout(() => this.init(), 10);
+        this.init();
     }
 
     async init() {
@@ -53,8 +71,9 @@ export default class Game {
         for(let sprite of this.resourceManager.getAllOfResourceType(Sprite)) {
             // always true
             if(sprite instanceof Sprite) {
-                sprite._initFunction = new Function(sprite.initCode);
-                sprite._updateFunction = new Function(sprite.updateCode);
+                // sprite._initFunction = new Function(sprite.initCode);
+                // sprite._updateFunction = new Function(sprite.updateCode);
+                sprite.generateCode();
             }
         }
 
@@ -108,13 +127,13 @@ export default class Game {
         Object.defineProperty(window, "spawn", {
             configurable: true,
             writable: false,
-            value: (sprite: string, x: number, y: number): Instance => this.createInstance(sprite, x, y),
+            value: (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y),
         })
 
         Object.defineProperty(window, "destroy", {
             configurable: true,
             writable: false,
-            value: (instance: Instance) => this.destroyInstance(instance)
+            value: (instance: SpriteInstance) => this.destroyInstance(instance)
         })
 
         Object.defineProperty(window, "find", {
@@ -129,49 +148,48 @@ export default class Game {
             value: (sprite: string) => this.instances.filter(x => x.spriteID == sprite),
         })
 
-        Object.defineProperty(window, "callInit", {
-            configurable: true,
-            writable: false,
-            value: (sprite: string, self: Instance) => {
-                let spriteObj = (this.resourceManager.findByUUID(sprite) as Sprite);
-                try {
-                    spriteObj._initFunction.call(self);
-                } catch(e) {
-                    console.log(`Error in instance of sprite ${spriteObj.name}: `);
-                    console.error(e);
-                }
-            }
-        })
-
-        Object.defineProperty(window, "callUpdate", {
-            configurable: true,
-            writable: false,
-            value: (sprite: string, self: Instance) => {
-                let spriteObj = (this.resourceManager.findByUUID(sprite) as Sprite);
-                try {
-                    spriteObj._updateFunction.call(self);
-                } catch(e) {
-                    console.log(`Error in instance of sprite ${spriteObj.name}: `);
-                    console.error(e);
-                }
-            }
-        })
-
         Object.defineProperty(window, "setDepth", {
             configurable: true,
             writable: false,
-            value: (self: Instance, depth: number) => {
-                if(self._pixiSprite) self._pixiSprite.zIndex = depth;
+            value: (self: SpriteInstance, depth: number) => {
+                if(self.pixiSprite) self.pixiSprite.zIndex = depth;
             }
         })
 
         Object.defineProperty(window, "goToNextRoom", {
             configurable: true,
             writable: false,
-            value: (self: Instance, depth: number) => {
+            value: (self: SpriteInstance, depth: number) => {
                 this.roomNumber++;
             }
         })
+
+        Object.defineProperty(window, "keyIsDown", {
+            configurable: true,
+            writable: false,
+            value: (...codes: string[]) => this.checkKeys("down", ...codes)
+        })
+        Object.defineProperty(window, "keyIsPressed", {
+            configurable: true,
+            writable: false,
+            value: (...codes: string[]) => this.checkKeys("pressed", ...codes)
+        })
+        Object.defineProperty(window, "keyIsReleased", {
+            configurable: true,
+            writable: false,
+            value: (...codes: string[]) => this.checkKeys("released", ...codes)
+        })
+
+        window.onkeydown = (event: KeyboardEvent) => {
+            // keys.set(event.key, true);
+            this.keyMap.set(event.code, true);
+            return false;
+        };
+        window.onkeyup = (event: KeyboardEvent) => {
+            // keys.set(event.key, true);
+            this.keyMap.set(event.code, false);
+            return false;
+        };
 
 
 
@@ -191,18 +209,31 @@ export default class Game {
         }
     }
 
+    checkKeys(mode: "down" | "pressed" | "released", ...codes: string[]) {
+        let map = 
+            mode == "pressed"? this.pressedMap : (mode == "released"? this.releasedMap: this.keyMap)
+        for(let code of codes) {
+            if(map.has(code) && map.get(code)) {
+                return true;
+            }
+        } 
+        return false;
+    }
+
     createInstance(spriteUUID: string, x: number, y: number) {
-        const inst = new Instance(spriteUUID, x, y);
+        // const inst = new Instance(spriteUUID, x, y);
+        const sprite = this.resourceManager.findByUUID(spriteUUID) as Sprite;
+        const inst = sprite._instanceConstructor(x, y);
         this.instances.push(inst)
         this._registerInstance(inst);
-        inst.create();
+        // inst.create();
         return inst;
     }
 
-    destroyInstance(instance: Instance) {
+    destroyInstance(instance: SpriteInstance) {
         let instID = this.instances.indexOf(instance);
         if(instID >= 0) this.instances.splice(instID, 1);
-        if(instance._pixiSprite) this.stage.removeChild(instance._pixiSprite);
+        if(instance.pixiSprite) this.stage.removeChild(instance.pixiSprite);
     }
 
     setRoom(roomUUID: string) {
@@ -220,31 +251,32 @@ export default class Game {
         // TODO kinda hacky
         document.body.style.backgroundColor = room.backgroundColor;
 
-        this.instances = room.instances.map(i => i.clone());
-
         if(this.stage) this.stage.removeChildren()
         else this.stage = new pixi.Container();
 
-        for(let inst of this.instances) {
-            this._registerInstance(inst);
-        }
-        
-        // call create events
-        for(let inst of this.instances) {
-            inst.create();
+        // this.instances = room.instances.map(i => i.clone());
+        // this.instances = room.instances.map(i => {
+        //     let sprite = this.resourceManager.findByUUID(i.spriteID) as Sprite;
+        //     return sprite._instanceConstructor(i.x, i.y);
+        // })
+
+        this.instances = [];
+
+        for(let roomInst of room.instances) {
+            this.createInstance(roomInst.spriteID, roomInst.x, roomInst.y)
         }
     }
 
-    _registerInstance(inst: Instance) {
+    _registerInstance(inst: SpriteInstance) {
         let sprite = this.resourceManager.findByUUID(inst.spriteID) as Sprite;
-        if(!sprite || !sprite.canvas) return;
+        // if(!sprite || !sprite.canvas) return;
 
         let pixiSpr = pixi.Sprite.from(sprite.canvas);
         pixiSpr.x = inst.x;
         pixiSpr.y = inst.y;
         pixiSpr.pivot.set(sprite.originX, sprite.originY);
         this.stage.addChild(pixiSpr);
-        inst._pixiSprite = pixiSpr;
+        inst.pixiSprite = pixiSpr;
     }
 
     currentRoom() : Room {
@@ -266,9 +298,18 @@ export default class Game {
             this.actualRoomNumber = this.roomNumber;
             this.setRoom(allRooms[this.actualRoomNumber].uuid);
         }
+ 
+        for(let [key, value] of this.keyMap) {
+            const previous = this.keyMapSnapshot.has(key) && this.keyMapSnapshot.get(key);
+            this.pressedMap.set(key, !previous && value);
+            this.releasedMap.set(key, previous && !value);
+            this.keyMapSnapshot.set(key, value);
+        }
 
         for(let inst of this.instances) {
-            inst.tick();
+            inst.update();
+            inst.pixiSprite.x = inst.x;
+            inst.pixiSprite.y = inst.y;
         }
 
         // this.draw();

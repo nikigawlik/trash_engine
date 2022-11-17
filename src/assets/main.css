@@ -63,6 +63,22 @@ button {
     box-shadow: 2px 2px var(--main-color);
 }
 
+
+button.borderless {
+    border: none;
+    color: var(--main-color);
+    background: none;
+    padding: 0;
+    padding-bottom: 2px;
+    margin: 0;
+    box-shadow: none;
+}
+
+button.borderless:hover {
+    color: var(--main-color);
+    background-color: var(--off-bg-color);
+}
+
 .dark *[data-background-tweak="light"] button {
     background-color: var(--off-bg-color);
 }
@@ -105,6 +121,10 @@ em {
     font-weight: bold;
 }
 
+span.spacer {
+    width: 8px;
+}
+
 canvas {
     /* display: block; */
     /* image-rendering: crisp-edges; */
@@ -114,6 +134,12 @@ canvas {
 img {
     image-rendering: pixelated;
     pointer-events: none;
+}
+
+select, input {
+    color: var(--main-color);
+    background-color: var(--bg-color);
+    border: 1px solid var(--main-color);
 }
 
 

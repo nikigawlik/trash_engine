@@ -85,11 +85,20 @@ In chrome it's the same.
 The problem with closures is how other objects are gonna access the vars?
 
 ```
-let constr = (v1, v2, v3, v4) => {
+let constr = (
+  // object props
+  v1, v2, v3, v4
+  // /object props
+) => {
   let update = () => {
     // update code
     v1 += 4;
     // /update code
+  }
+  let draw = () => {
+    // draw code
+
+    // /draw code
   }
 
   return {
@@ -102,6 +111,18 @@ let constr = (v1, v2, v3, v4) => {
 }
 ```
 
+2 parts:
+- generalized behaviour code container
+- specialized code generator + UI -> svelte component
+
+I can do either 
+(1) update code, draw code, etc. as separate inputs
+or 
+(2) one big input, where update, draw, etc. are specified inline as...
+- _either_ functions: `function update() {...}`
+- _or_ as callbacks: `onUpdate(() => {...})`
+
+onUpdate could work like `let update = () => {}; function onUpdate(cb) {update = (...args) => { update(...args); cv(...args); }}`
 
 ## Packaging / exporting a game ##
 

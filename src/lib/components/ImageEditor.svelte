@@ -116,7 +116,6 @@
     onMount(() => {
         let ctx = canvas.getContext("2d");
         ctx.fillStyle = "black";
-        console.log($s_sprite.canvas);
         // document.querySelector(".canvas-container").append($s_sprite.canvas)
         ctx.drawImage($s_sprite.canvas, 0, 0);
     })
