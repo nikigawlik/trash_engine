@@ -68,7 +68,6 @@ export default class Sprite extends Resource {
 
         let code = `
 "use strict";
-let __updateFuncs = [];
 let update = () => {};
 function onUpdate(callback) {
     // closure magick 

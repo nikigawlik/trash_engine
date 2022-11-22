@@ -1,14 +1,13 @@
 <script lang="ts">
 import type { CardInstance } from "../modules/cardManager";
+import type Behaviour from "../modules/game/behaviour";
 import { resourceManager } from "../modules/game/ResourceManager";
 import type Sprite from "../modules/structs/sprite";
+import { blockingPopup } from "../modules/ui";
+import AtlasIcon from "./AtlasIcon.svelte";
 import Card from "./Card.svelte";
 import ImageEditor from "./ImageEditor.svelte";
-    import BehaviourEditor from "./BehaviourEditor.svelte";
-    import type Behaviour from "../modules/game/behaviour";
-    import { blockingPopup } from "../modules/ui";
-    import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
-    import AtlasIcon from "./AtlasIcon.svelte";
+import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
 
     export let card: CardInstance;
 
