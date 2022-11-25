@@ -25,13 +25,13 @@ vv START HERE vv
 - redo undo -> either in stores / or through some kind of command system
 - Clamp cards to the main area on bottom and right
 <!-- ~~- scripting support and run game button~~ -->
-- link to sprites on disk (offline version)
+- link to sprites/scripts on disk (offline version)
 <!-- ~~sprite upload~~ -->
 - room editor toolbar!
   - drag view (how to do view lol)
   - multi-tool
   - delete
-  - place
+  - place (multiple)
 - room editor middle click -> pick
 <!-- ~~- [B] (bug) save should preserve component state.~~ -->
 - sprite sheet support (there is a build in pixi packer, i think?)

@@ -12,7 +12,8 @@ import type { CardInstance } from "../modules/cardManager";
 import { data } from "../modules/globalData";
 import Card from "./Card.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
-    import type { Writable } from "svelte/store";
+import type { Writable } from "svelte/store";
+import { shrink } from "../transitions";
     
     export let card: CardInstance;
     const uuid = card.uuid;
@@ -145,13 +146,20 @@ import SpriteIcon from "./SpriteIcon.svelte";
             ctx.globalCompositeOperation = "source-over";
         }
     }
+
+    let spriteOpen = true;
+    let configOpen = true;
 </script>
 <!-- isMaximized is intentionally non-reactive, still a bit sussy, might not work as expected -->
 <Card {card} isMaximized={data.get().editor.settings.openResourcesMaximized}>
-    <div class="horizontal">    
+    <div class="horizontal">
         <div class="left-rider">
-            <h4>sprites</h4>
-            <div class="sprite-select scroll-box">
+            <h4><button 
+                on:click={() => spriteOpen = !spriteOpen} 
+                class:rotated={!spriteOpen}
+            >sprites</button></h4>
+            {#if spriteOpen}
+            <div class="sprite-select scroll-box" transition:shrink={{delay: 0, duration: 100}}>
                 {#each sprites as spr}
                     <button 
                     data-uuid={spr.uuid} 
@@ -160,14 +168,20 @@ import SpriteIcon from "./SpriteIcon.svelte";
                     >
                         <h4>{spr.name}</h4> 
                         <div class="icon">
-                            <SpriteIcon spriteID={spr.uuid} growToFit={false}></SpriteIcon>
+                            <SpriteIcon spriteID={spr.uuid} growToFit={true}></SpriteIcon>
                         </div>
                     </button>
                 {/each}
             </div>
+            {/if}
         </div>
-        <div class="room-edit">
-            <div class="room-top-bar">
+        <div class="room-rider">
+            <h4><button 
+                on:click={() => configOpen = !configOpen} 
+                class:rotated={!configOpen}
+            >config</button></h4>
+            {#if configOpen}
+            <div class="room-config"  transition:shrink={{delay: 0, duration: 100}}>
                 <!-- <label for="view_mode">view</label>
                 <label><input disabled type="radio" name="view_mode" value="2d" checked />  2D </label>
                 <label><input disabled type="radio" name="view_mode" value="3d" /> 3D </label>
@@ -189,6 +203,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
                 <label>width <input type="number" bind:value={$roomStore.width} /></label>
                 <label>height <input type="number" bind:value={$roomStore.height} /></label>
             </div>
+            {/if}
+        </div>
+        <div class="room-edit">
             <div class="canvas-container">
                 <canvas 
                     width={canvasWidth} 
@@ -210,9 +227,27 @@ import SpriteIcon from "./SpriteIcon.svelte";
         width: 6em;
     } */
 
+    h4 button {
+        transition: transform .3s cubic-bezier(0.075, 0.82, 0.165, 1);
+        transform-origin: bottom left;
+    }
+    .rotated {
+        transform: rotate(90deg) translate(-1rem, 0) ;
+        position: absolute;
+        /* width: 1rem; */
+    }
+    h4 {
+        min-width: 1rem;
+    }
+
+    .room-config {
+        overflow-x: hidden;
+    }
+
     .left-rider {
-        flex: 1 1 120px;
+        /* flex: 1 1 120px;
         max-width: 7em;
+        flex-shrink: 1; */
 
         display: flex;
         flex-direction: column;
@@ -227,37 +262,57 @@ import SpriteIcon from "./SpriteIcon.svelte";
 
     .sprite-select {
         padding: 4px;
+        width: 6rem;
         /* max-height: 50vh; */
 
         display: flex;
         /* flex-grow: 0; */
         /* flex-direction: row; */
-        flex-direction: row;
+        flex-direction: column;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 0.1rem;
         
     }
 
-    .sprite-select button {
+    button {
         border: none;
         box-shadow: none;
     }
+
+    .sprite-select h4 {
+        /* text-align: left; */
+        margin-bottom: .1rem;
+    }
+
+    .sprite-select .icon {
+        height: 2rem;
+    }
+
+    button[data-selected="true"] {
+        background-color: var(--off-bg-color);
+        transform: translate(.4rem, 0);
+        box-shadow: none;
+    }
+/* 
+    button:active {
+        transform: none;
+    } */
 
     .room-edit {
         flex: 1 1 120px;
         flex-shrink: 1;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: stretch;
         min-width: 0;
     }
 
-    .room-top-bar {
+    .room-config {
         margin-bottom: 7px;
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         gap: 4px;
-        align-items: stretch;
+        align-items: baseline;
         
     }
 
@@ -271,24 +326,13 @@ import SpriteIcon from "./SpriteIcon.svelte";
         border: 1px dashed var(--main-color);
     }
 
-    .room-top-bar input[type=number] {
+    .room-config input[type=number] {
         width: 3.5em;
     }
 
-    button[data-selected="true"] {
-        background-color: var(--off-bg-color);
-    }
-
-    /* input[type=color] {
-        border: none;
-        padding: 0;
-        height: 2em;
-        width: 2em;
-    } */
-
     label {
         vertical-align: middle;
-        margin: auto 0;
+        /* margin: auto 0; */
     }
 
     label>* {
@@ -304,5 +348,12 @@ import SpriteIcon from "./SpriteIcon.svelte";
         justify-content: space-between;
         gap: 8px;
     }
+
+/* input[type=color] {
+    border: none;
+    padding: 0;
+    height: 2em;
+    width: 2em;
+} */
 
 </style>
