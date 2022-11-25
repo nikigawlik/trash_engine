@@ -47,10 +47,17 @@ import * as ui from "./../modules/ui";
         console.log("--- --- ---- --- ---")
     };
 
-    let initPromise = init();
+    let initPromise = makeTimedPromise(init());
     let savingPromise = new Promise<any>(resolve => resolve(null)); // default resolved promise
 
     $: combinedPromise = Promise.all([initPromise, savingPromise]);
+
+    function makeTimedPromise<T>(promise: Promise<T>, milliseconds = 5000): Promise<T> {
+        return new Promise((resolve, reject) => {
+            promise.then(resolve).catch(reject);
+            setTimeout(() => reject("timeout"), milliseconds);
+        })
+    }
 
     // // TODO save to game data somewhere
     // $: gameName = $resourceManager.settings.title;
@@ -60,7 +67,7 @@ import * as ui from "./../modules/ui";
     function save() {
         let p1 = resourceManager.get().save();
         let p2 = data.save();
-        savingPromise = Promise.all([p1, p2]);
+        savingPromise = makeTimedPromise(Promise.all([p1, p2]));
     }
 
     async function asyncSave() {
@@ -75,8 +82,7 @@ import * as ui from "./../modules/ui";
         if(result) {
             let p1 = result.id < 0? resourceManager.get().save() : resourceManager.get().save(result.id);
             let p2 = data.save();
-            savingPromise = Promise.all([p1, p2]);
-
+            savingPromise = makeTimedPromise(Promise.all([p1, p2]));
         }
     }
 
@@ -92,7 +98,7 @@ import * as ui from "./../modules/ui";
         if(result) {
             let p1 = resourceManager.get().load(undefined, result.id);
             let p2 = globalData.load();
-            savingPromise = Promise.all([p1, p2]);
+            savingPromise = makeTimedPromise(Promise.all([p1, p2]));
             cards.reset();
         }
     }
@@ -247,7 +253,17 @@ import * as ui from "./../modules/ui";
     {#if $blockingPopup}
         <svelte:component this={$blockingPopup.componentType} bind:prompt={$blockingPopup} />
     {/if}
-{/await}
+{:catch err}
+ <!-- init promise fail -->
+ <p>saving failed</p>
+ <pre>err.name</pre>
+ <pre>err.message</pre>
+ {/await}
+ {:catch err}
+ <!-- save promise fail -->
+ <p>loading the app failed: </p>
+ <pre>{err.name}</pre>
+ <pre>{err.message}</pre>
 {/await}
 
 <style>

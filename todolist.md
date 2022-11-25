@@ -34,8 +34,8 @@ vv START HERE vv
 - alternative resources -> shapes, text
 - delta time
 <!-- ~~- export game data (json)~~ -->
-- room editor persistent data -> grid & snap settings
-- multiple projects? -> export/import/project-select or bitsy-style ?
+<!-- ~~- room editor persistent data -> grid & snap settings~~ -->
+<!-- ~~- multiple projects? -> export/import/project-select or bitsy-style ?~~ -->
 <!-- ~~- export game (html)~~ -->
 <!-- ~~- prevent ofuscation of save-critical class names like "Sprite", "Room", etc.~~ -->
 <!-- ~~- room change should change game size in browser (pixi resize vs. svelte size code)~~ -->
@@ -94,6 +94,12 @@ vv START HERE vv
   - place (multiple)
 - web gl renderer
 - animation in sprite editor
+- type system (e.g. wall-type, enemy-type, etc.) or equivalent
+- revisit save/load -> delete saves, think about it some more?
+- expose error messages
+  - general errors
+  - syntax error (in scripts)
+  - runtime errors (game)
 
 
 blockers:
