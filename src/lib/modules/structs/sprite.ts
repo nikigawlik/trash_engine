@@ -10,6 +10,10 @@ export default class Sprite extends Resource {
     canvas: HTMLCanvasElement | null;
     originX: number;
     originY: number;
+    bBoxX: number;
+    bBoxY: number;
+    bBoxWidth: number;
+    bBoxHeight: number;
     behaviours: Behaviour[];
 
     // initCode: string;
@@ -24,10 +28,17 @@ export default class Sprite extends Resource {
         this.canvas = null;
         this.originX = 0;
         this.originY = 0;
+        this.bBoxX = 0;
+        this.bBoxY = 0;
+        this.bBoxWidth = 0;
+        this.bBoxHeight = 0;
         this.behaviours = [];
         // this.initCode = "// this code is executed when the sprite is created\n";
         // this.updateCode = "// this code is executed every update (60 times per second)\n";
     }
+
+    // get bBoxWidth() { return this.canvas?.width; }
+    // get bBoxHeight() { return this.canvas?.height; }
 
     getCopy() {
         let newCanvas = document.createElement("canvas");
@@ -45,6 +56,34 @@ export default class Sprite extends Resource {
         return "#";
     }
 
+    autoCalculateBBox() {
+        if(this.canvas) {
+            let imgDat = this.canvas.getContext("2d").getImageData(0, 0, this.canvas.width, this.canvas.height);
+            let minX = Infinity;
+            let minY = Infinity;
+            let maxX = -Infinity;
+            let maxY = -Infinity;
+            
+            for(let y = 0; y < this.canvas.height; y++) 
+            for(let x = 0; x < this.canvas.width; x++) {
+                const i = this.canvas.width * y + x;
+                const solid = imgDat.data[i*4 + 3] > 64;
+                if(solid) {
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                }
+            }
+            this.bBoxX = minX;
+            this.bBoxY = minY;
+            this.bBoxWidth = maxX - minX + 1;
+            this.bBoxHeight = maxY - minY + 1;
+            this.originX = ~~(this.canvas.width / 2);
+            this.originY = ~~(this.canvas.height / 2);
+        }
+    }
+
     generateCode() {
         let globalsMap = new Set<string>();
         globalsMap.add("x");
@@ -60,18 +99,12 @@ export default class Sprite extends Resource {
 `    get ${g}() {return ${g}}, set ${g}(value) {${g} = value},`
         ).join("\n");
 
-//         let initCode = this.behaviours.map(b => `
-// /* ${b.name} */ {
-// ${b.initCode}
-// } /* /${b.name} */`
-//         ).join("");
-
         let code = `
 "use strict";
-let update = () => {};
+let update = (inst) => {};
 function onUpdate(callback) {
     // closure magick 
-    update = ((x) => () => {x(); callback();})(update); 
+    update = ((x) => (inst) => {x(inst); callback(inst);})(update); 
 }
 ${
     this.behaviours.map(b => `

@@ -7,6 +7,7 @@
     
     import reference from '../../assets/markdown/reference.md?raw';
     import collisions from '../../assets/markdown/collisions.md?raw';
+    import quickref from '../../assets/markdown/quickref.md?raw';
 
     export let card: CardInstance;
     $: card.name = "reference";
@@ -14,9 +15,10 @@
     const markdownFiles = {
         reference,
         collisions,
+        quickref,
     }
 
-    let source = reference;
+    let source = quickref;
 
     setContext("markdownManager", {
         changePage: (route: string) => {

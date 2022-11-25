@@ -10,7 +10,7 @@ vv START HERE vv
 <!-- ~~- deletion of a resource -> how does it affect resources that reference it?~~ -->
 <!-- ~~- resource cache -> easy access~~ -->
 <!-- ~~ room editor grid + placement etc ~~ -->
-- calculate bounding boxes from transparency
+<!-- ~~- calculate bounding boxes from transparency~~ -->
 <!-- ~~- kb shortcut -> ctrl-s~~ -->
 - [B] tutorial page
   - resizing windows
@@ -19,7 +19,7 @@ vv START HERE vv
   - play
   - scripts / anims
 <!-- ~~- rename Card to Window? -> wont fix~~ -->
-- horizontal flex window management (bitsy style)
+<!-- ~~- horizontal flex window management (bitsy style)~~ -->
 - mobile sprite editor support?
 <!-- ~~- make drop down menu different (relative to resource, not mouse cursor; not cropped by scroll area)~~ -->
 - redo undo -> either in stores / or through some kind of command system
@@ -90,6 +90,7 @@ vv START HERE vv
 - instance order menu
 - more stores, less `let blabla = external.prop; $: external.prop = blabla;`
 - make more cards have initial widths (like the sprite editor)
+- Get rid of instance.ts, since it's only used in the room editor
 
 blockers:
 - tests (?)

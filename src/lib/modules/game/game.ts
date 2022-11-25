@@ -2,6 +2,7 @@ import Room from "../structs/room";
 import type ResourceManager from "./ResourceManager";
 import * as pixi from 'pixi.js';
 import Sprite from "../structs/sprite";
+import { rectIntersect } from "./utils";
 
 interface SpriteInstance {
     x: number,
@@ -88,97 +89,28 @@ export default class Game {
             })
         }
 
-        // for (const sprite of this.resourceManager.getAllOfResourceType(Sprite)) {
-        //     // accessing a sprite by name, will try to return an instance of that sprite 
-        //     Object.defineProperty(window, sprite.name, {
-        //         get: () => self.instances.find(x => x.spriteID == sprite.uuid),
-        //         configurable: true,
-        //     })
-        // }
+        defineLibProperty("roomWidth", () => this._cachedRoom?.width);
+        defineLibProperty("roomHeight", () => this._cachedRoom?.height);
+        defineLibProperty("mouseX", () => this.mouseX);
+        defineLibProperty("mouseY", () => this.mouseY);
 
-        // for (const room of this.resourceManager.getAllOfResourceType(Room)) {
-        //     // accessing a sprite by name, will try to return an instance of that sprite 
-        //     Object.defineProperty(window, room.name, {
-        //         get: () => room,
-        //         configurable: true,
-        //     })
-        // }
-
-        Object.defineProperty(window, "roomWidth", {
-            configurable: true,
-            get: () => this._cachedRoom?.width,
+        defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
+        defineLibFunction("destroy", (instance: SpriteInstance) => this.destroyInstance(instance))
+        defineLibFunction("find", (sprite: string) => this.instances.find(x => x.spriteID == sprite))
+        defineLibFunction("findAll", (sprite: string) => this.instances.filter(x => x.spriteID == sprite))
+        defineLibFunction("setDepth", (self: SpriteInstance, depth: number) => {
+            if(self.pixiSprite) self.pixiSprite.zIndex = depth;
         })
-
-        Object.defineProperty(window, "roomHeight", {
-            configurable: true,
-            get: () => this._cachedRoom?.height,
+        defineLibFunction("goToNextRoom", (self: SpriteInstance, depth: number) => {
+            this.roomNumber++;
         })
-
-        Object.defineProperty(window, "mouseX", {
-            configurable: true,
-            get: () => this.mouseX,
-        })
-
-        Object.defineProperty(window, "mouseY", {
-            configurable: true,
-            get: () => this.mouseY,
-        })
-
-        Object.defineProperty(window, "spawn", {
-            configurable: true,
-            writable: false,
-            value: (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y),
-        })
-
-        Object.defineProperty(window, "destroy", {
-            configurable: true,
-            writable: false,
-            value: (instance: SpriteInstance) => this.destroyInstance(instance)
-        })
-
-        Object.defineProperty(window, "find", {
-            configurable: true,
-            writable: false,
-            value: (sprite: string) => this.instances.find(x => x.spriteID == sprite),
-        })
-
-        Object.defineProperty(window, "findAll", {
-            configurable: true,
-            writable: false,
-            value: (sprite: string) => this.instances.filter(x => x.spriteID == sprite),
-        })
-
-        Object.defineProperty(window, "setDepth", {
-            configurable: true,
-            writable: false,
-            value: (self: SpriteInstance, depth: number) => {
-                if(self.pixiSprite) self.pixiSprite.zIndex = depth;
-            }
-        })
-
-        Object.defineProperty(window, "goToNextRoom", {
-            configurable: true,
-            writable: false,
-            value: (self: SpriteInstance, depth: number) => {
-                this.roomNumber++;
-            }
-        })
-
-        Object.defineProperty(window, "keyIsDown", {
-            configurable: true,
-            writable: false,
-            value: (...codes: string[]) => this.checkKeys("down", ...codes)
-        })
-        Object.defineProperty(window, "keyIsPressed", {
-            configurable: true,
-            writable: false,
-            value: (...codes: string[]) => this.checkKeys("pressed", ...codes)
-        })
-        Object.defineProperty(window, "keyIsReleased", {
-            configurable: true,
-            writable: false,
-            value: (...codes: string[]) => this.checkKeys("released", ...codes)
-        })
+        defineLibFunction("keyIsDown", (...codes: string[]) => this.checkKeys("down", ...codes) )
+        defineLibFunction("keyIsPressed", (...codes: string[]) => this.checkKeys("pressed", ...codes) )
+        defineLibFunction("keyIsReleased", (...codes: string[]) => this.checkKeys("released", ...codes) )
+        
+        defineLibFunction("collisionAt", (instance: SpriteInstance, spriteID: string, x: number, y: number) => this.collisionAt(instance, spriteID, x, y) )
+        defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
+        defineLibFunction("instancesAt", (instance: SpriteInstance, spriteID: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, spriteID, x, y)))
 
         window.onkeydown = (event: KeyboardEvent) => {
             // keys.set(event.key, true);
@@ -190,8 +122,6 @@ export default class Game {
             this.keyMap.set(event.code, false);
             return false;
         };
-
-
 
         window.onmousemove = (ev: MouseEvent) => {
             this.mouseX = ev.offsetX * devicePixelRatio;
@@ -235,6 +165,59 @@ export default class Game {
         if(instID >= 0) this.instances.splice(instID, 1);
         if(instance.pixiSprite) this.stage.removeChild(instance.pixiSprite);
     }
+
+    collisionAt(instance: SpriteInstance, spriteID: string, x: number, y: number): boolean {
+        const all = spriteID == "all";
+
+        for(let other of this.instances) {
+            if(other == instance) continue;
+
+            if(all || other.spriteID == spriteID) {
+                if(this.spriteIntersect(instance.spriteID, x, y, other.spriteID, other.x, other.y)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    * _iterateCollisionsAt(instance: SpriteInstance, spriteID: string, x: number, y: number) {
+        const all = spriteID == "all";
+
+        for(let other of this.instances) {
+            if(other == instance) continue;
+
+            if(all || other.spriteID == spriteID) {
+                if(this.spriteIntersect(instance.spriteID, x, y, other.spriteID, other.x, other.y)) {
+                    yield other;
+                }
+            }
+        }
+    }
+
+    spriteIntersect(sprID1: string, x1: number, y1: number, sprID2: string, x2: number, y2: number): boolean {
+        const spr1 = this.resourceManager.findByUUID(sprID1) as Sprite;
+        const spr2 = this.resourceManager.findByUUID(sprID2) as Sprite;
+
+        const inst1Left = x1 - spr1.originX + spr1.bBoxX;
+        const inst1Right = inst1Left + spr1.bBoxWidth;
+        const inst1Top = y1 - spr1.originY + spr1.bBoxY;
+        const inst1Bottom = inst1Top + spr1.bBoxHeight;
+        
+        const inst2Left = x2 - spr2.originX + spr2.bBoxX;
+        const inst2Right = inst2Left + spr2.bBoxWidth;
+        const inst2Top = y2 - spr2.originY + spr2.bBoxY;
+        const inst2Bottom = inst2Top + spr2.bBoxHeight;
+        
+        return inst1Left < inst2Right && inst1Right > inst2Left &&
+            inst1Top < inst2Bottom && inst1Bottom > inst2Top;
+    }
+
+    // instanceIntersect(inst1: SpriteInstance, inst2: SpriteInstance): boolean {
+    //     const spr1 = this.resourceManager.findByUUID(inst1.spriteID) as Sprite;
+    //     const spr2 = this.resourceManager.findByUUID(inst2.spriteID) as Sprite;
+    //     ...
+    // }
 
     setRoom(roomUUID: string) {
         this.currentRoomUUID = roomUUID;
@@ -307,7 +290,7 @@ export default class Game {
         }
 
         for(let inst of this.instances) {
-            inst.update();
+            inst.update(inst);
             inst.pixiSprite.x = inst.x;
             inst.pixiSprite.y = inst.y;
         }
@@ -342,4 +325,22 @@ export default class Game {
     //     ctx.textBaseline = "top";
     //     ctx.fillText(`${this.tickNumber}`, 5, 5);
     // }
+}
+
+function defineLibFunction(name: string, func: Function) {
+    Object.defineProperty(window, name, {
+        configurable: true,
+        writable: false,
+        value: func,
+    })
+}
+
+function defineLibProperty(name: string, getter: () => any, setter: () => any = undefined) {
+    let config: PropertyDescriptor = {
+        configurable: true,
+        get: getter,
+    };
+    if(setter) config.set = setter;
+    
+    Object.defineProperty(window, name, config);
 }

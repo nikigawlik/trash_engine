@@ -18,7 +18,7 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
     $: card.className = "sprite-editor"
     $: card.position.width = 350;
 
-    let mode: "draw" | "act" = "draw";
+    let mode: "draw" | "script" = "draw";
 
     $: behaviours = sprite.behaviours;
 
@@ -65,11 +65,11 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
 <Card autoFocus={true} contentMinWidth={240} {card}>
     <div class="modes">
         <button on:click={() => mode = "draw" } class:selected={mode == "draw"}>draw</button>
-        <button on:click={() => mode = "act" } class:selected={mode == "act"}>act</button>
+        <button on:click={() => mode = "script" } class:selected={mode == "script"}>script</button>
     </div>
     {#if mode=="draw"}
         <ImageEditor spriteID={sprite.uuid}/>
-    {:else if mode == "act"}
+    {:else if mode == "script"}
         <ul class="behaviours">
             {#each behaviours as behaviour, i (behaviour.uuid)}
                 <li>

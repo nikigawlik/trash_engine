@@ -15,31 +15,6 @@ export default class Instance {
         this.y = y;
     }
 
-    create() {
-        let sprite = resourceManager.get().findByUUID(this.spriteID) as Sprite;
-        try {
-            sprite._initFunction?.call(this);
-        } catch(e) {
-            console.log(`Error in instance of sprite ${sprite.name}: `);
-            console.error(e);
-        }
-    }
-
-    tick() {
-        let sprite = resourceManager.get().findByUUID(this.spriteID) as Sprite;
-        try {
-            sprite._updateFunction?.call(this);
-        } catch(e) {
-            console.log(`Error in instance of sprite ${sprite.name}: `);
-            console.error(e);
-        }
-
-        if(this._pixiSprite) {
-            this._pixiSprite.x = this.x;
-            this._pixiSprite.y = this.y;
-        }
-    }
-
     draw(ctx: CanvasRenderingContext2D) {
         // draw at x y sprite
         // TODO this is cached, so should be ok, but is still ugly
@@ -56,8 +31,8 @@ export default class Instance {
         return sprite && sprite instanceof Sprite;
     }
 
-    clone() {
-        let inst = new Instance(this.spriteID, this.x, this.y);
-        return inst;
-    }
+    // clone() {
+    //     let inst = new Instance(this.spriteID, this.x, this.y);
+    //     return inst;
+    // }
 }

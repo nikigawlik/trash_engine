@@ -71,10 +71,10 @@ import SpriteIcon from "./SpriteIcon.svelte";
             let getBBRect = (inst: Instance) => {
                 let sprite = $resourceManager.findByUUID(inst.spriteID) as Sprite;
                 return sprite? new DOMRect(
-                    inst.x - sprite.originX, 
-                    inst.y - sprite.originY, 
-                    sprite.canvas?.width || 0, 
-                    sprite.canvas?.height || 0
+                    inst.x - sprite.originX + sprite.bBoxX, 
+                    inst.y - sprite.originY + sprite.bBoxY, 
+                    sprite.bBoxWidth, 
+                    sprite.bBoxHeight
                 ) : null;
             }
             let filteredInstances = room.instances.filter(inst => {

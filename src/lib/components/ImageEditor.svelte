@@ -66,11 +66,12 @@
     $: {
         if(!$s_sprite.canvas) {
             $s_sprite.canvas = document.createElement("canvas");
-            $s_sprite.originX = ~~(canvasWidth / 2);
-            $s_sprite.originY = ~~(canvasHeight / 2);
         }
         if($s_sprite.canvas.width != canvasWidth) $s_sprite.canvas.width = canvasWidth;
         if($s_sprite.canvas.height != canvasHeight) $s_sprite.canvas.height = canvasHeight;
+
+        $s_sprite.autoCalculateBBox();
+        console.log("recalc bbox")
     }
     let zoomLevel = 2
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth) * zoomLevel;
@@ -194,6 +195,7 @@
     }
 
     let resetDisplayCanvas = () => {
+        if(!canvasCtx) return;
         const op = canvasCtx.globalCompositeOperation;
         canvasCtx.globalCompositeOperation = "copy";
         canvasCtx.drawImage(spriteCanvas, 0, 0);
@@ -256,8 +258,7 @@
             canvasWidth = Math.max(1, result.width);
             canvasHeight = Math.max(1, result.height);
             s_sprite.update(s => { 
-                s.originX = ~~(canvasWidth / 2);
-                s.originY = ~~(canvasHeight / 2);
+                s.autoCalculateBBox();
                 return s;
             });
         }
@@ -324,6 +325,29 @@
     //     return sprite;
     // });
 
+    let showBBox = false;
+
+    function drawBBox() {
+        if(!canvasCtx) return;
+        canvasCtx.strokeStyle = $data.editor.settings.darkMode? "white" : "black";
+        canvasCtx.strokeRect(
+            $s_sprite.bBoxX + .5, 
+            $s_sprite.bBoxY + .5, 
+            $s_sprite.bBoxWidth - 1, 
+            $s_sprite.bBoxHeight - 1
+        );
+    }
+
+    $: {
+        console.log("triggerlol")
+        if(showBBox) {
+            resetDisplayCanvas();
+            drawBBox();
+        } else {
+            resetDisplayCanvas();
+        }
+    }
+
 </script>
 
 <div class="card-settings"> 
@@ -334,6 +358,9 @@
     </p>
     <p>
         <button class=upload on:click={uploadButtonClick}> upload image </button>
+    </p>
+    <p on:mouseenter={() => showBBox = true} on:mouseleave={() => showBBox = false}>
+        bbox: {$s_sprite.bBoxX} {$s_sprite.bBoxY} {$s_sprite.bBoxWidth} {$s_sprite.bBoxHeight}
     </p>
 </div>
 <div class="toolbar-container">
