@@ -28,20 +28,22 @@ import { shrink } from "../transitions";
 
     let canvas: HTMLCanvasElement;
     let currentSprite: Sprite = sprites[0];
-
-    let gridEnabled = false;
-    let gridWidth = 60;
-    let gridHeight = 60;
-
     
-    // $: {$resourceManager; gridEnabled; gridWidth; gridHeight; }
-
-    $: gridWidth = Math.max(gridWidth, 1)
-    $: gridHeight = Math.max(gridHeight, 1)
-    
-    let snapMode = "center";
-
     let roomStore = $resourceManager.getResourceStore(uuid) as Writable<Room>;
+
+    // let gridEnabled = $roomStore.grid.enabled;
+    // let gridWidth = $roomStore.grid.width;
+    // let gridHeight = $roomStore.grid.height;
+    // let snapMode = $roomStore.grid.snap;
+    // $: {
+        // $roomStore.grid.enabled = gridEnabled;
+        // $roomStore.grid.width = gridWidth;
+        // $roomStore.grid.height = gridHeight;
+        // $roomStore.grid.snap = snapMode;
+    // }
+
+    $: gridWidth = Math.max(room.grid.width, 1)
+    $: gridHeight = Math.max(room.grid.height, 1)
 
     // let bgColor = room?.backgroundColor || "#222222";
     // $: room && (room.backgroundColor = bgColor);
@@ -88,16 +90,16 @@ import { shrink } from "../transitions";
             if(!deletedSomething && currentSprite) {
                 // place something
                 let x,y;
-                if(!gridEnabled) {
+                if(!$roomStore.grid.enabled) {
                     x = Math.floor(inputX);
                     y = Math.floor(inputY);
                 } else
-                if(snapMode == "center") {
+                if($roomStore.grid.snap == "center") {
 
                     x = (Math.floor(inputX / gridWidth) + 0.5) * gridWidth;
                     y = (Math.floor(inputY / gridHeight) + 0.5) * gridHeight;
                 } else 
-                if(snapMode == "corner") {
+                if($roomStore.grid.snap == "corner") {
                     x = (Math.round(inputX / gridWidth)) * gridWidth;
                     y = (Math.round(inputY / gridHeight)) * gridHeight;
                 } else {
@@ -128,7 +130,7 @@ import { shrink } from "../transitions";
         }
 
         // draw grid
-        if(gridEnabled) {
+        if($roomStore.grid.enabled) {
             ctx.strokeStyle = "gray";
             ctx.globalCompositeOperation = "difference";
             ctx.beginPath();
@@ -160,7 +162,7 @@ import { shrink } from "../transitions";
             >sprites</button></h4>
             {#if spriteOpen}
             <div class="sprite-select scroll-box" transition:shrink={{delay: 0, duration: 100}}>
-                {#each sprites as spr}
+                {#each sprites as spr (spr.uuid)}
                     <button 
                     data-uuid={spr.uuid} 
                     data-selected={currentSprite == spr}
@@ -186,16 +188,16 @@ import { shrink } from "../transitions";
                 <label><input disabled type="radio" name="view_mode" value="2d" checked />  2D </label>
                 <label><input disabled type="radio" name="view_mode" value="3d" /> 3D </label>
                 <span class="spacer" /> -->
-                <label><input type="checkbox" name="grid_enabled" bind:checked={gridEnabled}/> grid </label>
+                <label><input type="checkbox" name="grid_enabled" bind:checked={$roomStore.grid.enabled}/> grid </label>
                 <label for="grid_width" hidden> width </label> 
-                <input name="grid_width" type="number" bind:value={gridWidth} />
+                <input name="grid_width" type="number" bind:value={$roomStore.grid.width} />
                 x
                 <label for="grid_height" hidden> height </label> 
-                <input name="grid_height" type="number" bind:value={gridHeight} />
+                <input name="grid_height" type="number" bind:value={$roomStore.grid.height} />
                 <span class="spacer" />
                 <label for="snap_mode">snap</label>
-                <label><input type="radio" value="center" checked bind:group={snapMode} />  center </label>
-                <label><input type="radio" value="corner" bind:group={snapMode} /> corner </label>
+                <label><input type="radio" value="center" checked bind:group={$roomStore.grid.snap} />  center </label>
+                <label><input type="radio" value="corner" bind:group={$roomStore.grid.snap} /> corner </label>
                 <!-- <span class="spacer" />
                 <label for="background_color">background: </label><input name="background_color" type="color" bind:value={bgColor}/> -->
                 <span class="spacer" />

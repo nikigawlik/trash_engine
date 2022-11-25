@@ -27,11 +27,7 @@ vv START HERE vv
 <!-- ~~- scripting support and run game button~~ -->
 - link to sprites/scripts on disk (offline version)
 <!-- ~~sprite upload~~ -->
-- room editor toolbar!
-  - drag view (how to do view lol)
-  - multi-tool
-  - delete
-  - place (multiple)
+<!-- ~~- room editor toolbar!~~ -->
 - room editor middle click -> pick
 <!-- ~~- [B] (bug) save should preserve component state.~~ -->
 - sprite sheet support (there is a build in pixi packer, i think?)
@@ -91,6 +87,14 @@ vv START HERE vv
 - more stores, less `let blabla = external.prop; $: external.prop = blabla;`
 - make more cards have initial widths (like the sprite editor)
 - Get rid of instance.ts, since it's only used in the room editor
+- room editor toolbar!
+  - drag view (how to do view lol)
+  - multi-tool
+  - delete
+  - place (multiple)
+- web gl renderer
+- animation in sprite editor
+
 
 blockers:
 - tests (?)
