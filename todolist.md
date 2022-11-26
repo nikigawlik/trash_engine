@@ -41,7 +41,7 @@ vv START HERE vv
 <!-- ~~- room change should change game size in browser (pixi resize vs. svelte size code)~~ -->
 - indexed db -> some kind of game id (also useful for file protocol stuff -> all html files share the same indexed db!!!)
 <!-- ~~- [B] ability to name game (changes title in export too)~~ -->
-- corrupt save data? -> ability to delete data if game doesn't load after X seconds
+<!-- ~~- corrupt save data? -> ability to delete data if game doesn't load after X seconds~~ -->
 <!-- ~~- [B] cards should have default size & not reset on load (implementation overlap)~~ -->
 <!-- ~~- [B] game does not work when ?editor / get rid of ?editor?game~~ -->
 <!-- ~~- [B] scrollbar arrows are excluded from build (only affects chrome)~~ -->
@@ -49,13 +49,13 @@ vv START HERE vv
 - differentiate "export game" and "export game data"
 <!-- ~~- [B] evaluate app from perspective of "user does not know how to resize windows"~~ -->
 <!-- ~~- proper window resize bars (resize handle on all borders and corners)~~ -->
-- [B] clean up main toolbar, "new sprite" button!
+<!-- ~~- [B] clean up main toolbar, "new sprite" button!~~ -->
 - (Chrome) reload button does not work in file:// protocol  -> something something same-origin
 <!-- ~~- do something with "open resources maximized"~~ -->
 <!-- ~~- [B] Licensing: Include p5js with proper license, log license in console, reference it in engine. WONTFIX -> no p5js~~ -->
 <!-- ~~- [B] sprite icon not reactive~~ -->
-- game window size -> set iframe default size to size of start room
-- room editor drag to draw/delete
+<!-- ~~- game window size -> set iframe default size to size of start room (opening game window jank)~~ -->
+<!-- ~~- room editor drag to draw/delete~~ -->
 - tidy up the projects folder structure, etc.
 - [B] auto save/load (+refactor? vvv)
 <!-- ~~- sprite resize bug introduced by fixing "drag sprite out of window" bug. T_T~~ -->
@@ -100,6 +100,9 @@ vv START HERE vv
   - general errors
   - syntax error (in scripts)
   - runtime errors (game)
+- corrupt save data? -> ability to delete data if game doesn't load after X seconds
+- redesign resource window (no contex menu? -> buttons?), make it easier to make sprite and stuff
+- make resources use a _map_ and shorter ids/symbols
 
 
 blockers:

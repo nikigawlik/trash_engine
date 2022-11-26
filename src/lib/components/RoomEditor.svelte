@@ -58,60 +58,87 @@ import { shrink } from "../transitions";
     afterUpdate(() => {
         refresh();
     });
-
     
     // placing
-    let canvasMouseDown = (evt: MouseEvent) => {
-            console.log("here")
-            if(!room || evt.button != 0) return;
+    function canvasPlacement(evt: MouseEvent, isDownEvent: boolean) {
+        console.log("here")
+        if(!room || evt.button != 0) return;
 
-            const inputX = (evt.offsetX) * (canvas.width / canvasDisplayWidth);
-            const inputY = (evt.offsetY) * (canvas.height / canvasDisplayHeight);
+        const inputX = (evt.offsetX) * (canvas.width / canvasDisplayWidth);
+        const inputY = (evt.offsetY) * (canvas.height / canvasDisplayHeight);
 
-            // first remove stuff
-            let mousepos = new DOMRect(inputX, inputY, 0, 0);
-            // TODO inefficient, but room should be replaced by a proper bounding box collision system anyways
-            let getBBRect = (inst: Instance) => {
-                let sprite = $resourceManager.findByUUID(inst.spriteID) as Sprite;
-                return sprite? new DOMRect(
-                    inst.x - sprite.originX + sprite.bBoxX, 
-                    inst.y - sprite.originY + sprite.bBoxY, 
-                    sprite.bBoxWidth, 
-                    sprite.bBoxHeight
-                ) : null;
+        // first remove stuff
+        let mousepos = new DOMRect(inputX, inputY, 0, 0);
+        let getBBRect = (inst: Instance) => {
+            let sprite = $resourceManager.findByUUID(inst.spriteID) as Sprite;
+            return sprite? new DOMRect(
+                inst.x - sprite.originX + sprite.bBoxX, 
+                inst.y - sprite.originY + sprite.bBoxY, 
+                sprite.bBoxWidth, 
+                sprite.bBoxHeight
+            ) : null;
+        }
+        let alreadyExists = false;
+        let filteredInstances = room.instances.filter(inst => {
+            const rect = getBBRect(inst);
+            if (!rect || !rectInside(mousepos, rect)) return true;
+            if (!currentSprite) return false;
+
+            const sameSprite = inst.spriteID == currentSprite.uuid; 
+            if(isDownEvent && sameSprite) 
+                isDeleting = true;
+            
+            if(sameSprite) 
+                alreadyExists = true;
+            
+            return (sameSprite && !isDeleting);
+        });
+
+        let deletedSomething = filteredInstances.length != room.instances.length;
+        room.instances = filteredInstances;
+
+        if(!deletedSomething && !isDeleting && currentSprite && !alreadyExists) {
+            // place something
+            let x: number, y: number;
+            if(!$roomStore.grid.enabled) {
+                x = Math.floor(inputX);
+                y = Math.floor(inputY);
+            } else
+            if($roomStore.grid.snap == "center") {
+
+                x = (Math.floor(inputX / gridWidth) + 0.5) * gridWidth;
+                y = (Math.floor(inputY / gridHeight) + 0.5) * gridHeight;
+            } else 
+            if($roomStore.grid.snap == "corner") {
+                x = (Math.round(inputX / gridWidth)) * gridWidth;
+                y = (Math.round(inputY / gridHeight)) * gridHeight;
+            } else {
+                x = y = 0;
             }
-            let filteredInstances = room.instances.filter(inst => {
-                let rect = getBBRect(inst);
-                return rect && !rectInside(mousepos, rect);
-            });
-            let deletedSomething = filteredInstances.length != room.instances.length;
-            room.instances = filteredInstances;
 
-            if(!deletedSomething && currentSprite) {
-                // place something
-                let x,y;
-                if(!$roomStore.grid.enabled) {
-                    x = Math.floor(inputX);
-                    y = Math.floor(inputY);
-                } else
-                if($roomStore.grid.snap == "center") {
+            let instance = new Instance(currentSprite.uuid, x, y);
+            room.instances.push(instance);
+        }
 
-                    x = (Math.floor(inputX / gridWidth) + 0.5) * gridWidth;
-                    y = (Math.floor(inputY / gridHeight) + 0.5) * gridHeight;
-                } else 
-                if($roomStore.grid.snap == "corner") {
-                    x = (Math.round(inputX / gridWidth)) * gridWidth;
-                    y = (Math.round(inputY / gridHeight)) * gridHeight;
-                } else {
-                    x = y = 0;
-                }
-                let instance = new Instance(currentSprite.uuid, x, y);
-                room.instances.push(instance);
-            }
+        refresh();
+    };
 
-            refresh();
-        };
+    let isPlacing = false;
+    let isDeleting = false;
 
+    function canvasMouseDown(evt: MouseEvent) {
+        isPlacing = true;
+        isDeleting = false;
+        canvasPlacement(evt, true);
+    }
+    
+    function canvasMouseMove(evt: MouseEvent) {
+        if(isPlacing) canvasPlacement(evt, false);
+    }
+    function canvasMouseUp(evt: MouseEvent) {
+        isPlacing = false;
+        isDeleting = false;
+    }
     
     function refresh() {
         /** @type {CanvasRenderingContext2D} */
@@ -217,7 +244,10 @@ import { shrink } from "../transitions";
                     class="room-canvas" 
                     bind:this={canvas}
                     on:mousedown={canvasMouseDown}
-                />
+                    on:mousemove={canvasMouseMove}
+                    on:mouseup={canvasMouseUp}
+                    on:mouseleave={canvasMouseUp}
+                    />
             </div>
         </div>
     </div>

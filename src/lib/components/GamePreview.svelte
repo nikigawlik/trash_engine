@@ -3,6 +3,8 @@
 
 import type { CardInstance } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
+    import { adjustedCanvasSize } from "../modules/game/utils";
+    import Room from "../modules/structs/room";
 import Card from "./Card.svelte";
 
     export let card: CardInstance;
@@ -32,8 +34,11 @@ import Card from "./Card.svelte";
         iframe.style.removeProperty("pointer-events");
     }
 
-    let iframeDisplayWidth = null;
-    let iframeDisplayHeight = null;
+    let rooms = resourceManager?.get()?.getAllOfResourceType(Room) as Room[]
+    let room: Room|null = rooms.length > 0? rooms[0] : null;
+
+    let iframeDisplayWidth = adjustedCanvasSize(room?.width);
+    let iframeDisplayHeight = adjustedCanvasSize(room?.height);
 
     function onMessage(msg: any) {
         if(msg.data.type == "canvasSizeUpdate") {

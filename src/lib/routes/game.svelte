@@ -36,15 +36,14 @@ import * as globalData from "./../modules/globalData";
 
     $: (canvas && !game)? reload() : null
 
-    $: canvasWidth = canvas? canvas.width : 100;
-    $: canvasHeight = canvas? canvas.height : 100;
+    $: canvasWidth = canvas? canvas.width : 0;
+    $: canvasHeight = canvas? canvas.height : 0;
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth);
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
     $: {
-        canvasDisplayHeight;
-        canvasDisplayWidth;
-        sendSizeUpdate();
+        if(canvasDisplayHeight && canvasDisplayWidth)
+            sendSizeUpdate();
     }
 
     function sendSizeUpdate() {
