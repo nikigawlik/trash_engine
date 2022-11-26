@@ -18,7 +18,7 @@ export default class Instance {
     draw(ctx: CanvasRenderingContext2D) {
         // draw at x y sprite
         // TODO this is cached, so should be ok, but is still ugly
-        let sprite = resourceManager.get().findByUUID(this.spriteID);
+        let sprite = resourceManager.get().getResource(this.spriteID);
         if(sprite && sprite instanceof Sprite && sprite.canvas) {
             ctx.drawImage(sprite.canvas, this.x - sprite.originX, this.y - sprite.originY);
         } else {
@@ -27,7 +27,7 @@ export default class Instance {
     }
 
     isValid() {
-        let sprite = resourceManager.get().findByUUID(this.spriteID);
+        let sprite = resourceManager.get().getResource(this.spriteID);
         return sprite && sprite instanceof Sprite;
     }
 

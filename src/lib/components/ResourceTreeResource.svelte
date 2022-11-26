@@ -1,10 +1,20 @@
+<script context="module" lang="ts">
+    export function openEditorWindow(resource: Resource) {
+        // TODO not clean ?
+        if(resource instanceof Sprite) {
+            openCard(SpriteEditor, true, resource.uuid);
+        } else if (resource instanceof Room) {
+            openCard(RoomEditor, true, resource.uuid);
+        } else {
+            console.log(`no window implemented for ${resource.type}`);
+        }
+    }
+</script>
+
 <script lang="ts">
 import { openCard } from "../modules/cardManager";
-import { data } from "../modules/globalData";
-import Folder from "../modules/structs/folder";
 import type Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
-    import { nameConstructorMap } from "../modules/structs/savenames";
 import Sprite from "../modules/structs/sprite";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
 import type { ContextMenuData } from "./ContextMenu.svelte";
@@ -13,10 +23,9 @@ import RoomEditor from "./RoomEditor.svelte";
 import SpriteEditor from "./SpriteEditor.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
 // import { currentContextMenu } from "./ContextMenu.svelte";
-    export let selfResource: Resource;
+    export let selfResource: Room | Sprite;
 
     let hover: boolean = false;
-
     let currentContextMenu: ContextMenuData|null = null;
 
     function openContextMenu(clickEvent: MouseEvent, resource: Resource) {
@@ -29,20 +38,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
             y: clickEvent.offsetY,
         };
     }
-
-    function openEditorWindow(resource: Resource) {
-        // TODO not clean ?
-        if(resource instanceof Sprite) {
-            openCard(SpriteEditor, true, resource.uuid);
-        } else if (resource instanceof Room) {
-            openCard(RoomEditor, true, resource.uuid);
-        } else {
-            console.log(`no window implemented for ${resource.type}`);
-        }
-    }
     
     function getContextMenuOptions(resource: Resource) {
-        let defaultOptions = [
+        return [
             {
                 id: "open",
                 text: "open",
@@ -74,61 +72,6 @@ import SpriteIcon from "./SpriteIcon.svelte";
                 }
             }
         ];
-
-        let options;
-
-        if(resource instanceof Folder) {
-            const resourceConstructor = resource.getTopFolder()?.resourceType;
-            // const resourceName = resourceConstructor?.name.toLowerCase();
-            const resourceName = 
-                resourceConstructor == Sprite?  "sprite": 
-                resourceConstructor == Room?  "room":
-                "null" 
-            ;
-            options = resourceConstructor? [
-                {
-                    id: "new_resource",
-                    text: `new ${resourceName}`, 
-                    callback: async () => {
-                        let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
-                        if(name) {    
-                            let newResource = new resourceConstructor(name, resource._resourceManager);
-                            resource.add(newResource);
-                            resource._resourceManager?.refresh();
-
-                           await openEditorWindow(newResource)
-                        }
-                    }
-                },
-            ] : [];
-            if(data.get().editor.settings.subFolders) {
-                options.push({
-                    id: "new_folder",
-                    text: "new folder", 
-                    callback: async () => {
-                        let name = await asyncGetTextPopup(`Name of the folder:`, `unnamed folder`);
-                        if(name) {
-                            let newFolder = new Folder(undefined, resource._resourceManager);
-                            newFolder.name = name;
-                            resource.add(newFolder);
-                            resource._resourceManager?.refresh();
-                        }
-                    }
-                });
-            }
-            if (!resource.isTopFolder()) {
-                options.push(
-                    defaultOptions.find(x => x.id == "rename")!, // TODO bad use of "!"" ?
-                    defaultOptions.find(x => x.id == "delete")!,
-                );
-            }
-        } else {
-            options = defaultOptions;
-        }
-        
-        
-        
-        return options;
     }
     
     function onclick(evt: MouseEvent)  {
@@ -148,6 +91,7 @@ import SpriteIcon from "./SpriteIcon.svelte";
         evt.dataTransfer?.setData('text/uuid', selfResource.uuid);
         // console.log("src: " + uuid)
     }
+
     function ondrop(evt: DragEvent)  { 
         evt.preventDefault() 
         hover = false;
@@ -155,25 +99,19 @@ import SpriteIcon from "./SpriteIcon.svelte";
         let otherUUID = evt.dataTransfer?.getData("text/uuid");
         if(otherUUID) {
             // console.log(otherUUID);
-            let topFolder = selfResource.getTopFolder();
             const _resourceManager = selfResource._resourceManager;
-            if(topFolder) {
-                let other = _resourceManager.findByUUIDInFolder(otherUUID, topFolder.name);
-                if(!other) {
-                    console.log(`could not find ${otherUUID} / ${topFolder.name}`)
-                } else if(other.isParentOf(selfResource)) {
-                    console.log(`can't move parent into child folder`)
-                } else if(other == selfResource) {
-                    console.log(`can't move something into itself`)
-                } else if(selfResource.type == "folder") {
-                    selfResource.add(other);
-                    _resourceManager.refresh();
-                } else {
-                    selfResource._parent?.insert(other, selfResource);
-                    _resourceManager.refresh();
-                }
+            let other = _resourceManager.getResource(otherUUID);
+
+            if(!other) {
+                console.log(`could not find ${otherUUID}`); // shouldn't happen
+            } else if(other == selfResource) {
+                console.log(`can't move something into itself`)
+            } if(other.type != selfResource.type) {
+                console.log(`can only swap with resources of same type`)
             } else {
-                console.log(`can't move into top folders / detached tree`)
+                // selfResource._parent?.insert(other, selfResource);
+                _resourceManager.moveResource(otherUUID, selfResource.uuid);
+                _resourceManager.refresh();
             }
         }
     }

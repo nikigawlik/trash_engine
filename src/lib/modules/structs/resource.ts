@@ -17,47 +17,20 @@ export default class Resource {
     name: string;
     type: string;
     uuid: string;
-    _parent: Folder | null;
     _resourceManager: ResourceManager;
     _icon: HTMLElement | null;
+    _priority: number
     constructor(name = "", resourceManager: ResourceManager) {
         this.name = name;
         this.type = this.constructor.name.toLowerCase();
         this.uuid = crypto.randomUUID(),
-        this._parent = null;
         this._resourceManager = resourceManager;
         this._icon = null;
-    }
-
-    getTopFolder() : Folder|null {
-        if(!this._parent) 
-            return null;
-        if(this._parent == this._resourceManager.root)
-            return this as unknown as Folder; // kinda hacky, but who cares
-        
-        let current: Folder = this._parent;
-        while(current._parent && current._parent != this._resourceManager.root) {
-            current = current._parent;
-        }
-        // if(current == this) return null;
-        return current;
-    }
-
-    isTopFolder() {
-        return this._parent == this._resourceManager.root;
-    }
-
-    isParentOf(resource: Resource) {
-        let current: Resource | null = resource;
-        while(current) {
-            current = current._parent;
-            if(current == this) return true;
-        }
-        return false
+        this._priority = 0;
     }
 
     removeSelf(): void  {
-        this._parent?.remove(this);
+        this._resourceManager?._resources.delete(this.uuid);
     }
 
     getIconElement(): string {

@@ -1,8 +1,7 @@
-import Room from "../structs/room";
-import type ResourceManager from "./ResourceManager";
 import * as pixi from 'pixi.js';
+import type Room from "../structs/room";
 import Sprite from "../structs/sprite";
-import { rectIntersect } from "./utils";
+import type ResourceManager from "./ResourceManager";
 
 interface SpriteInstance {
     x: number,
@@ -69,7 +68,7 @@ export default class Game {
 
     async init() {
         // compile custom code
-        for(let sprite of this.resourceManager.getAllOfResourceType(Sprite)) {
+        for(let sprite of this.resourceManager.getSprites()) {
             // always true
             if(sprite instanceof Sprite) {
                 // sprite._initFunction = new Function(sprite.initCode);
@@ -80,7 +79,7 @@ export default class Game {
 
         // make resource accesors
 
-        for (const resource of this.resourceManager.root.iterateAllResources()) {
+        for (const resource of this.resourceManager._resources.values()) {
             // accessing a sprite by name, will try to return an instance of that sprite 
             Object.defineProperty(window, resource.name, {
                 configurable: true,
@@ -128,7 +127,7 @@ export default class Game {
             this.mouseY = ev.offsetY * devicePixelRatio;
         }
 
-        let rooms = this.resourceManager.getAllOfResourceType(Room);
+        let rooms = this.resourceManager.getRooms();
         if(rooms.length == 0) {
             console.warn("no rooms found. Possibly a side effect of invalid/missing game data.")
         } else { 
@@ -152,7 +151,7 @@ export default class Game {
 
     createInstance(spriteUUID: string, x: number, y: number) {
         // const inst = new Instance(spriteUUID, x, y);
-        const sprite = this.resourceManager.findByUUID(spriteUUID) as Sprite;
+        const sprite = this.resourceManager.getResource(spriteUUID) as Sprite;
         const inst = sprite._instanceConstructor(x, y);
         this.instances.push(inst)
         this._registerInstance(inst);
@@ -196,14 +195,14 @@ export default class Game {
     }
 
     spriteIntersect(sprID1: string, x1: number, y1: number, sprID2: string, x2: number, y2: number): boolean {
-        const spr1 = this.resourceManager.findByUUID(sprID1) as Sprite;
-        const spr2 = this.resourceManager.findByUUID(sprID2) as Sprite;
+        const spr1 = this.resourceManager.getResource(sprID1) as Sprite;
+        const spr2 = this.resourceManager.getResource(sprID2) as Sprite;
 
         const inst1Left = x1 - spr1.originX + spr1.bBoxX;
         const inst1Right = inst1Left + spr1.bBoxWidth;
         const inst1Top = y1 - spr1.originY + spr1.bBoxY;
         const inst1Bottom = inst1Top + spr1.bBoxHeight;
-        
+
         const inst2Left = x2 - spr2.originX + spr2.bBoxX;
         const inst2Right = inst2Left + spr2.bBoxWidth;
         const inst2Top = y2 - spr2.originY + spr2.bBoxY;
@@ -214,8 +213,8 @@ export default class Game {
     }
 
     // instanceIntersect(inst1: SpriteInstance, inst2: SpriteInstance): boolean {
-    //     const spr1 = this.resourceManager.findByUUID(inst1.spriteID) as Sprite;
-    //     const spr2 = this.resourceManager.findByUUID(inst2.spriteID) as Sprite;
+    //     const spr1 = this.resourceManager.getResource(inst1.spriteID) as Sprite;
+    //     const spr2 = this.resourceManager.getResource(inst2.spriteID) as Sprite;
     //     ...
     // }
 
@@ -239,7 +238,7 @@ export default class Game {
 
         // this.instances = room.instances.map(i => i.clone());
         // this.instances = room.instances.map(i => {
-        //     let sprite = this.resourceManager.findByUUID(i.spriteID) as Sprite;
+        //     let sprite = this.resourceManager.getResource(i.spriteID) as Sprite;
         //     return sprite._instanceConstructor(i.x, i.y);
         // })
 
@@ -251,7 +250,7 @@ export default class Game {
     }
 
     _registerInstance(inst: SpriteInstance) {
-        let sprite = this.resourceManager.findByUUID(inst.spriteID) as Sprite;
+        let sprite = this.resourceManager.getResource(inst.spriteID) as Sprite;
         // if(!sprite || !sprite.canvas) return;
 
         let pixiSpr = pixi.Sprite.from(sprite.canvas);
@@ -264,7 +263,7 @@ export default class Game {
 
     currentRoom() : Room {
         if(!this._cachedRoom || this._cachedRoom.uuid != this.currentRoomUUID) {
-            this._cachedRoom = this.resourceManager.findByUUID(this.currentRoomUUID) as Room;
+            this._cachedRoom = this.resourceManager.getResource(this.currentRoomUUID) as Room;
         }
         return this._cachedRoom;
     }
@@ -276,7 +275,7 @@ export default class Game {
 
     update() {
         if(this.roomNumber != this.actualRoomNumber) {
-            let allRooms = this.resourceManager.getAllOfResourceType(Room);
+            let allRooms = this.resourceManager.getRooms();
             this.roomNumber = this.roomNumber % allRooms.length;
             this.actualRoomNumber = this.roomNumber;
             this.setRoom(allRooms[this.actualRoomNumber].uuid);

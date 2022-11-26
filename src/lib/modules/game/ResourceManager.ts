@@ -1,7 +1,7 @@
 import { Writable, writable } from "svelte/store";
 import { db, deserialize, getDocumentGameData, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
-import Folder from "../structs/folder";
-import Resource from "../structs/resource";
+import type Folder from "../structs/folder";
+import type Resource from "../structs/resource";
 import Room from "../structs/room";
 import Sprite from "../structs/sprite";
 import { assert, rectInside } from "./utils";
@@ -12,9 +12,9 @@ const defaultSettings = {
     title: "your game's name here",
 }
 
-const saveVersion = 1;
+const saveVersion = 2;
 interface SaveData {
-    root: Folder,
+    resources: Resource[]
     settings: typeof defaultSettings,
     version: typeof saveVersion,
 }
@@ -22,72 +22,103 @@ interface SaveData {
 // /** @type {ResourceManager} */ export let resourceManager;
 
 export default class ResourceManager {
-    root: Folder;
     settings: typeof defaultSettings;
-    cache: any;
-    stores: Map<string, Writable<Resource>>
+    stores: Map<string, Writable<Resource>> // TODO weak map -> needs symbol
+    _resources: Map<string, Resource>
     constructor() {
-        this.root = new Folder("root", this, 
-            [
-                new Folder("sprites", this, [], Sprite),
-                new Folder("rooms", this, [], Room),
-            ]
-        );
         this.settings = defaultSettings;
-        this.cache = {};
         this.stores = new Map();
+        this._resources = new Map();
     }
 
     static async init() {
         console.log("resource manager init...")
     }
 
-    addResource(folderName: string, resource: Resource) {
-        let folder: Folder = this.root.contents.find(x => x.name == folderName) as Folder;
-        folder.add(resource);
+    addResource<T extends Resource>(resource: T) { 
+        this._resources.set(resource.uuid, resource);
     }
 
-    addSprite(sprite: Sprite) { this.addResource("sprites", sprite); }
-    addRoom(room: Room) { this.addResource("rooms", room); }
-
-    getAllOfResourceType(type: typeof Resource) {
-        let folder: Folder = this.root.contents.find(x => (x instanceof Folder) && x.resourceType == type) as Folder;
-        let resources = Array.from(folder.iterateAllResources());
-        return resources;
+    getResourceOfType(uuid: string, type: typeof Resource): Resource | null {
+        let r = this._resources.get(uuid);
+        if(r instanceof type)
+            return r;
+        else
+            return null;
     }
 
-    findByUUIDInFolder(uuid: string, folderName: string) {
-        let folder = this.root.contents.find(x => x.name == folderName) as Folder;
-        let result = folder.findByUUID(uuid);
-        if(!result) return null;
-        else return result;
+    getResource(uuid: string) {
+        return this._resources.get(uuid) || null;
     }
 
-    findByUUID(uuid: string): Resource|null {
-        // const cached = this.cache[uuid];
-        // if(cached) {
-        //     return cached;
-        // } else {
-            const resource = this.root.findByUUID(uuid);
-            if(resource) this.cache[uuid] = resource;
-            return resource
-        // }
+    deleteResource(uuid: string) {
+        if(this.stores.has(uuid)) {
+            // delete through store
+            this.stores.get(uuid).set(null);
+        } else {
+            // delete directly
+            this._resources.delete(uuid);
+            this.stores.delete(uuid);
+        }
     }
 
-    getResourceStore(uuid: string): Writable<Resource>|null {
+    // expensive-ish
+    moveResource(resourceUUID: string, beforeResourceUUID: string) {
+        let r1 = this.getResource(resourceUUID);
+        let r2 = this.getResource(beforeResourceUUID);
+        
+        if(!(r1 && r2)) return false;
+
+        let resources = Array.from(this._resources.values());
+        
+        let removeIndex = resources.findIndex(x => x.uuid == resourceUUID);
+        resources.splice(removeIndex, 1);
+
+        let insertIndex = resources.findIndex(x => x.uuid == beforeResourceUUID);
+        resources.splice(insertIndex, 0, this._resources.get(resourceUUID));
+
+        this._resources.clear();
+        for(let res of resources) {
+            this._resources.set(res.uuid, res);
+        }
+
+        // this.stores.get(resourceUUID)?.update(x=>x);
+        // this.stores.get(beforeResourceUUID)?.update(x=>x);
+
+        return true;
+    }
+
+    getAllOfResourceType(type: typeof Resource): Resource[] {
+        return Array.from(this._resources.values()).filter(x => x instanceof type);
+    }
+
+    getRooms(): Room[] {
+        return this.getAllOfResourceType(Room) as Room[];
+    }
+
+    getSprites(): Sprite[] {
+        return this.getAllOfResourceType(Sprite) as Sprite[];
+    }
+
+    getResourceStore(uuid: string): Writable<Resource> | null {
         let store = this.stores.get(uuid);
         if(store) return store;
         
-        let resource = this.findByUUID(uuid);
+        let resource = this.getResource(uuid);
         if(!resource) return null;
         
         store = writable(resource);
-        store.subscribe(value => {
-            // let current = this.findByUUID(uuid);
-            // if(current != resource) debugger;
 
-            if(!value && resource) resource.removeSelf(); // set to null/falsy -> delete resource
-            else if(value != resource) throw Error("You can not replace a Resource with another Resource using a store.")
+        store.subscribe(value => {
+            if(!value && resource) {
+                // this is either user triggered, or triggered by "removeResource"
+                this._resources.delete(value.uuid);
+                this.stores.delete(value.uuid);
+            }
+            else if(value != resource) {
+                throw Error("You can not replace a Resource with another Resource using a store.")
+            } 
+            
             resource = value; // keep track 
 
             //always also triggers a general update (should maybe be refactored out eventually)
@@ -105,7 +136,7 @@ export default class ResourceManager {
     async getSerializedData() {
         let data: SaveData = {
             version: saveVersion,
-            root: this.root,
+            resources: Array.from(this._resources.values()),
             settings: this.settings,
         }
         
@@ -118,31 +149,42 @@ export default class ResourceManager {
         console.log(`- resources loaded`)
         console.log(data); 
 
+        let setResourcesFromLegacyFolder = (root: Folder) => {
+            this._resources.clear();
+            for(let res of root.iterateAllResources()) {
+                this._resources.set(res.uuid, res)
+            }
+        }
+
         if(!data.version) {
             // pre-versioning
-            this.root = data;  
+            setResourcesFromLegacyFolder(data);
         } else if(data.version == 1) {
-            const d: SaveData = data; // just for typescript checking
-            this.root = d.root;
+            const d: { 
+                root: Folder
+                settings: typeof defaultSettings
+                version: typeof saveVersion
+            } = data;
+
+            setResourcesFromLegacyFolder(d.root);
             this.settings = d.settings;
-        } else {
+        } else if(data.version == 2) {
+            const d: SaveData = data;
+            this._resources.clear();
+            for(let res of d.resources) {
+                this._resources.set(res.uuid, res)
+            }
+            this.settings = d.settings;
+        }
+        else{
             console.error(`Unrecognized version ${data.version}`);
             return;
         }
 
-        let postProcess = (obj: any, parent: Folder | null) => {
-            if(obj instanceof Resource) {
-                obj._parent = parent;
-                obj._resourceManager = this;
-                if(obj instanceof Folder) {
-                    for(let child of obj.contents) {
-                        postProcess(child, obj);
-                    }
-                }
-            }
+        for(let obj of this._resources.values()) {
+            obj._resourceManager = this;
         }
-        postProcess(this.root, null);
-        this.cache = {};
+
         this.refresh();
     }
 
@@ -237,6 +279,7 @@ update(x => x)
 
 let isLoadedPromise = _value.load();
 
+// TODO we should get rid of this
 export let resourceManager = {
     subscribe,
     get: () => _value,

@@ -4,7 +4,7 @@
 import type { CardInstance } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
     import { adjustedCanvasSize } from "../modules/game/utils";
-    import Room from "../modules/structs/room";
+    import type Room from "../modules/structs/room";
 import Card from "./Card.svelte";
 
     export let card: CardInstance;
@@ -34,7 +34,7 @@ import Card from "./Card.svelte";
         iframe.style.removeProperty("pointer-events");
     }
 
-    let rooms = resourceManager?.get()?.getAllOfResourceType(Room) as Room[]
+    let rooms = resourceManager?.get()?.getRooms()
     let room: Room|null = rooms.length > 0? rooms[0] : null;
 
     let iframeDisplayWidth = adjustedCanvasSize(room?.width);

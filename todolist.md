@@ -102,7 +102,8 @@ vv START HERE vv
   - runtime errors (game)
 - corrupt save data? -> ability to delete data if game doesn't load after X seconds
 - redesign resource window (no contex menu? -> buttons?), make it easier to make sprite and stuff
-- make resources use a _map_ and shorter ids/symbols
+<!-- ~~- make resources use a _map_ and shorter ids/symbols~~ -->
+- make resources use shorter ids/symbols (?)
 
 
 blockers:

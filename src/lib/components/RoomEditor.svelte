@@ -4,7 +4,7 @@ import { resourceManager } from "../modules/game/ResourceManager";
 import Instance from "./../modules/structs/instance";
 
 import type Room from "./../modules/structs/room";
-import Sprite from "./../modules/structs/sprite";
+import type Sprite from "./../modules/structs/sprite";
 import { assert, rectInside, adjustedCanvasSize } from "../modules/game/utils";
 
 import { afterUpdate, onMount } from "svelte";
@@ -18,13 +18,13 @@ import { shrink } from "../transitions";
     export let card: CardInstance;
     const uuid = card.uuid;
     
-    $: room = $resourceManager?.findByUUID(uuid) as Room|null;
+    $: room = $resourceManager?.getResource(uuid) as Room|null;
     $: card.className = "room-editor";
     $: card.name = room?.name || "room not loaded";
 
 
     let sprites = [] as Sprite[];
-    $: sprites = ($resourceManager.getAllOfResourceType(Sprite) || []) as unknown as Sprite[];
+    $: sprites = ($resourceManager.getSprites() || []);
 
     let canvas: HTMLCanvasElement;
     let currentSprite: Sprite = sprites[0];
@@ -70,7 +70,7 @@ import { shrink } from "../transitions";
         // first remove stuff
         let mousepos = new DOMRect(inputX, inputY, 0, 0);
         let getBBRect = (inst: Instance) => {
-            let sprite = $resourceManager.findByUUID(inst.spriteID) as Sprite;
+            let sprite = $resourceManager.getResource(inst.spriteID) as Sprite;
             return sprite? new DOMRect(
                 inst.x - sprite.originX + sprite.bBoxX, 
                 inst.y - sprite.originY + sprite.bBoxY, 

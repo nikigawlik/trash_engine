@@ -7,13 +7,17 @@ import ResourceManager, { resourceManager } from "../modules/game/ResourceManage
 import Card from "./Card.svelte";
 import ResourceSubTree from "./ResourceSubTree.svelte";
 import ResourceTreeResource from "./ResourceTreeResource.svelte";
+    import ResourcesFolder from "./ResourcesFolder.svelte";
+    import Sprite from "../modules/structs/sprite";
+    import Room from "../modules/structs/room";
 
 export let card: CardInstance;
 $: card.name = "resources";
 $: card.className = "resources";
 
 // let root = resourceManager.get()?.root;
-$: folders = ($resourceManager?.root.contents || []) as Folder[] 
+$: sprites = $resourceManager.getSprites();
+$: rooms = $resourceManager.getRooms();
 
 </script>
 
@@ -21,12 +25,20 @@ $: folders = ($resourceManager?.root.contents || []) as Folder[]
 
 <Card {card}>
     <div class="scroll-box">
-        <ul class="resources">
-            {#each folders as x}
-            <ResourceTreeResource selfResource={x}></ResourceTreeResource>
-            <li>
-                <ResourceSubTree folder={x}></ResourceSubTree>
-            </li>
+        <ResourcesFolder displayName="sprites" resourceConstructor={Sprite} />
+        <ul class="resources sprites">
+            {#each sprites as sprite (sprite.uuid)}
+                <li>
+                    <ResourceTreeResource selfResource={sprite}></ResourceTreeResource>
+                </li>
+            {/each}
+        </ul>
+        <ResourcesFolder displayName="rooms" resourceConstructor={Room} />
+        <ul class="resources sprites">
+            {#each rooms as room (room.uuid)}
+                <li>
+                    <ResourceTreeResource selfResource={room}></ResourceTreeResource>
+                </li>
             {/each}
         </ul>
     </div>
@@ -38,10 +50,15 @@ $: folders = ($resourceManager?.root.contents || []) as Folder[]
         box-sizing: border-box;
         flex-grow: 1;
     }
+
+    p {
+        margin-bottom: .2rem;
+    }
     
     .resources {
+        margin-bottom: .5rem;
         /* margin-left: 10px; */
-        height: 400px;
+        /* height: 400px; */
         /* width: 220px; */
     }
 

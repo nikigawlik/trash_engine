@@ -339,7 +339,6 @@
     }
 
     $: {
-        console.log("triggerlol")
         if(showBBox) {
             resetDisplayCanvas();
             drawBBox();
