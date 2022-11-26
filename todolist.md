@@ -65,9 +65,9 @@ vv START HERE vv
 - [B] Redo pop ups (modals) to actually block stuff and cover whole screen
 - Resources card should have larger default width
 - Change image save format -> paletted
-- [B] simple scripting doc -> can be opened next to scripting window
-- Sprite editor tabs dont look right
-- Clean out old files (static files)
+<!-- ~~- [B] simple scripting doc -> can be opened next to scripting window~~ -->
+<!-- ~~- Sprite editor tabs dont look right~~ -->
+<!-- ~~- Clean out old files (static files)~~ -->
 - "custom properties" table in sprite (to work with the closure system)
 - Ability to delete save files, lol. Also add dates to saves, lol
 - [B] Example/Skeleton project
@@ -104,6 +104,7 @@ vv START HERE vv
 - redesign resource window (no contex menu? -> buttons?), make it easier to make sprite and stuff
 <!-- ~~- make resources use a _map_ and shorter ids/symbols~~ -->
 - make resources use shorter ids/symbols (?)
+- proper scripting reference
 
 
 blockers:
