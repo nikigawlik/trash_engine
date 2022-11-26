@@ -221,3 +221,30 @@ Uless specified otherwise contents of this file are licensed under the MIT licen
 This software uses p5.js (https://github.com/processing/p5.js), which is released under the GNU Lesser General Public License v2.1. 
 
 Games created with Trash Engine also contain a copy of p5.js. So please make sure to give proper attribution, for example by including the paragraph above alongside in alongside any other copyright notices in your game.
+
+
+
+
+
+## serialization
+
+{someLongVarName: number, b: number}[]
+
+JSON-style:
+[{someLongVarName: 123, b: 323}, {someLongVarName: 4, b: 12}, {someLongVarName: 2, b:12}]
+
+smarter serializer:
+{someLongVarName: [123, 4, 2], b:[323, 12, 12]}
+
+2x3:
+someLongVarName   b
+123               323
+4                 12
+2                 12
+
+-> [2, 3, "someLongVarName", "b", 123, 323, 4, 12, 2, 12]
+
+Type:Instance: {someLongVarName: number, b: number}
+
+Array[Instance (by object)]: [123, 323, 4, 12, 2, 12]
+Array[Instance (by prop)]: [123, 4, 2, 323, 12, 12]
