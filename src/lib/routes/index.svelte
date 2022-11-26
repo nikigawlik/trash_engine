@@ -21,6 +21,7 @@ import * as database from "./../modules/database";
 import * as globalData from "./../modules/globalData";
 import { nameConstructorMap } from "./../modules/structs/savenames";
 import * as ui from "./../modules/ui";
+    import { text } from "svelte/internal";
 
     let main: Main|null;
 
@@ -105,6 +106,16 @@ import * as ui from "./../modules/ui";
 
     async function exportData() {
         let obj = await resourceManager.get().getSerializedData();
+        
+        const textData = JSON.stringify(obj);
+        const filename = `${resourceManager.get().settings.title}.txt`;
+
+        _downloadTextFile(filename, textData, "text/plain");
+
+    }
+
+    async function exportGame() {
+        let obj = await resourceManager.get().getSerializedData();
         let textData = JSON.stringify(obj);
 
         let htmltext;
@@ -121,16 +132,14 @@ import * as ui from "./../modules/ui";
 
         let text = htmlDoc.documentElement.innerHTML;
 
-        // some hacks
-        
-        // let split = htmltext.split("!GAMEDATA!");
-        // let text = split[0] + textData + split[1];
-
         const filename = `${resourceManager.get().settings.title}.html`;
 
-        // download
+        _downloadTextFile(filename, text, "text/html");
+    }
+
+    function _downloadTextFile(filename: string, textContent: string, mimeType: string = "text/plain") {
         var element = document.createElement("a");
-        element.setAttribute("href", "data:text/html;charset=utf-8," + encodeURIComponent(text));
+        element.setAttribute("href", `data:${mimeType};charset=utf-8,` + encodeURIComponent(textContent));
         element.setAttribute("download", filename);
         element.style.display = "none";
         document.body.appendChild(element);
@@ -235,7 +244,8 @@ import * as ui from "./../modules/ui";
             <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </button></li>
             <li><button on:click={async() => await asyncSave()}>       <AtlasIcon id={7}  /> save      </button></li>
             <li><button on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </button></li>
-            <li><button on:click={() => exportData()}>                 <AtlasIcon id={57} /> export    </button></li>
+            <li><button on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </button></li>
+            <li><button on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </button></li>
             <li><button on:click={() => importData()}>                 <AtlasIcon id={58} /> import    </button></li>
             <li><button on:click={toggleFullscreen}>
                 {#if isFullscreen}

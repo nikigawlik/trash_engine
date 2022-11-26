@@ -46,7 +46,7 @@ vv START HERE vv
 <!-- ~~- [B] game does not work when ?editor / get rid of ?editor?game~~ -->
 <!-- ~~- [B] scrollbar arrows are excluded from build (only affects chrome)~~ -->
 - export game in dev mode -> wont fix?
-- differentiate "export game" and "export game data"
+<!-- ~~- differentiate "export game" and "export game data"~~ -->
 <!-- ~~- [B] evaluate app from perspective of "user does not know how to resize windows"~~ -->
 <!-- ~~- proper window resize bars (resize handle on all borders and corners)~~ -->
 <!-- ~~- [B] clean up main toolbar, "new sprite" button!~~ -->
