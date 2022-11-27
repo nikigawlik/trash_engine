@@ -50,10 +50,6 @@ $: rooms = $resourceManager.getRooms();
         box-sizing: border-box;
         flex-grow: 1;
     }
-
-    p {
-        margin-bottom: .2rem;
-    }
     
     .resources {
         margin-bottom: .5rem;

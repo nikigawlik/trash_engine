@@ -9,7 +9,9 @@
 - `find(sprite: string)`
 - `findAll(sprite: string)`
 - `setDepth(self: SpriteInstance, depth: number)`
-- `goToNextRoom(self: SpriteInstance, depth: number)`
+- `goToNextRoom()`
+- `goToPreviousRoom()`
+- `moveRooms(difference: number)`
 - `keyIsDown(...codes: string[])`
 - `keyIsPressed(...codes: string[])`
 - `keyIsReleased(...codes: string[])`

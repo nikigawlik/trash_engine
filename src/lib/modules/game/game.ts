@@ -35,6 +35,8 @@ export default class Game {
     pressedMap: Map<string, boolean>
     releasedMap: Map<string, boolean>
 
+    persistent: WeakSet<SpriteInstance>
+
 
     constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement) {
         this.tickRate = 60;
@@ -49,6 +51,7 @@ export default class Game {
         this.mouseY = 0;
         this.roomNumber = 0;
         this.actualRoomNumber = 0;
+        this.persistent = new WeakSet();
         
         this.keyMap = new Map<string, boolean>();
         this.keyMapSnapshot = new Map<string, boolean>();
@@ -100,8 +103,14 @@ export default class Game {
         defineLibFunction("setDepth", (self: SpriteInstance, depth: number) => {
             if(self.pixiSprite) self.pixiSprite.zIndex = depth;
         })
-        defineLibFunction("goToNextRoom", (self: SpriteInstance, depth: number) => {
+        defineLibFunction("goToNextRoom", () => {
             this.roomNumber++;
+        })
+        defineLibFunction("goToPreviousRoom", () => {
+            this.roomNumber--;
+        })
+        defineLibFunction("moveRooms", (difference: number) => {
+            this.roomNumber += difference;
         })
         defineLibFunction("keyIsDown", (...codes: string[]) => this.checkKeys("down", ...codes) )
         defineLibFunction("keyIsPressed", (...codes: string[]) => this.checkKeys("pressed", ...codes) )
@@ -110,6 +119,8 @@ export default class Game {
         defineLibFunction("collisionAt", (instance: SpriteInstance, spriteID: string, x: number, y: number) => this.collisionAt(instance, spriteID, x, y) )
         defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
         defineLibFunction("instancesAt", (instance: SpriteInstance, spriteID: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, spriteID, x, y)))
+        
+        defineLibFunction("persist", (instance: SpriteInstance) => this.persistent.add(instance))
 
         window.onkeydown = (event: KeyboardEvent) => {
             // keys.set(event.key, true);
@@ -166,12 +177,10 @@ export default class Game {
     }
 
     collisionAt(instance: SpriteInstance, spriteID: string, x: number, y: number): boolean {
-        const all = spriteID == "all";
+        // const all = spriteID == "all";
 
         for(let other of this.instances) {
-            if(other == instance) continue;
-
-            if(all || other.spriteID == spriteID) {
+            if(other != instance && other.spriteID == spriteID) {
                 if(this.spriteIntersect(instance.spriteID, x, y, other.spriteID, other.x, other.y)) {
                     return true;
                 }
@@ -197,7 +206,7 @@ export default class Game {
     spriteIntersect(sprID1: string, x1: number, y1: number, sprID2: string, x2: number, y2: number): boolean {
         const spr1 = this.resourceManager.getResource(sprID1) as Sprite;
         const spr2 = this.resourceManager.getResource(sprID2) as Sprite;
-
+    
         const inst1Left = x1 - spr1.originX + spr1.bBoxX;
         const inst1Right = inst1Left + spr1.bBoxWidth;
         const inst1Top = y1 - spr1.originY + spr1.bBoxY;
@@ -242,7 +251,12 @@ export default class Game {
         //     return sprite._instanceConstructor(i.x, i.y);
         // })
 
-        this.instances = [];
+        this.instances = this.instances.filter(x => this.persistent.has(x));
+
+        // re-register persistent instances
+        for(let inst of this.instances) {
+            this._registerInstance(inst)
+        }
 
         for(let roomInst of room.instances) {
             this.createInstance(roomInst.spriteID, roomInst.x, roomInst.y)

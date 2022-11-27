@@ -127,6 +127,7 @@ import { shrink } from "../transitions";
     let isDeleting = false;
 
     function canvasMouseDown(evt: MouseEvent) {
+        if(evt.button != 0) return;
         isPlacing = true;
         isDeleting = false;
         canvasPlacement(evt, true);
