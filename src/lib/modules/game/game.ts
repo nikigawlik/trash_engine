@@ -1,4 +1,3 @@
-import * as pixi from 'pixi.js';
 import type Room from "../structs/room";
 import Sprite from "../structs/sprite";
 import type ResourceManager from "./ResourceManager";
@@ -8,7 +7,6 @@ export interface SpriteInstance {
     x: number,
     y: number,
     spriteID: string,
-    pixiSprite: pixi.Sprite,
     update: Function,
 }
 
@@ -27,7 +25,6 @@ export default class Game {
 
     instances: SpriteInstance[];
     renderer: Renderer;
-    stage: pixi.Container;
 
     mouseX: number
     mouseY: number
@@ -44,6 +41,8 @@ export default class Game {
 
     persistent: WeakSet<SpriteInstance>
     instanceSets: Map<string, WeakSet<SpriteInstance>>
+
+    instanceDepth: WeakMap<SpriteInstance, number>
 
     constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement) {
         this.tickRate = 60;
@@ -67,11 +66,9 @@ export default class Game {
         this.pressedMap = new Map<string, boolean>();
         this.releasedMap = new Map<string, boolean>();
 
-        // this.renderer = new pixi.Renderer({
-        //     view: canvas,
-        //     autoDensity: false,
-        //     antialias: false,
-        // });
+        // extra instance info
+        this.instanceDepth = new WeakMap<SpriteInstance, number>()
+
         this.renderer = new Renderer(canvas, resourceManager);
 
         // safety to combat problems with hot-reloading in development
@@ -123,7 +120,7 @@ export default class Game {
         defineLibFunction("find", (sprite: string) => this.instances.find(x => x.spriteID == sprite))
         defineLibFunction("findAll", (sprite: string) => this.instances.filter(x => x.spriteID == sprite))
         defineLibFunction("setDepth", (self: SpriteInstance, depth: number) => {
-            if(self.pixiSprite) self.pixiSprite.zIndex = depth;
+            this.instanceDepth.set(self, depth);
         })
         defineLibFunction("goToNextRoom", () => {
             this.roomNumber++;
@@ -173,7 +170,13 @@ export default class Game {
             this.setRoom(rooms[this.roomNumber].uuid);
 
             // start
-            this.update();
+            this.mainLoop();
+        }
+    }
+
+    async mainLoop() {
+        while(!this.isEnding) {
+            await new Promise(resolve => window.requestAnimationFrame(() => { this.update(); resolve(null) }));
         }
     }
 
@@ -201,7 +204,6 @@ export default class Game {
     destroyInstance(instance: SpriteInstance) {
         let instID = this.instances.indexOf(instance);
         if(instID >= 0) this.instances.splice(instID, 1);
-        if(instance.pixiSprite) this.stage.removeChild(instance.pixiSprite);
     }
 
     collisionAt(instance: SpriteInstance, filter: string, x: number, y: number): boolean {
@@ -262,19 +264,14 @@ export default class Game {
         this.canvas.width = room.width;
         this.canvas.height = room.height;
 
-        let bgC = room.backgroundColor;
-        if(bgC.length == 4) {
-            bgC = "#" + bgC.slice(1).split("").map(x => x+x).join("");
-        }
-        console.log(`${room.backgroundColor} -> ${bgC}`);
-        this.renderer.backgroundColor = pixi.utils.string2hex(bgC);
-        // console.log(`${room.backgroundColor} -> ${pixi.utils.string2hex(room.backgroundColor)}`)
+        // let bgC = room.backgroundColor;
+        // if(bgC.length == 4) {
+        //     bgC = "#" + bgC.slice(1).split("").map(x => x+x).join("");
+        // }
+        // console.log(`${room.backgroundColor} -> ${bgC}`);
 
         // TODO kinda hacky
         document.body.style.backgroundColor = room.backgroundColor;
-
-        if(this.stage) this.stage.removeChildren()
-        else this.stage = new pixi.Container();
 
         // this.instances = room.instances.map(i => i.clone());
         // this.instances = room.instances.map(i => {
@@ -300,13 +297,6 @@ export default class Game {
 
         this.instanceSets.get(ALL_UUID).add(inst);
         this.instanceSets.get(inst.spriteID)?.add(inst);
-
-        let pixiSpr = pixi.Sprite.from(sprite.canvas);
-        pixiSpr.x = inst.x;
-        pixiSpr.y = inst.y;
-        pixiSpr.pivot.set(sprite.originX, sprite.originY);
-        this.stage.addChild(pixiSpr);
-        inst.pixiSprite = pixiSpr;
     }
 
     currentRoom() : Room {
@@ -338,8 +328,6 @@ export default class Game {
 
         for(let inst of this.instances) {
             inst.update(inst);
-            inst.pixiSprite.x = inst.x;
-            inst.pixiSprite.y = inst.y;
         }
 
         for(let inst of this.instances) {
@@ -348,11 +336,14 @@ export default class Game {
         }
 
         // this.draw();
-        this.stage.sortChildren();
+        this.instances.sort((a, b) => 
+            this.instanceDepth.get(a) || 0 -
+            this.instanceDepth.get(b) || 0
+        )
         this.renderer.render(this.instances);
         
         this.tickNumber ++;
-        if(!this.isEnding) window.requestAnimationFrame(() => this.update());
+
     }
 
     // draw() {

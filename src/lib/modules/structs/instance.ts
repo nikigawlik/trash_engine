@@ -1,13 +1,10 @@
 import { resourceManager } from "../game/ResourceManager";
 import Sprite from "./sprite";
-import type * as pixi from 'pixi.js';
 
 export default class Instance {
     spriteID: string;
     x: number;
     y: number;
-    
-    _pixiSprite: pixi.Sprite | null;
 
     constructor(spriteID: string, x: number, y: number) {
         this.spriteID = spriteID; 

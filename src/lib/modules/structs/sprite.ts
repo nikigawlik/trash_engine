@@ -1,4 +1,3 @@
-import type { Set } from "typescript";
 import type ResourceManager from "../game/ResourceManager";
 import Resource from "./resource";
 import type Behaviour from "../game/behaviour";
@@ -131,10 +130,10 @@ return me;
                 }
             }
         } finally {            
-            console.log(`
-${globals.join(", ")}
-${code}
-            `)
+//             console.log(`
+// ${globals.join(", ")}
+// ${code}
+//             `)
         }
     }
 }

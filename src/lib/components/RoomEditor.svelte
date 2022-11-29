@@ -42,8 +42,8 @@ import { shrink } from "../transitions";
         // $roomStore.grid.snap = snapMode;
     // }
 
-    $: gridWidth = Math.max(room.grid.width, 1)
-    $: gridHeight = Math.max(room.grid.height, 1)
+    $: gridWidth = Math.max($roomStore.grid.width, 1)
+    $: gridHeight = Math.max($roomStore.grid.height, 1)
 
     // let bgColor = room?.backgroundColor || "#222222";
     // $: room && (room.backgroundColor = bgColor);

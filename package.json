@@ -19,7 +19,6 @@
     "vite-plugin-singlefile": "^0.12.2"
   },
   "dependencies": {
-    "pixi.js": "^6.5.3",
     "svelte-markdown": "^0.2.3"
   }
 }
