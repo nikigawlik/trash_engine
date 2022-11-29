@@ -62,22 +62,21 @@ vv START HERE vv
 - Refactor save data -> no complicated tree, more readable?
 <!-- ~~- [B] dont' clutter index db without reason~~ -->
 - [B] how are people going to make even a simple game? -> behaviour blocks
-- [B] Redo pop ups (modals) to actually block stuff and cover whole screen
+<!-- ~~- [B] Redo pop ups (modals) to actually block stuff and cover whole screen~~ -->
 - Resources card should have larger default width
 - Change image save format -> paletted
 <!-- ~~- [B] simple scripting doc -> can be opened next to scripting window~~ -->
 <!-- ~~- Sprite editor tabs dont look right~~ -->
 <!-- ~~- Clean out old files (static files)~~ -->
-- "custom properties" table in sprite (to work with the closure system)
+<!-- ~~- "custom properties" table in sprite (to work with the closure system)~~ -->
 - Ability to delete save files, lol. Also add dates to saves, lol
 - [B] Example/Skeleton project
 - use an about:blank iframe and fill it manually -> not relying on active internet connection
-- [B] Pixel perfect canvasses -> round to nearest multiple, instead of defaulting to fixed ratio
+- [B] [test] Pixel perfect canvasses -> round to nearest multiple, instead of defaulting to fixed ratio
 - Support TouchEvents
 - Game iframe fullscreen button
 - Shorter uuids
 - General way to show errors to the user
-- ok...
 - pop out script editors
 - event system
   - after create / first update (runs at first update)
@@ -94,7 +93,7 @@ vv START HERE vv
   - place (multiple)
 - web gl renderer
 - animation in sprite editor
-- type system (e.g. wall-type, enemy-type, etc.) or equivalent
+<!-- ~~- type system (e.g. wall-type, enemy-type, etc.) or equivalent~~ -->
 - revisit save/load -> delete saves, think about it some more?
 - expose error messages
   - general errors
@@ -105,6 +104,14 @@ vv START HERE vv
 <!-- ~~- make resources use a _map_ and shorter ids/symbols~~ -->
 - make resources use shorter ids/symbols (?)
 - proper scripting reference
+<!-- ~~- "are you sure you want to leave" thingy~~ -->
+
+Useful for metroidvania: 
+ - reusable behaviours (behaviour as resource)
+ - world map room arrangement
+ - rotating and scaling sprites
+ - destroy event
+ - animation
 
 
 blockers:

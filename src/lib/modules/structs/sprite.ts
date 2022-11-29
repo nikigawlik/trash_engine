@@ -106,6 +106,10 @@ function onUpdate(callback) {
     // closure magick 
     update = ((x) => (inst) => {x(inst); callback(inst);})(update); 
 }
+let me = {
+${props}
+    get spriteID() {return "${this.uuid}";},
+}
 ${
     this.behaviours.map(b => `
 /* ${b.name} */ {
@@ -113,11 +117,8 @@ ${b.code}
 } /* /${b.name} */`
     ).join("")
 }
-return {
-    update,
-${props}
-    get spriteID() {return "${this.uuid}";},
-}
+me.update = update;
+return me;
         `;
         try {
             this._instanceConstructor = new Function(...globalsMap, code);

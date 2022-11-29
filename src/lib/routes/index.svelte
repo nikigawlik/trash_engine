@@ -35,6 +35,11 @@ import * as ui from "./../modules/ui";
         }
     }
 
+    $: {
+        window.onbeforeunload = $data.editor.settings.showWarningBeforeClosingApp?
+          () => true : null;
+    }
+
     let init = async () => {
         console.log("--- window.onload ---")
         // initialize different modules

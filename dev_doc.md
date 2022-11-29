@@ -248,3 +248,72 @@ Type:Instance: {someLongVarName: number, b: number}
 
 Array[Instance (by object)]: [123, 323, 4, 12, 2, 12]
 Array[Instance (by prop)]: [123, 4, 2, 323, 12, 12]
+
+
+## type/polymorphism system for sprites
+
+problem: we often address a specific sprite like "is instance colliding with `wall`?"
+but sometimes we want multiple kinds of walls.
+
+e.g. door       is a type of wall
+     brick_wall is a type of wall
+     vine       is a type of wall
+
+this goes two ways:
+  1. a type/id is being passed to a function, like collisionAt(slf, wall, x, y)
+  2. all things of type share some behaviour, like all "mobs" run movement code.
+
+GameMaker solves both problems at once with an inheritance system.
+-> if door inherits from wall, passing `wall` to a function will also target doors.
+-> if goblin inherits from enemy, goblin will execute all of the same event code as enemy.
+
+Unity has a mix of solutions for this: Tags, layers, collision masks, manually checking for component presence, naming conventions of GameObjects.
+-> Unity doesn't have a unified solution, it's addressed separately in different situations.
+
+So:
+  1. How does the user say "a door is a wall"?
+  2. Does that setting also imply inheritance of behaviour?
+
+Solutions: 
+
+For 2. I should go with some component/modular system. Behaviour shouldn't be inherited, it should be shared in a "has a" kind of way. The obvious solution right now would be to make "behaviours" a separate resource, which can be added to the resource manager, and reused for different sprites.
+
+For 1. I should have some kind of classification system. At least the following types exist:
+ - sprite type: refers to all instances with a specific spriteID 
+ - tag type: refers to all instances tagged with a specific tag
+ - "all" type: refers to all instances
+ - filter type: a function that filters instances
+
+Implementation notes:
+
+ - for tag we can use WeakSet -> every tag is a weak set, containing all the instances.
+ - for sprite we can use string comparison, but it could also be implemented as a weak set.
+ - all type could be a special key word, or, again, also a weak set containing all instances. :p
+ - filter would need to be a special case, because it's dynamic
+
+what does the user pass to a lib function like collisionAt?
+
+- a uuid string? -> the WeakSets could have uuids of their own. there is a uuid to WeakSet converter somewhere.
+- a WeakSet? -> I need to change the value of the resource global property to a WeakSet.
+
+Full weak set based implementation:
+
+`instance` is `thing`? == thing.has(instance)
+
+ - properties now point to WeakSets
+   - the global property `<sprite>` contains a weak set of all instances of `<wall>`
+   - the global property `all` contains a weak set of all instances
+   - the global property `noone` containts a empty weak set
+   - the global property `<tag>` contains a weak set of all instances tagged with `<tag>`
+ - to iterate a `thing: WeakMap`, we iterate all instances and do `thing.has(instance)`
+ - this does not fuck up garbage collection
+ - the lib function `tag(instance: SpriteInstance, tagName: string)` sets/modifies `window[tagName]` allowing for analogous use to sprites
+ - there should also be a tagging funtion in the UI
+
+- downsides: the globabl properties are now something that users don't have any relationship to
+- alternative: 
+  - global properties are not WeakSets, but rather uuids
+  - there is a simple lookup map that contains the actual weak sets
+
+
+

@@ -9,6 +9,7 @@ interface GlobalSettings {
             darkMode: boolean,
             subFolders: boolean,
             openResourcesMaximized: boolean,
+            showWarningBeforeClosingApp: boolean,
         }
     }
 }
@@ -19,6 +20,7 @@ const { subscribe, set, update } = writable({
             darkMode: true,
             subFolders: false,
             openResourcesMaximized: true,
+            showWarningBeforeClosingApp: true,
         }
     }
 } as GlobalSettings);

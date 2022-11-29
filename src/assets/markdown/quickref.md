@@ -4,6 +4,8 @@
 - `roomHeight`
 - `mouseX`
 - `mouseY`
+- `all`
+- `noone`
 - `spawn(sprite: string, x: number, y: number)`
 - `destroy(instance: SpriteInstance)`
 - `find(sprite: string)`
@@ -18,3 +20,5 @@
 - `collisionAt(instance: SpriteInstance, spriteID: string, x: number, y: number)`
 - `instancesAt(instance: SpriteInstance, spriteID: string, x: number, y: number)`
 - `lerp(a: number, b: number, factor: number)`
+- `persist(instance: SpriteInstance)`
+- `tag(instance: SpriteInstance, tagName: string)`

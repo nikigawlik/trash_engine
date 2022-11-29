@@ -189,7 +189,7 @@ import { shrink } from "../transitions";
                 class:rotated={!spriteOpen}
             >sprites</button></h4>
             {#if spriteOpen}
-            <div class="sprite-select scroll-box" transition:shrink={{delay: 0, duration: 100}}>
+            <div class="sprite-select scroll-box" transition:shrink|local={{delay: 0, duration: 100}}>
                 {#each sprites as spr (spr.uuid)}
                     <button 
                     data-uuid={spr.uuid} 
@@ -211,7 +211,7 @@ import { shrink } from "../transitions";
                 class:rotated={!configOpen}
             >config</button></h4>
             {#if configOpen}
-            <div class="room-config"  transition:shrink={{delay: 0, duration: 100}}>
+            <div class="room-config"  transition:shrink|local={{delay: 0, duration: 100}}>
                 <!-- <label for="view_mode">view</label>
                 <label><input disabled type="radio" name="view_mode" value="2d" checked />  2D </label>
                 <label><input disabled type="radio" name="view_mode" value="3d" /> 3D </label>
@@ -284,6 +284,7 @@ import { shrink } from "../transitions";
 
         display: flex;
         flex-direction: column;
+        flex-wrap: nowrap;
     }
 
     .scroll-box {
@@ -302,7 +303,7 @@ import { shrink } from "../transitions";
         /* flex-grow: 0; */
         /* flex-direction: row; */
         flex-direction: column;
-        flex-wrap: wrap;
+        /* flex-wrap: wrap; */
         gap: 0.1rem;
         
     }

@@ -11,6 +11,10 @@ interface SpriteInstance {
     update: Function,
 }
 
+
+const ALL_UUID = "ddf24ad7-6386-4f3e-80a1-a7f18eb01aba";
+const NOONE_UUID = "a33e372b-c773-4a10-9106-83bae17c9626";
+
 export default class Game {
     tickRate: number;
     currentRoomUUID: string;
@@ -35,8 +39,10 @@ export default class Game {
     pressedMap: Map<string, boolean>
     releasedMap: Map<string, boolean>
 
-    persistent: WeakSet<SpriteInstance>
+    upForDeletion: WeakSet<SpriteInstance>
 
+    persistent: WeakSet<SpriteInstance>
+    instanceSets: Map<string, WeakSet<SpriteInstance>>
 
     constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement) {
         this.tickRate = 60;
@@ -52,6 +58,8 @@ export default class Game {
         this.roomNumber = 0;
         this.actualRoomNumber = 0;
         this.persistent = new WeakSet();
+        this.instanceSets = new Map();
+        this.upForDeletion = new WeakSet();
         
         this.keyMap = new Map<string, boolean>();
         this.keyMapSnapshot = new Map<string, boolean>();
@@ -63,6 +71,10 @@ export default class Game {
             autoDensity: false,
             antialias: false,
         });
+
+        // safety to combat problems with hot-reloading in development
+        if(window["_game"]) window["_game"].quit()
+        window["_game"] = this;
         
         // TODO weird and hacky
         // window.setTimeout(() => this.init(), 10);
@@ -78,7 +90,12 @@ export default class Game {
                 // sprite._updateFunction = new Function(sprite.updateCode);
                 sprite.generateCode();
             }
+            this.instanceSets.set(sprite.uuid, new WeakSet());
         }
+
+        // special sets
+        this.instanceSets.set(ALL_UUID, new WeakSet());
+        this.instanceSets.set(NOONE_UUID, new WeakSet());
 
         // make resource accesors
 
@@ -95,9 +112,12 @@ export default class Game {
         defineLibProperty("roomHeight", () => this._cachedRoom?.height);
         defineLibProperty("mouseX", () => this.mouseX);
         defineLibProperty("mouseY", () => this.mouseY);
+        defineLibProperty("all", () => ALL_UUID);
+        defineLibProperty("noone", () => NOONE_UUID);
 
         defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
-        defineLibFunction("destroy", (instance: SpriteInstance) => this.destroyInstance(instance))
+        defineLibFunction("destroyImmediate", (instance: SpriteInstance) => this.destroyInstance(instance))
+        defineLibFunction("destroy", (instance: SpriteInstance) => this.upForDeletion.add(instance))
         defineLibFunction("find", (sprite: string) => this.instances.find(x => x.spriteID == sprite))
         defineLibFunction("findAll", (sprite: string) => this.instances.filter(x => x.spriteID == sprite))
         defineLibFunction("setDepth", (self: SpriteInstance, depth: number) => {
@@ -116,11 +136,17 @@ export default class Game {
         defineLibFunction("keyIsPressed", (...codes: string[]) => this.checkKeys("pressed", ...codes) )
         defineLibFunction("keyIsReleased", (...codes: string[]) => this.checkKeys("released", ...codes) )
         
-        defineLibFunction("collisionAt", (instance: SpriteInstance, spriteID: string, x: number, y: number) => this.collisionAt(instance, spriteID, x, y) )
+        defineLibFunction("collisionAt", (instance: SpriteInstance, filter: string, x: number, y: number) => this.collisionAt(instance, filter, x, y) )
         defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
-        defineLibFunction("instancesAt", (instance: SpriteInstance, spriteID: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, spriteID, x, y)))
+        defineLibFunction("instancesAt", (instance: SpriteInstance, filter: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, filter, x, y)))
         
         defineLibFunction("persist", (instance: SpriteInstance) => this.persistent.add(instance))
+        defineLibFunction("tag", (instance: SpriteInstance, tagName: string) => {
+            if(!this.instanceSets.has(tagName)) 
+                this.instanceSets.set(tagName, new WeakSet())
+            let ws = this.instanceSets.get(tagName);
+            ws.add(instance);
+        })
 
         window.onkeydown = (event: KeyboardEvent) => {
             // keys.set(event.key, true);
@@ -176,11 +202,12 @@ export default class Game {
         if(instance.pixiSprite) this.stage.removeChild(instance.pixiSprite);
     }
 
-    collisionAt(instance: SpriteInstance, spriteID: string, x: number, y: number): boolean {
-        // const all = spriteID == "all";
+    collisionAt(instance: SpriteInstance, filter: string, x: number, y: number): boolean {
+        const ws = this.instanceSets.get(filter);
+        if(!ws) return false;
 
         for(let other of this.instances) {
-            if(other != instance && other.spriteID == spriteID) {
+            if(other != instance && ws.has(other)) {
                 if(this.spriteIntersect(instance.spriteID, x, y, other.spriteID, other.x, other.y)) {
                     return true;
                 }
@@ -189,13 +216,12 @@ export default class Game {
         return false;
     }
 
-    * _iterateCollisionsAt(instance: SpriteInstance, spriteID: string, x: number, y: number) {
-        const all = spriteID == "all";
+    * _iterateCollisionsAt(instance: SpriteInstance, filter: string, x: number, y: number) {
+        const ws = this.instanceSets.get(filter);
+        if(!ws) return false;
 
         for(let other of this.instances) {
-            if(other == instance) continue;
-
-            if(all || other.spriteID == spriteID) {
+            if(other != instance && ws.has(other)) {
                 if(this.spriteIntersect(instance.spriteID, x, y, other.spriteID, other.x, other.y)) {
                     yield other;
                 }
@@ -267,6 +293,9 @@ export default class Game {
         let sprite = this.resourceManager.getResource(inst.spriteID) as Sprite;
         // if(!sprite || !sprite.canvas) return;
 
+        this.instanceSets.get(ALL_UUID).add(inst);
+        this.instanceSets.get(inst.spriteID)?.add(inst);
+
         let pixiSpr = pixi.Sprite.from(sprite.canvas);
         pixiSpr.x = inst.x;
         pixiSpr.y = inst.y;
@@ -306,6 +335,11 @@ export default class Game {
             inst.update(inst);
             inst.pixiSprite.x = inst.x;
             inst.pixiSprite.y = inst.y;
+        }
+
+        for(let inst of this.instances) {
+            if(this.upForDeletion.has(inst))
+                this.destroyInstance(inst);
         }
 
         // this.draw();
