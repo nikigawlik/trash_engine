@@ -2,8 +2,9 @@ import * as pixi from 'pixi.js';
 import type Room from "../structs/room";
 import Sprite from "../structs/sprite";
 import type ResourceManager from "./ResourceManager";
+import Renderer from "./renderer"
 
-interface SpriteInstance {
+export interface SpriteInstance {
     x: number,
     y: number,
     spriteID: string,
@@ -25,7 +26,7 @@ export default class Game {
     isEnding: boolean;
 
     instances: SpriteInstance[];
-    renderer: pixi.Renderer;
+    renderer: Renderer;
     stage: pixi.Container;
 
     mouseX: number
@@ -66,11 +67,12 @@ export default class Game {
         this.pressedMap = new Map<string, boolean>();
         this.releasedMap = new Map<string, boolean>();
 
-        this.renderer = new pixi.Renderer({
-            view: canvas,
-            autoDensity: false,
-            antialias: false,
-        });
+        // this.renderer = new pixi.Renderer({
+        //     view: canvas,
+        //     autoDensity: false,
+        //     antialias: false,
+        // });
+        this.renderer = new Renderer(canvas, resourceManager);
 
         // safety to combat problems with hot-reloading in development
         if(window["_game"]) window["_game"].quit()
@@ -256,7 +258,10 @@ export default class Game {
     setRoom(roomUUID: string) {
         this.currentRoomUUID = roomUUID;
         const room = this.currentRoom();
-        this.renderer.resize(room.width, room.height)
+        // this.renderer.resize(room.width, room.height)
+        this.canvas.width = room.width;
+        this.canvas.height = room.height;
+
         let bgC = room.backgroundColor;
         if(bgC.length == 4) {
             bgC = "#" + bgC.slice(1).split("").map(x => x+x).join("");
@@ -344,7 +349,7 @@ export default class Game {
 
         // this.draw();
         this.stage.sortChildren();
-        this.renderer.render(this.stage);
+        this.renderer.render(this.instances);
         
         this.tickNumber ++;
         if(!this.isEnding) window.requestAnimationFrame(() => this.update());

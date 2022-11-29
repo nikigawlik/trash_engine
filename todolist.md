@@ -105,11 +105,12 @@ vv START HERE vv
 - make resources use shorter ids/symbols (?)
 - proper scripting reference
 <!-- ~~- "are you sure you want to leave" thingy~~ -->
+- replace resourceManager with WeakMap
 
 Useful for metroidvania: 
  - reusable behaviours (behaviour as resource)
- - world map room arrangement
  - rotating and scaling sprites
+ - world map room arrangement
  - destroy event
  - animation
 
