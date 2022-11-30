@@ -38,3 +38,7 @@ export function parseIntSafe(string: string, minValue = -Infinity) {
     if(isNaN(intValue)) intValue = 0;
     return Math.max(minValue, intValue);
 }
+
+export function mod(n: number, m: number) {
+    return ((n % m) + m) % m;
+}

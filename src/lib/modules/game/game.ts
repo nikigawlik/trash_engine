@@ -1,7 +1,9 @@
-import type Room from "../structs/room";
+import Room from "../structs/room";
 import Sprite from "../structs/sprite";
 import type ResourceManager from "./ResourceManager";
 import Renderer from "./renderer"
+import { mod } from "./utils";
+import type Instance from "../structs/instance";
 
 export interface SpriteInstance {
     x: number,
@@ -10,7 +12,7 @@ export interface SpriteInstance {
     imgScaleY: number,
     imgRotation: number,
     imgAlpha: number,
-    
+
     spriteID: string,
     update: Function,
 }
@@ -21,12 +23,12 @@ const NOONE_UUID = "a33e372b-c773-4a10-9106-83bae17c9626";
 
 export default class Game {
     tickRate: number;
-    currentRoomUUID: string;
     resourceManager: ResourceManager;
-    _cachedRoom: Room|null;
     canvas: HTMLCanvasElement;
     tickNumber: number;
     isEnding: boolean;
+    currentRoom: Room
+    queuedRoom: Room
 
     instances: SpriteInstance[];
     renderer: Renderer;
@@ -34,38 +36,41 @@ export default class Game {
     mouseX: number
     mouseY: number
 
-    roomNumber: number
-    actualRoomNumber: number
-
     keyMap: Map<string, boolean>
     keyMapSnapshot: Map<string, boolean>
     pressedMap: Map<string, boolean>
     releasedMap: Map<string, boolean>
 
-    upForDeletion: WeakSet<SpriteInstance>
-
-    persistent: WeakSet<SpriteInstance>
+    
+    persistent: WeakMap<SpriteInstance, number>
     instanceSets: Map<string, WeakSet<SpriteInstance>>
+    upForDeletion: WeakSet<SpriteInstance>
+    instanceArrays: WeakMap<Room, SpriteInstance[]>
+    instanceSpriteInstanceMap: WeakMap<Instance, SpriteInstance>
 
     instanceDepth: WeakMap<SpriteInstance, number>
 
+
     constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement) {
         this.tickRate = 60;
-        this.currentRoomUUID = ""; // actually set later using setRoom
         this.resourceManager = resourceManager;
         this.canvas = canvas;
-        this._cachedRoom = null;
         this.tickNumber = 0;
         this.instances = [];
         this.isEnding = false;
         this.mouseX = 0;
         this.mouseY = 0;
-        this.roomNumber = 0;
-        this.actualRoomNumber = 0;
-        this.persistent = new WeakSet();
+
+        this.persistent = new WeakMap();
         this.instanceSets = new Map();
         this.upForDeletion = new WeakSet();
+        this.instanceArrays = new WeakMap();
+        this.instanceSpriteInstanceMap = new WeakMap();
         
+        this.currentRoom = null;
+        this.queuedRoom = null;
+        
+
         this.keyMap = new Map<string, boolean>();
         this.keyMapSnapshot = new Map<string, boolean>();
         this.pressedMap = new Map<string, boolean>();
@@ -112,12 +117,13 @@ export default class Game {
             })
         }
 
-        defineLibProperty("roomWidth", () => this._cachedRoom?.width);
-        defineLibProperty("roomHeight", () => this._cachedRoom?.height);
+        defineLibProperty("roomWidth", () => this.currentRoom?.width);
+        defineLibProperty("roomHeight", () => this.currentRoom?.height);
         defineLibProperty("mouseX", () => this.mouseX);
         defineLibProperty("mouseY", () => this.mouseY);
         defineLibProperty("all", () => ALL_UUID);
         defineLibProperty("noone", () => NOONE_UUID);
+        defineLibProperty("currentRoomID", () => this.currentRoom.uuid);
 
         defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
         defineLibFunction("destroyImmediate", (instance: SpriteInstance) => this.destroyInstance(instance))
@@ -127,15 +133,11 @@ export default class Game {
         defineLibFunction("setDepth", (self: SpriteInstance, depth: number) => {
             this.instanceDepth.set(self, depth);
         })
-        defineLibFunction("goToNextRoom", () => {
-            this.roomNumber++;
-        })
-        defineLibFunction("goToPreviousRoom", () => {
-            this.roomNumber--;
-        })
-        defineLibFunction("moveRooms", (difference: number) => {
-            this.roomNumber += difference;
-        })
+        defineLibFunction("goToNextRoom", () => this.moveRoom(+1) )
+        defineLibFunction("goToPreviousRoom", () => this.moveRoom(-1) )
+        defineLibFunction("goToRoom", (roomID: string) => this.setRoom(roomID) )
+        defineLibFunction("moveRooms", (difference: number) => this.moveRoom(difference) )
+        
         defineLibFunction("keyIsDown", (...codes: string[]) => this.checkKeys("down", ...codes) )
         defineLibFunction("keyIsPressed", (...codes: string[]) => this.checkKeys("pressed", ...codes) )
         defineLibFunction("keyIsReleased", (...codes: string[]) => this.checkKeys("released", ...codes) )
@@ -144,7 +146,8 @@ export default class Game {
         defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
         defineLibFunction("instancesAt", (instance: SpriteInstance, filter: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, filter, x, y)))
         
-        defineLibFunction("persist", (instance: SpriteInstance) => this.persistent.add(instance))
+        defineLibFunction("persist", (instance: SpriteInstance, level: number = 1) => this.persistent.set(instance, level))
+
         defineLibFunction("tag", (instance: SpriteInstance, tagName: string) => {
             if(!this.instanceSets.has(tagName)) 
                 this.instanceSets.set(tagName, new WeakSet())
@@ -172,7 +175,7 @@ export default class Game {
         if(rooms.length == 0) {
             console.warn("no rooms found. Possibly a side effect of invalid/missing game data.")
         } else { 
-            this.setRoom(rooms[this.roomNumber].uuid);
+            this._setRoomDirect(rooms[0]);
 
             // start
             this.mainLoop();
@@ -203,8 +206,9 @@ export default class Game {
         inst.x = x;
         inst.y = y;
         this.instances.push(inst)
-        this._registerInstance(inst);
-        // inst.create();
+        this.instanceSets.get(ALL_UUID).add(inst);
+        this.instanceSets.get(inst.spriteID)?.add(inst);
+
         return inst;
     }
 
@@ -264,53 +268,55 @@ export default class Game {
     //     ...
     // }
 
+    moveRoom(delta: number) {
+        let rooms = this.resourceManager.getRooms();
+        let currentID = rooms.indexOf(this.currentRoom);
+        if(currentID < 0) return;
+        let newID = mod(currentID + delta, rooms.length);
+        
+        this.queuedRoom = rooms[newID]; 
+    }
+
     setRoom(roomUUID: string) {
-        this.currentRoomUUID = roomUUID;
-        const room = this.currentRoom();
-        // this.renderer.resize(room.width, room.height)
+        let room = this.resourceManager.getResourceOfType(roomUUID, Room) as Room;
+        if(!room) return;
+        this.queuedRoom = room;
+    }
+
+    _setRoomDirect(room: Room) {
+        this.currentRoom = room;
         this.canvas.width = room.width;
         this.canvas.height = room.height;
 
-        // let bgC = room.backgroundColor;
-        // if(bgC.length == 4) {
-        //     bgC = "#" + bgC.slice(1).split("").map(x => x+x).join("");
-        // }
-        // console.log(`${room.backgroundColor} -> ${bgC}`);
-
-        // TODO kinda hacky
         document.body.style.backgroundColor = room.backgroundColor;
 
-        // this.instances = room.instances.map(i => i.clone());
-        // this.instances = room.instances.map(i => {
-        //     let sprite = this.resourceManager.getResource(i.spriteID) as Sprite;
-        //     return sprite._instanceConstructor(i.x, i.y);
-        // })
+        // go through room instances
+        // for each one: either recreate (default) or re-use(persistent)
+        // superpersistent instances are also moved to next room
 
-        this.instances = this.instances.filter(x => this.persistent.has(x));
-
-        // re-register persistent instances
-        for(let inst of this.instances) {
-            this._registerInstance(inst)
-        }
+        // keep persistence level 2 instances
+        this.instances = this.instances.filter(x => this.persistent.get(x) >= 2);
 
         for(let roomInst of room.instances) {
-            this.createInstance(roomInst.spriteID, roomInst.x, roomInst.y)
+            let existing = this.instanceSpriteInstanceMap.get(roomInst);
+            let pLevel = (existing && this.persistent.get(existing)) || 0;
+
+            // persistence level 0 are respawned, level 1 instances are reused
+            if(!existing || pLevel <= 0) {
+                // respawned
+                let inst = this.createInstance(roomInst.spriteID, roomInst.x, roomInst.y)
+                this.instanceSpriteInstanceMap.set(roomInst, inst);
+            } else
+            if(pLevel == 1) {
+                // reuse
+                this.instances.push(existing);
+            }
         }
     }
 
     _registerInstance(inst: SpriteInstance) {
         let sprite = this.resourceManager.getResource(inst.spriteID) as Sprite;
         // if(!sprite || !sprite.canvas) return;
-
-        this.instanceSets.get(ALL_UUID).add(inst);
-        this.instanceSets.get(inst.spriteID)?.add(inst);
-    }
-
-    currentRoom() : Room {
-        if(!this._cachedRoom || this._cachedRoom.uuid != this.currentRoomUUID) {
-            this._cachedRoom = this.resourceManager.getResource(this.currentRoomUUID) as Room;
-        }
-        return this._cachedRoom;
     }
 
     quit() {
@@ -319,13 +325,6 @@ export default class Game {
     }
 
     update() {
-        if(this.roomNumber != this.actualRoomNumber) {
-            let allRooms = this.resourceManager.getRooms();
-            this.roomNumber = this.roomNumber % allRooms.length;
-            this.actualRoomNumber = this.roomNumber;
-            this.setRoom(allRooms[this.actualRoomNumber].uuid);
-        }
- 
         for(let [key, value] of this.keyMap) {
             const previous = this.keyMapSnapshot.has(key) && this.keyMapSnapshot.get(key);
             this.pressedMap.set(key, !previous && value);
@@ -348,6 +347,12 @@ export default class Game {
             this.instanceDepth.get(b) || 0
         )
         this.renderer.render(this.instances);
+
+        // change rooms
+        if(this.queuedRoom != null) {
+            this._setRoomDirect(this.queuedRoom);
+            this.queuedRoom = null;
+        }
         
         this.tickNumber ++;
 

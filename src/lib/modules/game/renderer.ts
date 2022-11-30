@@ -319,14 +319,15 @@ function makeSpriteMap(sprites: Sprite[]): {canvas: HTMLCanvasElement, coords: W
             for(let y = 0; y <= h-sh && searching; y++) 
             for(let x = 0; x <= w-sw && searching; x++) {
                 // 1 px extra space
-                const r = {left: x-1, top: y-1, right: x+sw+1, bottom: y+sh+1};
+                const gap = 1;
+                const r = {left: x-gap, top: y-gap, right: x+sw+gap, bottom: y+sh+gap};
                 if(freeAt(r)) {
                     placed.push(r);
                     coords.set(spr, {
-                        x: r.left,
-                        y: r.top,
-                        width: (r.right - r.left),
-                        height: (r.bottom - r.top),
+                        x: r.left+gap,
+                        y: r.top+gap,
+                        width: (r.right - r.left - gap*2),
+                        height: (r.bottom - r.top - gap*2),
                     });
                     searching = false;
                     console.log(`placed ${spr.name} at ${r.left} ${r.top}`);
