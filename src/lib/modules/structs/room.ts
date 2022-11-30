@@ -13,8 +13,8 @@ export default class Room extends Resource {
         snap: "center" | "corner", 
         enabled: boolean
     }
-    constructor(name = "room", resourceManager: ResourceManager) {
-        super(name, resourceManager);
+    constructor(name = "room") {
+        super(name);
         this.width = ~~(540 * 12/9);
         this.height = 540;
         this.instances = [];

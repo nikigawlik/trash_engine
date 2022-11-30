@@ -1,8 +1,7 @@
 import type { SvelteComponent } from "svelte"
+import Resource from "../structs/resource"
 
-export default class Behaviour {
-    uuid: string
-    name: string
+export default class Behaviour extends Resource {
     props: string[]
     code: string
     iconID: number
@@ -10,8 +9,7 @@ export default class Behaviour {
     svelteComponent: typeof SvelteComponent
     // drawCode: string
     constructor(name = "UnnamedBehaviour") {
-        this.uuid = crypto.randomUUID();
-        this.name = name;
+        super(name)
         this.props = [];
         this.code = "";
         this.iconID = 0;

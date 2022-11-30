@@ -4,6 +4,7 @@ import type Folder from "../structs/folder";
 import type Resource from "../structs/resource";
 import Room from "../structs/room";
 import Sprite from "../structs/sprite";
+import Behaviour from "./behaviour";
 import { assert, rectInside } from "./utils";
 
 console.log("resource_manager.ts loading")
@@ -12,7 +13,7 @@ const defaultSettings = {
     title: "your game's name here",
 }
 
-const saveVersion = 2;
+const saveVersion = 3;
 interface SaveData {
     resources: Resource[]
     settings: typeof defaultSettings,
@@ -24,11 +25,11 @@ interface SaveData {
 export default class ResourceManager {
     settings: typeof defaultSettings;
     stores: Map<string, Writable<Resource>> // TODO weak map -> needs symbol
-    _resources: Map<string, Resource>
+    resources: Map<string, Resource>
     constructor() {
         this.settings = defaultSettings;
         this.stores = new Map();
-        this._resources = new Map();
+        this.resources = new Map();
     }
 
     static async init() {
@@ -36,11 +37,11 @@ export default class ResourceManager {
     }
 
     addResource<T extends Resource>(resource: T) { 
-        this._resources.set(resource.uuid, resource);
+        this.resources.set(resource.uuid, resource);
     }
 
     getResourceOfType(uuid: string, type: typeof Resource): Resource | null {
-        let r = this._resources.get(uuid);
+        let r = this.resources.get(uuid);
         if(r instanceof type)
             return r;
         else
@@ -48,7 +49,7 @@ export default class ResourceManager {
     }
 
     getResource(uuid: string) {
-        return this._resources.get(uuid) || null;
+        return this.resources.get(uuid) || null;
     }
 
     deleteResource(uuid: string) {
@@ -57,7 +58,7 @@ export default class ResourceManager {
             this.stores.get(uuid).set(null);
         } else {
             // delete directly
-            this._resources.delete(uuid);
+            this.resources.delete(uuid);
             this.stores.delete(uuid);
         }
     }
@@ -69,17 +70,17 @@ export default class ResourceManager {
         
         if(!(r1 && r2)) return false;
 
-        let resources = Array.from(this._resources.values());
+        let resources = Array.from(this.resources.values());
         
         let removeIndex = resources.findIndex(x => x.uuid == resourceUUID);
         resources.splice(removeIndex, 1);
 
         let insertIndex = resources.findIndex(x => x.uuid == beforeResourceUUID);
-        resources.splice(insertIndex, 0, this._resources.get(resourceUUID));
+        resources.splice(insertIndex, 0, this.resources.get(resourceUUID));
 
-        this._resources.clear();
+        this.resources.clear();
         for(let res of resources) {
-            this._resources.set(res.uuid, res);
+            this.resources.set(res.uuid, res);
         }
 
         // this.stores.get(resourceUUID)?.update(x=>x);
@@ -89,7 +90,7 @@ export default class ResourceManager {
     }
 
     getAllOfResourceType(type: typeof Resource): Resource[] {
-        return Array.from(this._resources.values()).filter(x => x instanceof type);
+        return Array.from(this.resources.values()).filter(x => x instanceof type);
     }
 
     getRooms(): Room[] {
@@ -98,6 +99,10 @@ export default class ResourceManager {
 
     getSprites(): Sprite[] {
         return this.getAllOfResourceType(Sprite) as Sprite[];
+    }
+
+    getBehaviours(): Behaviour[] {
+        return this.getAllOfResourceType(Behaviour) as Behaviour[];
     }
 
     getResourceStore(uuid: string): Writable<Resource> | null {
@@ -112,7 +117,7 @@ export default class ResourceManager {
         store.subscribe(value => {
             if(!value && resource) {
                 // this is either user triggered, or triggered by "removeResource"
-                this._resources.delete(value.uuid);
+                this.resources.delete(value.uuid);
                 this.stores.delete(value.uuid);
             }
             else if(value != resource) {
@@ -136,7 +141,7 @@ export default class ResourceManager {
     async getSerializedData() {
         let data: SaveData = {
             version: saveVersion,
-            resources: Array.from(this._resources.values()),
+            resources: Array.from(this.resources.values()),
             settings: this.settings,
         }
         
@@ -145,14 +150,27 @@ export default class ResourceManager {
 
     async setFromSerializedData(data: any) {
         // console.log(result);   
-        data = await deserialize(data);
+        let additionalProperties = new WeakMap<any, any>();
+        data = await deserialize(data, additionalProperties);
         console.log(`- resources loaded`)
-        console.log(data); 
+        console.log(data);
+
+        let extractBehavioursFromSprite = (resource: Resource) => {
+            if(resource instanceof Sprite) {
+                let behaviours = additionalProperties.get(resource)?.behaviours;
+                if(behaviours)
+                for(let b of behaviours) {
+                    resource.behaviourIDs.push(b.uuid);
+                    this.resources.set(b.uuid, b);
+                }
+            }
+        }
 
         let setResourcesFromLegacyFolder = (root: Folder) => {
-            this._resources.clear();
+            this.resources.clear();
             for(let res of root.iterateAllResources()) {
-                this._resources.set(res.uuid, res)
+                this.resources.set(res.uuid, res)
+                extractBehavioursFromSprite(res);
             }
         }
 
@@ -170,19 +188,23 @@ export default class ResourceManager {
             this.settings = d.settings;
         } else if(data.version == 2) {
             const d: SaveData = data;
-            this._resources.clear();
+            this.resources.clear();
             for(let res of d.resources) {
-                this._resources.set(res.uuid, res)
+                this.resources.set(res.uuid, res)
+                extractBehavioursFromSprite(res);
+            }
+            this.settings = d.settings;
+        } else if(data.version == 3) {
+            const d: SaveData = data;
+            this.resources.clear();
+            for(let res of d.resources) {
+                this.resources.set(res.uuid, res)
             }
             this.settings = d.settings;
         }
         else{
             console.error(`Unrecognized version ${data.version}`);
             return;
-        }
-
-        for(let obj of this._resources.values()) {
-            obj._resourceManager = this;
         }
 
         this.refresh();

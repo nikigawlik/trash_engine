@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { CardInstance } from "../modules/cardManager";
-import type Behaviour from "../modules/game/behaviour";
+import Behaviour from "../modules/game/behaviour";
 import { resourceManager } from "../modules/game/ResourceManager";
 import type Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
@@ -23,7 +23,7 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
     $: behaviours = sprite.behaviours;
 
     function removeBehaviour(behaviour: Behaviour) {
-        sprite.behaviours = sprite.behaviours.filter(x => x != behaviour);
+        sprite.behaviourIDs = sprite.behaviourIDs.filter(x => x != behaviour.uuid);
         behaviours = sprite.behaviours; // trigger reactivity
     }
 
@@ -55,8 +55,9 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
             data: {},
             resolve,
         }));
-        if(result) {
-            sprite.behaviours.push(result);
+        if(result instanceof Behaviour) {
+            $resourceManager.addResource(result);
+            sprite.behaviourIDs.push(result.uuid);
             sprite = sprite;
         }
     }

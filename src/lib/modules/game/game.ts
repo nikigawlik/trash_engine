@@ -108,7 +108,7 @@ export default class Game {
 
         // make resource accesors
 
-        for (const resource of this.resourceManager._resources.values()) {
+        for (const resource of this.resourceManager.resources.values()) {
             // accessing a sprite by name, will try to return an instance of that sprite 
             Object.defineProperty(window, resource.name, {
                 configurable: true,

@@ -13,6 +13,7 @@
 
 <script lang="ts">
 import { openCard } from "../modules/cardManager";
+    import { resourceManager } from "../modules/game/ResourceManager";
 import type Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
 import Sprite from "../modules/structs/sprite";
@@ -53,10 +54,10 @@ import SpriteIcon from "./SpriteIcon.svelte";
                     let confirmed = await asyncYesNoPopup(`Delete ${resource.name}?`);
         
                     if(confirmed) {   
-                        resource.removeSelf();
+                        $resourceManager.deleteResource(resource.uuid);
                         let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${resource.uuid}"]`);
                         if(resourceWindow) resourceWindow.remove();
-                        resource._resourceManager.refresh();   
+                        $resourceManager.refresh();   
                     }
                 }
             },
@@ -67,7 +68,7 @@ import SpriteIcon from "./SpriteIcon.svelte";
                     let name = await asyncGetTextPopup(`Choose new name:`, resource.name);
                     if(name) {
                         resource.name = name;
-                        resource._resourceManager.refresh();
+                        $resourceManager.refresh();
                     }
                 }
             }
@@ -99,7 +100,7 @@ import SpriteIcon from "./SpriteIcon.svelte";
         let otherUUID = evt.dataTransfer?.getData("text/uuid");
         if(otherUUID) {
             // console.log(otherUUID);
-            const _resourceManager = selfResource._resourceManager;
+            const _resourceManager = $resourceManager;
             let other = _resourceManager.getResource(otherUUID);
 
             if(!other) {

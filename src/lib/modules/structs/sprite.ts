@@ -1,9 +1,6 @@
-import type ResourceManager from "../game/ResourceManager";
+import Behaviour from "../game/behaviour";
+import { resourceManager } from "../game/ResourceManager";
 import Resource from "./resource";
-import type Behaviour from "../game/behaviour";
-
-console.log("sprite_editor.ts loading")
-
 
 export default class Sprite extends Resource {
     canvas: HTMLCanvasElement | null;
@@ -13,17 +10,12 @@ export default class Sprite extends Resource {
     bBoxY: number;
     bBoxWidth: number;
     bBoxHeight: number;
-    behaviours: Behaviour[];
-
-    // initCode: string;
-    // updateCode: string;
-    // _initFunction: Function;
-    // _updateFunction: Function;
+    behaviourIDs: string[];
 
     _instanceConstructor: Function // function made from auto-generated code, that creates an instance of the sprite
 
-    constructor(name="sprite", resourceManager: ResourceManager) {
-        super(name, resourceManager);
+    constructor(name="sprite") {
+        super(name);
         this.canvas = null;
         this.originX = 0;
         this.originY = 0;
@@ -31,13 +23,12 @@ export default class Sprite extends Resource {
         this.bBoxY = 0;
         this.bBoxWidth = 0;
         this.bBoxHeight = 0;
-        this.behaviours = [];
-        // this.initCode = "// this code is executed when the sprite is created\n";
-        // this.updateCode = "// this code is executed every update (60 times per second)\n";
+        this.behaviourIDs = [];
     }
 
-    // get bBoxWidth() { return this.canvas?.width; }
-    // get bBoxHeight() { return this.canvas?.height; }
+    get behaviours() {
+        return this.behaviourIDs.map(x => resourceManager.get().getResourceOfType(x, Behaviour) as Behaviour);
+    }
 
     getCopy() {
         let newCanvas = document.createElement("canvas");

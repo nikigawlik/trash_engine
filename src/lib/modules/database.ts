@@ -185,7 +185,7 @@ function makeUnrecognizedTypeError(typeName) {
     return new UnrecognizedTypeError(`Unknown type: ${typeName}. Recognized types: ${recogTypes.join(", ")}`);
 }
 
-export async function deserialize(obj: any | null) {
+export async function deserialize(obj: any | null, additionalProperties: WeakMap<object, object>) {
     var copy : any;
 
     // the 3 simple types, and null or undefined
@@ -212,7 +212,7 @@ export async function deserialize(obj: any | null) {
     if (obj instanceof Array) {
         copy = [];
         for (var i = 0, len = obj.length; i < len; i++) {
-            copy[i] = await deserialize(obj[i]);
+            copy[i] = await deserialize(obj[i], additionalProperties);
         }
         return copy;
     }
@@ -246,18 +246,23 @@ export async function deserialize(obj: any | null) {
                 copy = new constructor();
                 
                 for (var attr in obj) {
-                    if (
-                        obj.hasOwnProperty(attr) && attr[0] != "_"
-                        && copy.hasOwnProperty(attr) // for defined types the property needs to already exist
-                    )
-                        copy[attr] = await deserialize(obj[attr]);
+                    if (obj.hasOwnProperty(attr) && attr[0] != "_") {
+                        // for defined types the property needs to already exist
+                        if(copy.hasOwnProperty(attr))
+                            copy[attr] = await deserialize(obj[attr], additionalProperties);
+                        else {
+                            // remember for data transform stuff
+                            if(!additionalProperties.has(copy)) additionalProperties.set(copy, {});
+                            additionalProperties.get(copy)[attr] = await deserialize(obj[attr], additionalProperties);
+                        }
+                    }
                 }
             } else {
                 // other/unknown object
                 copy = {};
                 for (var attr in obj) {
                     if (obj.hasOwnProperty(attr) && attr[0] != "_")
-                        copy[attr] = await deserialize(obj[attr]);
+                        copy[attr] = await deserialize(obj[attr], additionalProperties);
                 }
             }
         }
@@ -267,9 +272,9 @@ export async function deserialize(obj: any | null) {
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
-export function deepClone(obj: any) {
-    return deserialize(serialize(obj));
-}
+// export function deepClone(obj: any) {
+//     return deserialize(serialize(obj));
+// }
 
 
 export function requestAsync(request: IDBRequest<any[]>): Promise<any[]> {
