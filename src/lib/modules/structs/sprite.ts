@@ -84,43 +84,48 @@ export default class Sprite extends Resource {
     }
 
     generateCode() {
-        let globalsMap = new Set<string>();
-        globalsMap.add("x");
-        globalsMap.add("y");
+        let globalsMap = new Map<string, any>();
+        globalsMap.set("x", 0);
+        globalsMap.set("y", 0);
+        globalsMap.set("imgScaleX", 1);
+        globalsMap.set("imgScaleY", 1);
+        globalsMap.set("imgRotation", 0);
+        globalsMap.set("imgAlpha", 1);
         for(let behaviour of this.behaviours) {
             for(let global of behaviour.props) {
-                globalsMap.add(global);
+                globalsMap.set(global, 0); // TODO let user specify default value
             }
         }
         const globals = Array.from(globalsMap);
-
-        let props = globals.map(g => 
-`    get ${g}() {return ${g}}, set ${g}(value) {${g} = value},`
-        ).join("\n");
+        let propDefs = globals.map(g => `let ${g[0]} = ${g[1]};`);
+        let propAccessors = globals.map(g => 
+`    get ${g[0]}() {return ${g[0]}}, set ${g[0]}(value) {${g[0]} = value},`
+        );
 
         let code = `
 "use strict";
+${propDefs.join("\n")}
 let update = (inst) => {};
 function onUpdate(callback) {
     // closure magick 
     update = ((x) => (inst) => {x(inst); callback(inst);})(update); 
 }
 let me = {
-${props}
+${propAccessors.join("\n")}
     get spriteID() {return "${this.uuid}";},
 }
 ${
     this.behaviours.map(b => `
-/* ${b.name} */ {
+/* begin ${b.name} */ {
 ${b.code}
-} /* /${b.name} */`
+} /* end ${b.name} */`
     ).join("")
 }
 me.update = update;
 return me;
         `;
         try {
-            this._instanceConstructor = new Function(...globalsMap, code);
+            this._instanceConstructor = new Function(code);
         } catch(e) {
             console.error(e);
             if(e instanceof SyntaxError) {
@@ -129,11 +134,15 @@ return me;
                     console.log(`${(e as any).lineNumber}, ${(e as any).columnNumber}`)
                 }
             }
-        } finally {            
-//             console.log(`
-// ${globals.join(", ")}
-// ${code}
-//             `)
+        } finally {     
+            let pseudoFunc = 
+// `(${globals.map(g => `${g[0]} = ${g[1]}`).join(", ")}) => {
+`() => {
+${code}
+}`       
+            // console.log({name: this.name, code: pseudoFunc});
+            let dbg = window["te_debug"] = window["te_debug"] || {};
+            dbg[this.name] = pseudoFunc;
         }
     }
 }

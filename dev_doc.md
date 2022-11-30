@@ -317,3 +317,46 @@ Full weak set based implementation:
 
 
 
+## rendering
+
+We send different arrays of 4d vectors to the shader.
+
+- uv position + uv size (texcoords rectangle)
+- color, alpha (rgba)
+- position + origin (x, y, ox, oy)
+- scale + rotation (sx, sy, a)  (could also be(sx, sy, cos a, sin a), (2d matrix...))
+
+in the shader we then do
+
+_step_                                top left and bottom right corners
+start unit rectangle vertex position  (0, 0) (1, 1)
+scale by uv size                      (0, 0) (60, 60)
+move by origin                        (-30, -30) (30, 30)
+scale                                 (-15, -15) (15, 15)
+rotate                                (15, -15) (-15, 15)
+
+alternative: just send matrix lol
+
+
+### buffer based imperative drawing
+
+have an onmi-shader that can render everything -> chooses based on an enum int
+
+drawThing() { // do calc   buffer.push(renderObject) }
+
+RenderObject: 
+ - type
+ - object info
+ - additional transformation matrix
+
+things to draw: 
+  - sprites
+  - shapes (outline + fill)
+    - line   -> is a quad
+    - rectangle  -> is a quad
+    - triangle  -> not a quad, but we can ignore the second tri?
+    - circle  -> is a quad
+    - quad -> is a quad
+  - repeating textures ?
+
+everything is just a quad, at the end of the day

@@ -4,32 +4,50 @@ import type ResourceManager from "./ResourceManager";
 
 function getShaderSource(): { vertex: string, fragment: string } {
     let vertex = `#version 300 es
-        in vec2 a_localPos;
-        in vec4 a_objectPos;
-        in vec4 a_spriteMapPos;
+        in vec2 a_localPos; // coordinates of a unit square (6 verts -> 2 tris)
+        in vec4 a_objectPos; // positions, and origins of instances (x, y, ox, oy)
+        in vec4 a_spriteMapPos; // UV coordinates as a rectangle (x, y, w, h)
+        in vec4 a_objectScaleRot; // scale and rotation (sx, sy, rot, 0) 
+        in vec4 a_color; // color tint, transparency
         
-        uniform vec2 u_resolution;
+        uniform vec2 u_resolution; // screen resolution
+        uniform vec2 u_spriteMap_resolution; // sprite map resolution
 
         out vec2 v_texcoord;
+        out vec4 v_color;
 
         void main() {
-            vec2 adjPosition = a_localPos * a_objectPos.zw + a_objectPos.xy;
+            // position in world space / screen space (same thing atm)
+            //start unit rectangle vertex position  (0, 0) (1, 1)
+            //scale by uv size                      (0, 0) (60, 60)
+            vec2 adjPosition = a_localPos * a_spriteMapPos.zw * u_spriteMap_resolution;
+            //move by origin                        (-30, -30) (30, 30)
+            adjPosition -= a_objectPos.zw;
+            //scale                                 (-15, -15) (15, 15)
+            adjPosition *= a_objectScaleRot.xy;
+            //rotate                                (15, -15) (-15, 15)
+            // move to actual pos
+            adjPosition += a_objectPos.xy;
+            // todo
             gl_Position = vec4(adjPosition, 0, 1) / vec4(u_resolution, 1, 1) * 2.0 - 1.0;
             gl_Position *= vec4(1.0, -1.0, 1.0, 1.0);
             v_texcoord = a_localPos * a_spriteMapPos.zw + a_spriteMapPos.xy;
+
+            v_color = a_color;
         }
     `;
     let fragment = `#version 300 es
         precision highp float;
 
         in vec2 v_texcoord;
+        in vec4 v_color;
 
         uniform sampler2D u_texture;
         
         out vec4 outColor;
 
         void main() {
-            outColor = texture(u_texture, v_texcoord);
+            outColor = texture(u_texture, v_texcoord) * v_color;
         }
     `;
 
@@ -61,11 +79,15 @@ export default class Renderer {
 
         // locations
         let resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
-        let textureUniformLocation = gl.getUniformLocation(program, "u_texture");
+        let spriteMapResolutionUniformLocation = gl.getUniformLocation(program, "u_spriteMap_resolution");
         
-        let objectPosAttributeLocation = gl.getAttribLocation(program, "a_objectPos");
         let localPosAttributeLocation = gl.getAttribLocation(program, "a_localPos");
-        let spriteMapPosAttributeLocation = gl.getAttribLocation(program, "a_spriteMapPos");
+
+        let positionOriginAttribLocation = gl.getAttribLocation(program, "a_objectPos");
+        let spriteCoordAttribLocation = gl.getAttribLocation(program, "a_spriteMapPos");
+        let scaleRotationAttribLocation = gl.getAttribLocation(program, "a_objectScaleRot");
+        let colorAttribLocation = gl.getAttribLocation(program, "a_color");
+        // let textureLoc = gl.getAttribLocation(program, "u_texture");
 
         // buffers
         let unitSquareBuffer = gl.createBuffer();
@@ -75,7 +97,7 @@ export default class Renderer {
         let vao = gl.createVertexArray();
         gl.bindVertexArray(vao);
         
-        // three 2d points
+        // unit square
         let square = [
             0, 0,
             0, 1,
@@ -86,21 +108,11 @@ export default class Renderer {
         ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(square), gl.STATIC_DRAW);
 
-        // set up the instance position+size buffer
-        let positionsBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffer);
-            
-        gl.enableVertexAttribArray(objectPosAttributeLocation)
-        gl.vertexAttribPointer(objectPosAttributeLocation, 4, gl.FLOAT, false, 4*4, 0);
-        gl.vertexAttribDivisor(objectPosAttributeLocation, 1);  
-
-        // set up the instance sprite coords buffer
-        let spriteCoordBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, spriteCoordBuffer);
-
-        gl.enableVertexAttribArray(spriteMapPosAttributeLocation)
-        gl.vertexAttribPointer(spriteMapPosAttributeLocation, 4, gl.FLOAT, false, 4*4, 0);
-        gl.vertexAttribDivisor(spriteMapPosAttributeLocation, 1);
+        // instance buffers
+        let positionOriginBuffer = _setUpInstAttribBuffer(gl, positionOriginAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
+        let spriteCoordBuffer = _setUpInstAttribBuffer(gl, spriteCoordAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
+        let scaleRotationBuffer = _setUpInstAttribBuffer(gl, scaleRotationAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
+        let colorBuffer = _setUpInstAttribBuffer(gl, colorAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
 
         // texture buffer
         let texture = gl.createTexture();
@@ -114,7 +126,9 @@ export default class Renderer {
 
         // constant uniforms
 
+        let t = 0;
         this.renderFunc = (instances: SpriteInstance[]) => {
+            t++;
             // set up verts / unit square
             gl.bindBuffer(gl.ARRAY_BUFFER, unitSquareBuffer);
 
@@ -133,42 +147,44 @@ export default class Renderer {
             
             // set uniforms
             gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
+            gl.uniform2f(spriteMapResolutionUniformLocation, spriteMap.width, spriteMap.height);
             
             gl.bindVertexArray(vao);
 
-            // put instance positions, uvs
-            let instancePositions = new Float32Array(instances.length * 4);
-            gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, instancePositions.byteLength, gl.DYNAMIC_DRAW);
-            
-
-            let instanceUVCoords = new Float32Array(instances.length * 4);
-            gl.bindBuffer(gl.ARRAY_BUFFER, spriteCoordBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, instanceUVCoords.byteLength, gl.DYNAMIC_DRAW);
-
-            for(let i = 0; i < instances.length && i * 4 < instancePositions.length; i++) {
-                let inst = instances[i];
-                let sprite = resourceManager.getResource(inst.spriteID) as Sprite;
-                
-                instancePositions[i * 4 + 0] = inst.x - sprite.originX;
-                instancePositions[i * 4 + 1] = inst.y - sprite.originY;
-                instancePositions[i * 4 + 2] = sprite.canvas.width;
-                instancePositions[i * 4 + 3] = sprite.canvas.height;
-
-                let p = coords.get(sprite);
-                instanceUVCoords[i * 4 + 0] = p.x;
-                instanceUVCoords[i * 4 + 1] = p.y;
-                instanceUVCoords[i * 4 + 2] = p.width;
-                instanceUVCoords[i * 4 + 3] = p.height;
-
-                // console.log('here')
-            }
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, positionsBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, instancePositions);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, spriteCoordBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, instanceUVCoords);
+            // set instance props etc. stuff
+            this._fillFloat4BufferInstances(gl,
+                positionOriginBuffer,
+                instances,
+                (inst, sprite) => [inst.x, inst.y, sprite.originX, sprite.originY]
+            );
+            this._fillFloat4BufferInstances(gl,
+                spriteCoordBuffer,
+                instances,
+                (inst, sprite) => {
+                    const p = coords.get(sprite);
+                    return [p.x, p.y, p.width, p.height]
+                }
+            );
+            this._fillFloat4BufferInstances(gl,
+                scaleRotationBuffer,
+                instances,
+                (inst, spr) => [
+                    inst.imgScaleX, 
+                    inst.imgScaleY, 
+                    0.0, 
+                    0.0
+                ]
+            );
+            this._fillFloat4BufferInstances(gl,
+                colorBuffer,
+                instances,
+                (inst, spr) => [
+                    1, // (1 + Math.cos((t/100+0)*2*Math.PI))/2,
+                    1, // (1 + Math.cos((t/100+0.333)*2*Math.PI))/2,
+                    1, // (1 + Math.cos((t/100+0.666)*2*Math.PI))/2,
+                    inst.imgAlpha
+                ]
+            );
             
             gl.drawArraysInstanced(
                 gl.TRIANGLES,
@@ -184,9 +200,39 @@ export default class Renderer {
         }
     }
 
+    _fillFloat4BufferInstances(
+        gl: WebGL2RenderingContext, 
+        buffer: WebGLBuffer, 
+        instances: SpriteInstance[], 
+        func: (inst: SpriteInstance, sprite: Sprite) => [number, number, number, number]
+    ) {
+        let dataArray = new Float32Array(instances.length * 4);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, dataArray.byteLength, gl.DYNAMIC_DRAW);
+
+        for(let i = 0; i < instances.length && i * 4 < dataArray.length; i++) {
+            let inst = instances[i];
+            let sprite = this.resourceManager.getResource(inst.spriteID) as Sprite;
+            
+            dataArray.set(func(inst, sprite), i * 4);
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, dataArray);
+    }
+
     render(instances: SpriteInstance[]) {
         this.renderFunc(instances);
     }
+}
+
+function _setUpInstAttribBuffer(gl: WebGL2RenderingContext, attribLocation: number, size: number, type: number, normalized: boolean, stride: number, offset: number) {
+    let buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        
+    gl.enableVertexAttribArray(attribLocation)
+    gl.vertexAttribPointer(attribLocation, size, type, normalized, stride, offset);
+    gl.vertexAttribDivisor(attribLocation, 1);  
+    return buffer;
 }
 
 function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
@@ -272,7 +318,8 @@ function makeSpriteMap(sprites: Sprite[]): {canvas: HTMLCanvasElement, coords: W
             let searching = true;
             for(let y = 0; y <= h-sh && searching; y++) 
             for(let x = 0; x <= w-sw && searching; x++) {
-                const r = {left: x, top: y, right: x+sw, bottom: y+sh};
+                // 1 px extra space
+                const r = {left: x-1, top: y-1, right: x+sw+1, bottom: y+sh+1};
                 if(freeAt(r)) {
                     placed.push(r);
                     coords.set(spr, {

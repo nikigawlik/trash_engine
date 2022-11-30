@@ -6,6 +6,11 @@ import Renderer from "./renderer"
 export interface SpriteInstance {
     x: number,
     y: number,
+    imgScaleX: number,
+    imgScaleY: number,
+    imgRotation: number,
+    imgAlpha: number,
+    
     spriteID: string,
     update: Function,
 }
@@ -194,7 +199,9 @@ export default class Game {
     createInstance(spriteUUID: string, x: number, y: number) {
         // const inst = new Instance(spriteUUID, x, y);
         const sprite = this.resourceManager.getResource(spriteUUID) as Sprite;
-        const inst = sprite._instanceConstructor(x, y);
+        const inst = sprite._instanceConstructor();
+        inst.x = x;
+        inst.y = y;
         this.instances.push(inst)
         this._registerInstance(inst);
         // inst.create();
