@@ -11,10 +11,10 @@
 
     $: {card.name = behaviour.name; $resourceManager;} // $resourceManager added for reactivity
     $: card.className = "behaviour-editor"
-    $: card.position.width = 350;
+    $: card.position.width = 450;
 </script>
 
 
 <Card autoFocus={true} contentMinWidth={240} {card}>
-    
+    <svelte:component this={behaviour.svelteComponent} {behaviour}></svelte:component>
 </Card>

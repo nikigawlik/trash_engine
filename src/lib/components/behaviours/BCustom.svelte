@@ -1,5 +1,6 @@
 <script lang="ts">
     import type Behaviour from "../../modules/game/behaviour";
+    import { resourceManager } from "../../modules/game/ResourceManager";
     import type Sprite from "../../modules/structs/sprite";
     import AtlasIcon from "../AtlasIcon.svelte";
 
@@ -9,6 +10,8 @@
 
     let props: string[] = behaviour.props;
     let code: string = behaviour.code;
+
+    let behaviourStore = $resourceManager.getResourceStore(behaviour.uuid);
     
     $: behaviour.props = props;
     $: behaviour.code = code
@@ -27,31 +30,29 @@
         console.log("hi")
     }
 </script>
-
-<div>
-    <p>properties: </p>
-    <ul>
-        {#each props as prop, i}
-            <li>
-                <input 
-                    type="text" 
-                    bind:value={props[i]} 
-                    on:keydown={(evt) => propInputKeyDown(evt, i)}
-                    use:propCreate
-                />
-                <button class="borderless" on:click={() => { props = props.filter(x => x != prop) }}><AtlasIcon id={21} /></button>
-            </li>
-        {/each}
+<label><input type="text" bind:value={$behaviourStore.name} /></label>
+<p>properties: </p>
+<ul>
+    {#each props as prop, i}
         <li>
-            <button class="" on:click={() => { props.push(`prop_${props.length}`); props = props; }}>
-                <AtlasIcon id={22} /> 
-                add property 
-            </button> 
+            <input 
+                type="text" 
+                bind:value={props[i]} 
+                on:keydown={(evt) => propInputKeyDown(evt, i)}
+                use:propCreate
+            />
+            <button class="borderless" on:click={() => { props = props.filter(x => x != prop) }}><AtlasIcon id={21} /></button>
         </li>
-    </ul>
-    <p>code: </p>
-    <textarea bind:value={code}></textarea>
-</div>
+    {/each}
+    <li>
+        <button class="" on:click={() => { props.push(`prop_${props.length}`); props = props; }}>
+            <AtlasIcon id={22} /> 
+            add property 
+        </button> 
+    </li>
+</ul>
+<p>code: </p>
+<textarea bind:value={code}></textarea>
 
 <style>
     textarea {

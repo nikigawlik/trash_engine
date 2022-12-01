@@ -5,6 +5,7 @@ import { resourceManager } from "../modules/game/ResourceManager";
 import type Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
 import AtlasIcon from "./AtlasIcon.svelte";
+import BehaviourPreview from "./BehaviourPreview.svelte";
 import Card from "./Card.svelte";
 import ImageEditor from "./ImageEditor.svelte";
 import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
@@ -74,15 +75,11 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
         <ul class="behaviours">
             {#each behaviours as behaviour, i (behaviour.uuid)}
                 <li>
-                    <p class="behaviour-title">
-                        <AtlasIcon id={behaviour.iconID} />
-                        <span class="spacer" />
-                        <span class="name">{behaviour.name}</span>
-                        <button on:click={() => reinsertBehaviour(behaviour, i-1)} class="borderless"><AtlasIcon id={6} /></button>
-                        <button on:click={() => reinsertBehaviour(behaviour, i+1)} class="borderless"><AtlasIcon id={7} /></button>
-                        <button on:click={() => removeBehaviour(behaviour)} class="borderless"><AtlasIcon id={32} /></button>
-                    </p>
-                    <svelte:component this={behaviour.svelteComponent} {behaviour}></svelte:component>
+                    <BehaviourPreview 
+                        {behaviour}
+                        on:move={(evt) => reinsertBehaviour(behaviour, i+evt.detail)}
+                        on:remove={() => removeBehaviour(behaviour)}
+                    />
                 </li>
             {/each}
             <li>
@@ -132,14 +129,6 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
         margin: 0;
         margin-bottom: .5rem;
         padding: 0;
-    }
-
-    p.behaviour-title {
-        display: flex;
-    }
-
-    p.behaviour-title > .name {
-        flex-grow: 1;
     }
     
     /* textarea {
