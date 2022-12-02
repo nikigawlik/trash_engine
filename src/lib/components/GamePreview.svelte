@@ -3,8 +3,8 @@
 
 import type { CardInstance } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
-    import { adjustedCanvasSize } from "../modules/game/utils";
-    import type Room from "../modules/structs/room";
+import { adjustedCanvasSize } from "../modules/game/utils";
+import type Room from "../modules/structs/room";
 import Card from "./Card.svelte";
 
     export let card: CardInstance;
@@ -15,7 +15,7 @@ import Card from "./Card.svelte";
 
     async function reload() {
         if(!iframe) return;
-        let resourceData = await resourceManager.get().getSerializedData();
+        let resourceData = await $resourceManager.getSerializedData();
         const messageData = {
             type: "dataUpdate",
             resourceData,

@@ -26,7 +26,7 @@
                 callback: async () => {
                     let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
                     if(name) {    
-                        let newResource = new resourceConstructor(name, $resourceManager);
+                        let newResource = new resourceConstructor(name);
                         $resourceManager.addResource(newResource);
                         openEditorWindow(newResource);
                     }

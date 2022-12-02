@@ -1,7 +1,6 @@
 <script lang="ts">
     import type Behaviour from "../../modules/game/behaviour";
     import { resourceManager } from "../../modules/game/ResourceManager";
-    import type Sprite from "../../modules/structs/sprite";
     import AtlasIcon from "../AtlasIcon.svelte";
 
     // export let sprite: Sprite;

@@ -42,3 +42,52 @@ export function parseIntSafe(string: string, minValue = -Infinity) {
 export function mod(n: number, m: number) {
     return ((n % m) + m) % m;
 }
+
+let randState = 1;
+
+export function xorshiftSetSeed(seed: number|string) {
+    if(typeof seed == "number") {
+        randState = ~~seed;
+    } else {
+        let hash = 0;
+        if (seed.length === 0) return hash;
+        for (let i = 0; i < seed.length; i++) {
+            let chr = seed.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0;
+        }
+        randState = hash;
+    }
+    if(randState == 0) randState = 1; // 0 is no bueno
+
+    console.log(`set seed: ${seed} => ${randState}`);
+}
+
+/**
+ * @returns A pseudo-random 32 bit signed integer value
+ */
+export function xorshiftGetRandom()
+{
+	/* Algorithm "xor" from p. 4 of Marsaglia, "Xorshift RNGs" */
+	let x = randState;
+	x ^= x << 13;
+	x ^= x >> 17;
+	x ^= x << 5;
+	return randState = x;
+}
+
+/**
+ * @returns A pseudo-random 32 float value between 0 (inclusive) and 1 (exclusive)
+ */
+export function xorshiftGetRandom01() {
+    return (-(1<<31) + xorshiftGetRandom()) / (2**32);
+}
+
+xorshiftSetSeed("helfasldkf");
+for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom())
+xorshiftSetSeed("helfasldkf");
+for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom())
+xorshiftSetSeed("helfasldkf");
+for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom01())
+xorshiftSetSeed("helfasldkf");
+for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom01())

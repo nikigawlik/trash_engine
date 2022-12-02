@@ -1,15 +1,13 @@
 <script lang="ts">
 import type { CardInstance } from "../modules/cardManager";
 
-import type Folder from "../modules/structs/folder";
 
-import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
+import { resourceManager } from "../modules/game/ResourceManager";
+import Room from "../modules/structs/room";
+import Sprite from "../modules/structs/sprite";
 import Card from "./Card.svelte";
-import ResourceSubTree from "./ResourceSubTree.svelte";
+import ResourcesFolder from "./ResourcesFolder.svelte";
 import ResourceTreeResource from "./ResourceTreeResource.svelte";
-    import ResourcesFolder from "./ResourcesFolder.svelte";
-    import Sprite from "../modules/structs/sprite";
-    import Room from "../modules/structs/room";
 
 export let card: CardInstance;
 $: card.name = "resources";

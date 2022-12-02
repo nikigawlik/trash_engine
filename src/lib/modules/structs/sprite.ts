@@ -1,4 +1,4 @@
-import Behaviour from "../game/behaviour";
+import type Behaviour from "../game/behaviour";
 import { resourceManager } from "../game/ResourceManager";
 import Resource from "./resource";
 
@@ -10,7 +10,7 @@ export default class Sprite extends Resource {
     bBoxY: number;
     bBoxWidth: number;
     bBoxHeight: number;
-    behaviours: (string|Behaviour)[];
+    behaviours: Behaviour[];
 
     _instanceConstructor: Function // function made from auto-generated code, that creates an instance of the sprite
 
@@ -26,23 +26,18 @@ export default class Sprite extends Resource {
         this.behaviours = [];
     }
 
-    addBehaviour(behaviour: Behaviour|string) {
+    addBehaviour(behaviour: Behaviour) {
         this.behaviours.push(behaviour);
     }
 
     removeBehaviour(behaviour: Behaviour|string) {
         this.behaviours = this.behaviours.filter(
-            x => x != behaviour && !(behaviour instanceof Behaviour && behaviour.uuid == x)
+            x => x != behaviour && x.uuid != behaviour
         );
     }
 
     resolveBehaviours(): Behaviour[] {
-        return this.behaviours.map(x => 
-            (x instanceof Behaviour)? 
-                x 
-            : 
-                resourceManager.get().getResourceOfType(x, Behaviour) as Behaviour
-        );
+        return this.behaviours;
     }
 
     getCopy() {
@@ -90,9 +85,10 @@ export default class Sprite extends Resource {
     }
 
     generateCode() {
+        let params = ["x", "y"];
         let globalsMap = new Map<string, any>();
-        globalsMap.set("x", 0);
-        globalsMap.set("y", 0);
+        // globalsMap.set("x", 0);
+        // globalsMap.set("y", 0);
         globalsMap.set("imgScaleX", 1);
         globalsMap.set("imgScaleY", 1);
         globalsMap.set("imgRotation", 0);
@@ -107,8 +103,10 @@ export default class Sprite extends Resource {
         }
         const globals = Array.from(globalsMap);
         let propDefs = globals.map(g => `let ${g[0]} = ${g[1]};`);
-        let propAccessors = globals.map(g => 
-`    get ${g[0]}() {return ${g[0]}}, set ${g[0]}(value) {${g[0]} = value},`
+
+        const props = globals.map(g => g[0]).concat(params);
+        let propAccessors = props.map(p => 
+`    get ${p}() {return ${p}}, set ${p}(value) {${p} = value},`
         );
 
         let code = `
@@ -134,7 +132,7 @@ me.update = update;
 return me;
         `;
         try {
-            this._instanceConstructor = new Function(code);
+            this._instanceConstructor = new Function(...params, code);
         } catch(e) {
             console.error(e);
             if(e instanceof SyntaxError) {

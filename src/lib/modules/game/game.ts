@@ -2,7 +2,7 @@ import Room from "../structs/room";
 import Sprite from "../structs/sprite";
 import type ResourceManager from "./ResourceManager";
 import Renderer from "./renderer"
-import { mod } from "./utils";
+import { mod, xorshiftGetRandom01, xorshiftSetSeed } from "./utils";
 import type Instance from "../structs/instance";
 
 export interface SpriteInstance {
@@ -163,6 +163,9 @@ export default class Game {
             ws.add(instance);
         })
 
+        defineLibFunction("drandom", () => xorshiftGetRandom01());
+        defineLibFunction("drandomSetSeed", (seed: string) => xorshiftSetSeed(seed));
+
         window.onkeydown = (event: KeyboardEvent) => {
             // keys.set(event.key, true);
             this.keyMap.set(event.code, true);
@@ -210,9 +213,9 @@ export default class Game {
     createInstance(spriteUUID: string, x: number, y: number) {
         // const inst = new Instance(spriteUUID, x, y);
         const sprite = this.resourceManager.getResource(spriteUUID) as Sprite;
-        const inst = sprite._instanceConstructor();
-        inst.x = x;
-        inst.y = y;
+        const inst = sprite._instanceConstructor(x, y);
+        // inst.x = x;
+        // inst.y = y;
         this.instances.push(inst)
         this.instanceSets.get(ALL_UUID).add(inst);
         this.instanceSets.get(inst.spriteID)?.add(inst);
@@ -304,6 +307,9 @@ export default class Game {
 
         // keep persistence level 2 instances
         this.instances = this.instances.filter(x => this.persistent.get(x) >= 2);
+
+        xorshiftSetSeed(room.uuid);
+        // xorshiftSetSeed(0);
 
         for(let roomInst of room.instances) {
             let existing = this.instanceSpriteInstanceMap.get(roomInst);
