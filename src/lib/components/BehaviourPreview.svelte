@@ -3,12 +3,16 @@
     import { openCard } from "../modules/cardManager";
     import type Behaviour from "../modules/game/behaviour";
     import { resourceManager } from "../modules/game/ResourceManager";
+    import type Sprite from "../modules/structs/sprite";
     import AtlasIcon from "./AtlasIcon.svelte";
     import BehaviourEditor from "./BehaviourEditor.svelte";
 
     export let behaviour: Behaviour;
+    export let sprite: Sprite;
 
-    let bStore = $resourceManager.getResourceStore(behaviour.uuid);
+    $: combinedUUID = `${sprite.uuid}/${behaviour.uuid}`;
+
+    let bStore = $resourceManager.getResourceStore(behaviour);
 
     const dispatch = createEventDispatcher();
 
@@ -33,7 +37,8 @@
     <button on:click={() => remove()} class="borderless"><AtlasIcon id={32} /></button>
 </p>
 <!-- <svelte:component this={behaviour.svelteComponent} {behaviour}></svelte:component> -->
-<button on:click={() => { openCard(BehaviourEditor, true, behaviour.uuid) }}>open</button>
+
+<button on:click={() => { openCard(BehaviourEditor, true, combinedUUID) }}>open</button>
 
 <style>
 

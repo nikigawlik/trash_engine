@@ -10,7 +10,7 @@ export default class Sprite extends Resource {
     bBoxY: number;
     bBoxWidth: number;
     bBoxHeight: number;
-    behaviourIDs: string[];
+    behaviours: (string|Behaviour)[];
 
     _instanceConstructor: Function // function made from auto-generated code, that creates an instance of the sprite
 
@@ -23,11 +23,26 @@ export default class Sprite extends Resource {
         this.bBoxY = 0;
         this.bBoxWidth = 0;
         this.bBoxHeight = 0;
-        this.behaviourIDs = [];
+        this.behaviours = [];
     }
 
-    get behaviours() {
-        return this.behaviourIDs.map(x => resourceManager.get().getResourceOfType(x, Behaviour) as Behaviour);
+    addBehaviour(behaviour: Behaviour|string) {
+        this.behaviours.push(behaviour);
+    }
+
+    removeBehaviour(behaviour: Behaviour|string) {
+        this.behaviours = this.behaviours.filter(
+            x => x != behaviour && !(behaviour instanceof Behaviour && behaviour.uuid == x)
+        );
+    }
+
+    resolveBehaviours(): Behaviour[] {
+        return this.behaviours.map(x => 
+            (x instanceof Behaviour)? 
+                x 
+            : 
+                resourceManager.get().getResourceOfType(x, Behaviour) as Behaviour
+        );
     }
 
     getCopy() {
@@ -82,7 +97,10 @@ export default class Sprite extends Resource {
         globalsMap.set("imgScaleY", 1);
         globalsMap.set("imgRotation", 0);
         globalsMap.set("imgAlpha", 1);
-        for(let behaviour of this.behaviours) {
+
+        let _behaviours = this.resolveBehaviours();
+
+        for(let behaviour of _behaviours) {
             for(let global of behaviour.props) {
                 globalsMap.set(global, 0); // TODO let user specify default value
             }
@@ -106,7 +124,7 @@ ${propAccessors.join("\n")}
     get spriteID() {return "${this.uuid}";},
 }
 ${
-    this.behaviours.map(b => `
+    _behaviours.map(b => `
 /* begin ${b.name} */ {
 ${b.code}
 } /* end ${b.name} */`

@@ -123,13 +123,19 @@ export default class Game {
         defineLibProperty("mouseY", () => this.mouseY);
         defineLibProperty("all", () => ALL_UUID);
         defineLibProperty("noone", () => NOONE_UUID);
-        defineLibProperty("currentRoomID", () => this.currentRoom.uuid);
+        defineLibProperty("currentRoom", () => this.currentRoom.uuid);
 
         defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
         defineLibFunction("destroyImmediate", (instance: SpriteInstance) => this.destroyInstance(instance))
         defineLibFunction("destroy", (instance: SpriteInstance) => this.upForDeletion.add(instance))
-        defineLibFunction("find", (sprite: string) => this.instances.find(x => x.spriteID == sprite))
-        defineLibFunction("findAll", (sprite: string) => this.instances.filter(x => x.spriteID == sprite))
+        defineLibFunction("find", (filter: string) => {
+            const ws = this.instanceSets.get(filter);
+            return this.instances.find(x => ws.has(x))
+        });
+        defineLibFunction("findAll", (filter: string) => {
+            const ws = this.instanceSets.get(filter);
+            return this.instances.filter(x => ws.has(x))
+        });
         defineLibFunction("setDepth", (self: SpriteInstance, depth: number) => {
             this.instanceDepth.set(self, depth);
         })
@@ -137,6 +143,8 @@ export default class Game {
         defineLibFunction("goToPreviousRoom", () => this.moveRoom(-1) )
         defineLibFunction("goToRoom", (roomID: string) => this.setRoom(roomID) )
         defineLibFunction("moveRooms", (difference: number) => this.moveRoom(difference) )
+        
+        defineLibFunction("nameOf", (uuid: string) => this.resourceManager.getResource(uuid).name )
         
         defineLibFunction("keyIsDown", (...codes: string[]) => this.checkKeys("down", ...codes) )
         defineLibFunction("keyIsPressed", (...codes: string[]) => this.checkKeys("pressed", ...codes) )

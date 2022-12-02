@@ -13,7 +13,7 @@ const defaultSettings = {
     title: "your game's name here",
 }
 
-const saveVersion = 3;
+const saveVersion = 4;
 interface SaveData {
     resources: Resource[]
     settings: typeof defaultSettings,
@@ -24,7 +24,7 @@ interface SaveData {
 
 export default class ResourceManager {
     settings: typeof defaultSettings;
-    stores: Map<string, Writable<Resource>> // TODO weak map -> needs symbol
+    stores: WeakMap<Resource, Writable<Resource>> // TODO weak map -> needs symbol
     resources: Map<string, Resource>
     constructor() {
         this.settings = defaultSettings;
@@ -53,14 +53,7 @@ export default class ResourceManager {
     }
 
     deleteResource(uuid: string) {
-        if(this.stores.has(uuid)) {
-            // delete through store
-            this.stores.get(uuid).set(null);
-        } else {
-            // delete directly
-            this.resources.delete(uuid);
-            this.stores.delete(uuid);
-        }
+        this.resources.delete(uuid);
     }
 
     // expensive-ish
@@ -105,32 +98,25 @@ export default class ResourceManager {
         return this.getAllOfResourceType(Behaviour) as Behaviour[];
     }
 
-    getResourceStore(uuid: string): Writable<Resource> | null {
-        let store = this.stores.get(uuid);
-        if(store) return store;
+    getResourceStore(resource: Resource|string): Writable<Resource> | null {
+        if(typeof resource == "string") resource = this.getResource(resource);
         
-        let resource = this.getResource(uuid);
+        if(this.stores.has(resource)) return this.stores.get(resource);
+        
         if(!resource) return null;
         
-        store = writable(resource);
+        let store = writable(resource);
 
         store.subscribe(value => {
-            if(!value && resource) {
-                // this is either user triggered, or triggered by "removeResource"
-                this.resources.delete(value.uuid);
-                this.stores.delete(value.uuid);
-            }
-            else if(value != resource) {
-                throw Error("You can not replace a Resource with another Resource using a store.")
+            if(value != resource) {
+                throw Error("You can only modify, not set/change the resource using a store.")
             } 
-            
-            resource = value; // keep track 
 
             //always also triggers a general update (should maybe be refactored out eventually)
             this.refresh();
         });
 
-        this.stores.set(uuid, store);
+        this.stores.set(resource, store);
         return store;
     }
 
@@ -155,22 +141,10 @@ export default class ResourceManager {
         console.log(`- resources loaded`)
         console.log(data);
 
-        let extractBehavioursFromSprite = (resource: Resource) => {
-            if(resource instanceof Sprite) {
-                let behaviours = additionalProperties.get(resource)?.behaviours;
-                if(behaviours)
-                for(let b of behaviours) {
-                    resource.behaviourIDs.push(b.uuid);
-                    this.resources.set(b.uuid, b);
-                }
-            }
-        }
-
         let setResourcesFromLegacyFolder = (root: Folder) => {
             this.resources.clear();
             for(let res of root.iterateAllResources()) {
                 this.resources.set(res.uuid, res)
-                extractBehavioursFromSprite(res);
             }
         }
 
@@ -191,10 +165,28 @@ export default class ResourceManager {
             this.resources.clear();
             for(let res of d.resources) {
                 this.resources.set(res.uuid, res)
-                extractBehavioursFromSprite(res);
             }
             this.settings = d.settings;
         } else if(data.version == 3) {
+            const d: SaveData = data;
+            this.resources.clear();
+            for(let res of d.resources) {
+                this.resources.set(res.uuid, res)
+            }
+            for(let res of d.resources) {
+                // undo sprite/bahaviour fuckery
+                if(res instanceof Sprite && additionalProperties.has(res)) {
+                    let bIDs: string[] = additionalProperties.get(res).behaviourIDs;
+                    for(let bID of bIDs) {
+                        // move the behavior back into the sprite
+                        let behaviour = this.resources.get(bID) as Behaviour;
+                        res.behaviours.push(behaviour);
+                        this.resources.delete(bID);
+                    }
+                }
+            }
+            this.settings = d.settings;
+        } else if(data.version == 4) {
             const d: SaveData = data;
             this.resources.clear();
             for(let res of d.resources) {

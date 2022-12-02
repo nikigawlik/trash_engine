@@ -58,7 +58,7 @@
 
     export let spriteID: string;
 
-    let s_sprite = resourceManager.get().getResourceStore(spriteID) as Writable<Sprite>;
+    let s_sprite = $resourceManager.getResourceStore(spriteID) as Writable<Sprite>;
     
     let canvasWidth = $s_sprite.canvas?.width || 60;
     let canvasHeight = $s_sprite.canvas?.height || 60;

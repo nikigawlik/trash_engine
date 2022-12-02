@@ -21,11 +21,12 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
 
     let mode: "draw" | "script" = "draw";
 
-    $: behaviours = sprite.behaviours;
+    $: behaviours = sprite.resolveBehaviours();
+
 
     function removeBehaviour(behaviour: Behaviour) {
-        sprite.behaviourIDs = sprite.behaviourIDs.filter(x => x != behaviour.uuid);
-        behaviours = sprite.behaviours; // trigger reactivity
+        sprite.removeBehaviour(behaviour);
+        sprite = sprite; // trigger reactivity
     }
 
     function reinsertBehaviour(behaviour: Behaviour, position: number) {
@@ -36,7 +37,7 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
         sprite.behaviours.splice(curIndex, 1);
         sprite.behaviours.splice(position, 0, behaviour);
 
-        behaviours = sprite.behaviours;
+        sprite = sprite;
     }
 
     /*
@@ -58,7 +59,7 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
         }));
         if(result instanceof Behaviour) {
             $resourceManager.addResource(result);
-            sprite.behaviourIDs.push(result.uuid);
+            sprite.addBehaviour(result);
             sprite = sprite;
         }
     }
@@ -76,6 +77,7 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
             {#each behaviours as behaviour, i (behaviour.uuid)}
                 <li>
                     <BehaviourPreview 
+                        {sprite}
                         {behaviour}
                         on:move={(evt) => reinsertBehaviour(behaviour, i+evt.detail)}
                         on:remove={() => removeBehaviour(behaviour)}

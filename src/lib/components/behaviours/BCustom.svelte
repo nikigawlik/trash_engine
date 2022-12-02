@@ -11,7 +11,7 @@
     let props: string[] = behaviour.props;
     let code: string = behaviour.code;
 
-    let behaviourStore = $resourceManager.getResourceStore(behaviour.uuid);
+    let behaviourStore = $resourceManager.getResourceStore(behaviour);
     
     $: behaviour.props = props;
     $: behaviour.code = code

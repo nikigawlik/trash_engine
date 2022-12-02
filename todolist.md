@@ -106,6 +106,7 @@ vv START HERE vv
 - proper scripting reference
 <!-- ~~- "are you sure you want to leave" thingy~~ -->
 - replace resourceManager with WeakMap
+- allow behaviours on rooms
 
 Useful for metroidvania: 
  - reusable behaviours (behaviour as resource)
