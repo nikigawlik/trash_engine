@@ -46,6 +46,8 @@ import * as globalData from "./../modules/globalData";
             sendSizeUpdate();
     }
 
+    let startRoom: string = null;
+
     function sendSizeUpdate() {
         let parent = window.parent;
         if(parent) {
@@ -62,7 +64,7 @@ import * as globalData from "./../modules/globalData";
     function reload() {
         if(!canvas) return;
         if(game) game.quit();
-        game = new Game(resourceManager.get(), canvas);
+        game = new Game(resourceManager.get(), canvas, startRoom);
         canvas = canvas;
     }
 
@@ -75,6 +77,7 @@ import * as globalData from "./../modules/globalData";
         } else 
         if(data.type == "dataUpdate") {
             await resourceManager.get().setFromSerializedData(data.resourceData);
+            startRoom = data.startRoom;
             reload();
         }
     }

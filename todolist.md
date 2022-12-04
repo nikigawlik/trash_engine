@@ -107,6 +107,9 @@ vv START HERE vv
 <!-- ~~- "are you sure you want to leave" thingy~~ -->
 - replace resourceManager with WeakMap
 - allow behaviours on rooms
+- img icon in title of sprite cards
+- props in behaviour preview
+- props need a scollbar if there are a lot of them lol
 
 Useful for metroidvania: 
  - reusable behaviours (behaviour as resource)

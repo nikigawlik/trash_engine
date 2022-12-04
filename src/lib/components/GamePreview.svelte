@@ -19,6 +19,7 @@ import Card from "./Card.svelte";
         const messageData = {
             type: "dataUpdate",
             resourceData,
+            startRoom: selectedRoom,
         };
         iframe.contentWindow?.postMessage(messageData);
         // iframe.contentWindow?.postMessage({
@@ -54,6 +55,8 @@ import Card from "./Card.svelte";
         url.searchParams.set("game", "");
         return url.href;
     }
+
+    let selectedRoom: string;
     
 </script>
 
@@ -68,6 +71,14 @@ import Card from "./Card.svelte";
 <Card {card}>
     <p><a href={`${location.href}?game`} target="_blank">separate window</a></p>
     <p><button on:click={reload}>reload ↺</button></p>
+    <p>
+        <label for="room">custom start room: </label>
+        <select name="room" bind:value={selectedRoom}>
+            {#each $resourceManager.getRooms() as room}
+                <option value={room.uuid}>{room.name}</option>
+            {/each}
+        </select>
+    </p>
     <iframe 
         title="gametest" 
         src={getIFrameURL()} 

@@ -8,13 +8,15 @@ function getShaderSource(): { vertex: string, fragment: string } {
         in vec4 a_objectPos; // positions, and origins of instances (x, y, ox, oy)
         in vec4 a_spriteMapPos; // UV coordinates as a rectangle (x, y, w, h)
         in vec4 a_objectScaleRot; // scale and rotation (sx, sy, rot, 0) 
-        in vec4 a_color; // color tint, transparency
+        in vec4 a_color; // color, multiplicative / transparency
+        in vec4 a_tint; // tint, alpha drives strength of tint
         
         uniform vec2 u_resolution; // screen resolution
         uniform vec2 u_spriteMap_resolution; // sprite map resolution
 
         out vec2 v_texcoord;
         out vec4 v_color;
+        out vec4 v_tint;
 
         void main() {
             // position in world space / screen space (same thing atm)
@@ -34,6 +36,7 @@ function getShaderSource(): { vertex: string, fragment: string } {
             v_texcoord = a_localPos * a_spriteMapPos.zw + a_spriteMapPos.xy;
 
             v_color = a_color;
+            v_tint = a_tint;
         }
     `;
     let fragment = `#version 300 es
@@ -41,13 +44,20 @@ function getShaderSource(): { vertex: string, fragment: string } {
 
         in vec2 v_texcoord;
         in vec4 v_color;
+        in vec4 v_tint;
 
         uniform sampler2D u_texture;
         
         out vec4 outColor;
 
         void main() {
+            // multiply color
             outColor = texture(u_texture, v_texcoord) * v_color;
+            // lerp to tint color
+            float a = v_tint.a;
+            // outColor = vec4(outColor.rgb * (1.0 - a) + v_tint.rgb * a, outColor.a);
+            outColor.rgb = outColor.rgb * (1.0 - a) + v_tint.rgb * a;
+            // outColor = v_tint;
         }
     `;
 
@@ -76,6 +86,7 @@ export default class Renderer {
         // settings
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.depthFunc(gl.ALWAYS);
 
         // locations
         let resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
@@ -87,6 +98,7 @@ export default class Renderer {
         let spriteCoordAttribLocation = gl.getAttribLocation(program, "a_spriteMapPos");
         let scaleRotationAttribLocation = gl.getAttribLocation(program, "a_objectScaleRot");
         let colorAttribLocation = gl.getAttribLocation(program, "a_color");
+        let tintAttribLocation = gl.getAttribLocation(program, "a_tint");
         // let textureLoc = gl.getAttribLocation(program, "u_texture");
 
         // buffers
@@ -113,6 +125,7 @@ export default class Renderer {
         let spriteCoordBuffer = _setUpInstAttribBuffer(gl, spriteCoordAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
         let scaleRotationBuffer = _setUpInstAttribBuffer(gl, scaleRotationAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
         let colorBuffer = _setUpInstAttribBuffer(gl, colorAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
+        let tintBuffer = _setUpInstAttribBuffer(gl, tintAttribLocation, 4, gl.FLOAT, false, 4*4, 0);
 
         // texture buffer
         let texture = gl.createTexture();
@@ -183,6 +196,16 @@ export default class Renderer {
                     1, // (1 + Math.cos((t/100+0.333)*2*Math.PI))/2,
                     1, // (1 + Math.cos((t/100+0.666)*2*Math.PI))/2,
                     inst.imgAlpha
+                ]
+            );
+            this._fillFloat4BufferInstances(gl,
+                tintBuffer,
+                instances,
+                (inst, spr) => [
+                    inst.imgColor.r,
+                    inst.imgColor.g,
+                    inst.imgColor.b,
+                    inst.imgColor.a,
                 ]
             );
             
@@ -280,7 +303,7 @@ interface Rect {
     height: number,
 }
 
-function makeSpriteMap(sprites: Sprite[]): {canvas: HTMLCanvasElement, coords: WeakMap<Sprite, Rect>} {
+export function makeSpriteMap(sprites: Sprite[]): {canvas: HTMLCanvasElement, coords: WeakMap<Sprite, Rect>} {
     console.log("-- generate sprite atlas --");
     let coords = new WeakMap<Sprite, Rect>();
     let area = (spr: Sprite) => (spr.canvas.width * spr.canvas.height);

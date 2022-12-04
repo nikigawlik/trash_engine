@@ -2,7 +2,7 @@ import Room from "../structs/room";
 import Sprite from "../structs/sprite";
 import type ResourceManager from "./ResourceManager";
 import Renderer from "./renderer"
-import { mod, xorshiftGetRandom01, xorshiftSetSeed } from "./utils";
+import { Color, getColorHSVA, getColorRGBA, mod, xorshiftGetRandom01, xorshiftSetSeed } from "./utils";
 import type Instance from "../structs/instance";
 
 export interface SpriteInstance {
@@ -12,6 +12,7 @@ export interface SpriteInstance {
     imgScaleY: number,
     imgRotation: number,
     imgAlpha: number,
+    imgColor: Color,
 
     spriteID: string,
     update: Function,
@@ -29,6 +30,7 @@ export default class Game {
     isEnding: boolean;
     currentRoom: Room
     queuedRoom: Room
+    startRoom: Room
 
     instances: SpriteInstance[];
     renderer: Renderer;
@@ -51,7 +53,7 @@ export default class Game {
     instanceDepth: WeakMap<SpriteInstance, number>
 
 
-    constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement) {
+    constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement, startRoomID?: string) {
         this.tickRate = 60;
         this.resourceManager = resourceManager;
         this.canvas = canvas;
@@ -69,6 +71,17 @@ export default class Game {
         
         this.currentRoom = null;
         this.queuedRoom = null;
+        this.startRoom = startRoomID && this.resourceManager.getResourceOfType(startRoomID, Room) as Room;
+
+        if(!this.startRoom) {
+            let rooms = this.resourceManager.getRooms();
+            
+            if(rooms.length == 0) {
+                console.warn("no rooms found. Possibly a side effect of invalid/missing game data.")
+            } else {
+                this.startRoom = rooms[0]
+            }
+        }
         
 
         this.keyMap = new Map<string, boolean>();
@@ -136,6 +149,20 @@ export default class Game {
             const ws = this.instanceSets.get(filter);
             return this.instances.filter(x => ws.has(x))
         });
+        defineLibFunction("findClosest", (filter: string, x: number, y: number) => {
+            const ws = this.instanceSets.get(filter);
+            let closest = null;
+            let closestDistSqr = Infinity;
+            for(let inst of this.instances) {
+                if(!ws.has(inst)) continue;
+                const distSqr = (inst.x - x)**2 + (inst.y - y)**2;
+                if(distSqr <= closestDistSqr) {
+                    closestDistSqr = distSqr;
+                    closest = inst 
+                }
+            }
+            return closest;
+        });
         defineLibFunction("setDepth", (self: SpriteInstance, depth: number) => {
             this.instanceDepth.set(self, depth);
         })
@@ -151,16 +178,29 @@ export default class Game {
         defineLibFunction("keyIsReleased", (...codes: string[]) => this.checkKeys("released", ...codes) )
         
         defineLibFunction("collisionAt", (instance: SpriteInstance, filter: string, x: number, y: number) => this.collisionAt(instance, filter, x, y) )
-        defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
         defineLibFunction("instancesAt", (instance: SpriteInstance, filter: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, filter, x, y)))
         
-        defineLibFunction("persist", (instance: SpriteInstance, level: number = 1) => this.persistent.set(instance, level))
+        defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
+        defineLibFunction("approach", (a: number, b: number, speed: number) => 
+            a + Math.sign(b - a) * Math.min(speed, Math.abs(b-a))
+        )
 
+        defineLibFunction("colorRGBA", getColorRGBA)
+        defineLibFunction("colorHSVA", getColorHSVA)
+        
+        defineLibFunction("persist", (instance: SpriteInstance, level: number = 1) => this.persistent.set(instance, level))
         defineLibFunction("tag", (instance: SpriteInstance, tagName: string) => {
             if(!this.instanceSets.has(tagName)) 
                 this.instanceSets.set(tagName, new WeakSet())
             let ws = this.instanceSets.get(tagName);
             ws.add(instance);
+        })
+
+        defineLibFunction("untag", (instance: SpriteInstance, tagName: string) => {
+            if(!this.instanceSets.has(tagName)) 
+                return;
+            let ws = this.instanceSets.get(tagName);
+            ws.delete(instance);
         })
 
         defineLibFunction("drandom", () => xorshiftGetRandom01());
@@ -182,15 +222,13 @@ export default class Game {
             this.mouseY = ev.offsetY * devicePixelRatio;
         }
 
-        let rooms = this.resourceManager.getRooms();
-        if(rooms.length == 0) {
-            console.warn("no rooms found. Possibly a side effect of invalid/missing game data.")
-        } else { 
-            this._setRoomDirect(rooms[0]);
-
+        if(this.startRoom) {
+            this._setRoomDirect(this.startRoom);
+            
             // start
             this.mainLoop();
         }
+        
     }
 
     async mainLoop() {
@@ -214,6 +252,7 @@ export default class Game {
         // const inst = new Instance(spriteUUID, x, y);
         const sprite = this.resourceManager.getResource(spriteUUID) as Sprite;
         const inst = sprite._instanceConstructor(x, y);
+        if(!inst) return;
         // inst.x = x;
         // inst.y = y;
         this.instances.push(inst)
@@ -357,8 +396,8 @@ export default class Game {
 
         // this.draw();
         this.instances.sort((a, b) => 
-            this.instanceDepth.get(a) || 0 -
-            this.instanceDepth.get(b) || 0
+            (this.instanceDepth.get(a) || 0) -
+            (this.instanceDepth.get(b) || 0)
         )
         this.renderer.render(this.instances);
 

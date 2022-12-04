@@ -89,10 +89,11 @@ export default class Sprite extends Resource {
         let globalsMap = new Map<string, any>();
         // globalsMap.set("x", 0);
         // globalsMap.set("y", 0);
-        globalsMap.set("imgScaleX", 1);
-        globalsMap.set("imgScaleY", 1);
-        globalsMap.set("imgRotation", 0);
-        globalsMap.set("imgAlpha", 1);
+        globalsMap.set("imgScaleX", "1");
+        globalsMap.set("imgScaleY", "1");
+        globalsMap.set("imgRotation", "0");
+        globalsMap.set("imgAlpha", "1");
+        globalsMap.set("imgColor", "{r:0, g:0, b:0, a:0}");
 
         let _behaviours = this.resolveBehaviours();
 

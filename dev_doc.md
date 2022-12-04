@@ -360,3 +360,25 @@ things to draw:
   - repeating textures ?
 
 everything is just a quad, at the end of the day
+
+
+## movement theory
+
+Movement ideas can be generated
+
+- Obstacle driven
+  - distance based: vertical or horizontal gap to traverse
+  - special interactive element: grab point, breakable wall
+  - tight squeeze: small gaps, requires shrinking
+
+- Player driven
+  - a) remove a constraint, examples: double jump, infinite jump
+  - b) add a new state 
+    - input driven: morphball, dash
+    - context driving: hanging from ledge, sticking to wall
+  - c) tweak parameter: jump height, move speed, etc.
+
+- Input types:
+  - Context driven -> applies automatically in certain contexts (auto-duck, ledge grabs, etc.)
+  - Input driven -> User presses a button(-combination)
+  - Hybrid -> The effect of the input changes based on context (wall jump, generic interact button, duck to slide)

@@ -83,11 +83,52 @@ export function xorshiftGetRandom01() {
     return (-(1<<31) + xorshiftGetRandom()) / (2**32);
 }
 
-xorshiftSetSeed("helfasldkf");
-for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom())
-xorshiftSetSeed("helfasldkf");
-for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom())
-xorshiftSetSeed("helfasldkf");
-for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom01())
-xorshiftSetSeed("helfasldkf");
-for(let i = 0; i < 10; i++) console.log(xorshiftGetRandom01())
+export interface Color {
+    r: number,
+    g: number,
+    b: number,
+    a: number;
+}
+
+/**
+ * 
+ * @param r red component, between 0 and 1
+ * @param g green component, between 0 and 1
+ * @param b blue component, between 0 and 1
+ * @param a alpha component, between 0 and 1
+ * @returns color
+ */
+export function getColorRGBA(r: number, g: number, b: number, a: number = 1): Color {
+    return { r, g, b, a }
+}
+
+/**
+ * 
+ * @param h hue, between 0 and 2*PI
+ * @param s saturation, between 0 and 1
+ * @param v value, between 0 and 1
+ * @param a alpha, between 0 and 1
+ * @returns color
+ */
+export function getColorHSVA(h: number, s: number, v: number, a: number = 1): Color {
+    h = mod(h, Math.PI * 2);
+    const c = v * s
+    const x = c * (1 - Math.abs((h / (Math.PI / 3)) % 2 - 1));
+    const m = v - c;
+    const sextant = h / (Math.PI / 3);
+    const [_r, _g, _b] = 
+        sextant < 1? [c, x, 0] :
+        sextant < 2? [x, c, 0] :
+        sextant < 3? [0, c, x] :
+        sextant < 4? [0, x, c] :
+        sextant < 5? [x, 0, c] :
+                     [c, 0, x]
+    ;
+    return { 
+        r: _r + m,
+        g: _g + m,
+        b: _b + m,
+        a,
+    };
+}
+

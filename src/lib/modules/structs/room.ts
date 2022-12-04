@@ -15,7 +15,8 @@ export default class Room extends Resource {
     }
     constructor(name = "room") {
         super(name);
-        this.width = ~~(540 * 12/9);
+        // this.width = ~~(540 * 12/9);
+        this.width = 540;
         this.height = 540;
         this.instances = [];
         this.backgroundColor = "#222222";
