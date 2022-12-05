@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { CardInstance } from "../modules/cardManager";
+    import Behaviour from "../modules/structs/behaviour";
 
 
 import { resourceManager } from "../modules/game/ResourceManager";
@@ -16,6 +17,7 @@ $: card.className = "resources";
 // let root = resourceManager.get()?.root;
 $: sprites = $resourceManager.getSprites();
 $: rooms = $resourceManager.getRooms();
+$: behaviours = $resourceManager.getBehaviours();
 
 </script>
 
@@ -36,6 +38,14 @@ $: rooms = $resourceManager.getRooms();
             {#each rooms as room (room.uuid)}
                 <li>
                     <ResourceTreeResource selfResource={room}></ResourceTreeResource>
+                </li>
+            {/each}
+        </ul>
+        <ResourcesFolder displayName="scripts" resourceConstructor={Behaviour} />
+        <ul class="resources behaviours">
+            {#each behaviours as behaviour (behaviour.uuid)}
+                <li>
+                    <ResourceTreeResource selfResource={behaviour}></ResourceTreeResource>
                 </li>
             {/each}
         </ul>

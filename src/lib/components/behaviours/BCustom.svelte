@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type Behaviour from "../../modules/game/behaviour";
+    import type Behaviour from "../../modules/structs/behaviour";
     import { resourceManager } from "../../modules/game/ResourceManager";
     import AtlasIcon from "../AtlasIcon.svelte";
 

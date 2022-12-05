@@ -1,5 +1,6 @@
 import type { SvelteComponent } from "svelte"
-import Resource from "../structs/resource"
+import BCustomSvelte from "../../components/behaviours/BCustom.svelte"
+import Resource from "./resource"
 
 export default class Behaviour extends Resource {
     props: string[]
@@ -14,5 +15,6 @@ export default class Behaviour extends Resource {
         this.code = "";
         this.iconID = 0;
         this.data = {};
+        this.svelteComponent = BCustomSvelte;
     }
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { CardInstance } from "../modules/cardManager";
+    import Behaviour from "../modules/structs/behaviour";
     import { resourceManager } from "../modules/game/ResourceManager";
     import Sprite from "../modules/structs/sprite";
     import Card from "./Card.svelte";
@@ -8,14 +9,32 @@
 
     console.log(`open behaviour ${card.uuid}`);
 
-    let [spriteUUID, behaviourUUID] = card.uuid.split("/");
+    let isIndependent = !card.uuid.includes("/");
 
-    let sprite = $resourceManager.getResourceOfType(spriteUUID, Sprite) as Sprite;
-    let behaviour = 
-        sprite.behaviours.find(x => x.uuid == behaviourUUID)
-    ;
+    let behaviour: Behaviour;
+    let sprite: Sprite|null;
 
-    $: {card.name = `${sprite.name} / ${behaviour.name}`; $resourceManager;} // $resourceManager added for reactivity
+    if(isIndependent) {
+        sprite = null;
+        behaviour = $resourceManager.getResourceOfType(card.uuid, Behaviour) as Behaviour;
+    } else {
+        let [spriteUUID, behaviourUUID] = card.uuid.split("/");
+        
+        sprite = $resourceManager.getResourceOfType(spriteUUID, Sprite) as Sprite;
+        behaviour = 
+            sprite.behaviours.find(x => x.uuid == behaviourUUID)
+        ;
+    }
+    
+    $: {
+        card.name = isIndependent?
+            `script / ${behaviour.name}`
+        : 
+            `${sprite.name} / ${behaviour.name}`
+        ; 
+        $resourceManager; // $resourceManager added for reactivity
+    }
+
     $: card.className = "behaviour-editor"
     $: card.position.width = 450;
 </script>

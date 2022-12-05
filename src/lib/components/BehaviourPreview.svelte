@@ -1,18 +1,28 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { openCard } from "../modules/cardManager";
-    import type Behaviour from "../modules/game/behaviour";
+    import type Behaviour from "../modules/structs/behaviour";
     import { resourceManager } from "../modules/game/ResourceManager";
     import type Sprite from "../modules/structs/sprite";
     import AtlasIcon from "./AtlasIcon.svelte";
     import BehaviourEditor from "./BehaviourEditor.svelte";
+    import BehaviourLink from "../modules/structs/behaviourLink";
 
     export let behaviour: Behaviour;
     export let sprite: Sprite;
 
-    $: combinedUUID = `${sprite.uuid}/${behaviour.uuid}`;
+    // TODO could do this cleaner
+    $: uuid = behaviour instanceof BehaviourLink? 
+        behaviour.uuid 
+    : 
+        `${sprite.uuid}/${behaviour.uuid}`
+    ;
 
-    let bStore = $resourceManager.getResourceStore(behaviour);
+    let bStore = behaviour instanceof BehaviourLink?
+        $resourceManager.getResourceStore(behaviour.linkedBehaviourUUID)
+    :
+        $resourceManager.getResourceStore(behaviour)
+    ;
 
     const dispatch = createEventDispatcher();
 
@@ -38,7 +48,7 @@
 </p>
 <!-- <svelte:component this={behaviour.svelteComponent} {behaviour}></svelte:component> -->
 
-<button on:click={() => { openCard(BehaviourEditor, true, combinedUUID) }}>open</button>
+<button on:click={() => { openCard(BehaviourEditor, true, uuid) }}>open</button>
 
 <style>
 

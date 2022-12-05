@@ -5,6 +5,8 @@
             openCard(SpriteEditor, true, resource.uuid);
         } else if (resource instanceof Room) {
             openCard(RoomEditor, true, resource.uuid);
+        } else if (resource instanceof Behaviour) {
+            openCard(BehaviourEditor, true, resource.uuid);
         } else {
             console.log(`no window implemented for ${resource.type}`);
         }
@@ -13,18 +15,20 @@
 
 <script lang="ts">
 import { openCard } from "../modules/cardManager";
-    import { resourceManager } from "../modules/game/ResourceManager";
+import Behaviour from "../modules/structs/behaviour";
+import { resourceManager } from "../modules/game/ResourceManager";
 import type Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
 import Sprite from "../modules/structs/sprite";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
+import BehaviourEditor from "./BehaviourEditor.svelte";
 import type { ContextMenuData } from "./ContextMenu.svelte";
 import ContextMenu from "./ContextMenu.svelte";
 import RoomEditor from "./RoomEditor.svelte";
 import SpriteEditor from "./SpriteEditor.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
 // import { currentContextMenu } from "./ContextMenu.svelte";
-    export let selfResource: Room | Sprite;
+    export let selfResource: Room | Sprite | Behaviour;
 
     let hover: boolean = false;
     let currentContextMenu: ContextMenuData|null = null;

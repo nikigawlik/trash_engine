@@ -2,7 +2,8 @@ import Sprite from "./sprite";
 import Room from "./room";
 import Folder from "./folder";
 import Instance from "./instance";
-import Behaviour from "../game/behaviour";
+import Behaviour from "./behaviour";
+import BehaviourLink from "./behaviourLink";
 import BCustomSvelte from "../../components/behaviours/BCustom.svelte";
 import BPlayerControllerSvelte from "../../components/behaviours/BPlayerController.svelte";
 
@@ -16,6 +17,7 @@ nameConstructorMap.set("Room", Room);
 nameConstructorMap.set("Folder", Folder);
 nameConstructorMap.set("Instance", Instance);
 nameConstructorMap.set("Behaviour", Behaviour);
+nameConstructorMap.set("BehaviourLink", BehaviourLink);
 nameConstructorMap.set("BCustomSvelte", BCustomSvelte);
 nameConstructorMap.set("BPlayerControllerSvelte", BPlayerControllerSvelte);
 

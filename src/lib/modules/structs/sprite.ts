@@ -1,6 +1,7 @@
-import type Behaviour from "../game/behaviour";
+import type Behaviour from "./behaviour";
 import { resourceManager } from "../game/ResourceManager";
 import Resource from "./resource";
+import BehaviourLink from "./behaviourLink";
 
 export default class Sprite extends Resource {
     canvas: HTMLCanvasElement | null;
@@ -37,6 +38,11 @@ export default class Sprite extends Resource {
     }
 
     resolveBehaviours(): Behaviour[] {
+        this.behaviours = this.behaviours.filter(x => 
+            !(x instanceof BehaviourLink) || 
+            resourceManager.get().resources.has(x.linkedBehaviourUUID)
+        );
+        
         return this.behaviours;
     }
 

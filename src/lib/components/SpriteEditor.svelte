@@ -1,7 +1,9 @@
 <script lang="ts">
+import type { Writable } from "svelte/store";
 import type { CardInstance } from "../modules/cardManager";
-import Behaviour from "../modules/game/behaviour";
 import { resourceManager } from "../modules/game/ResourceManager";
+import Behaviour from "../modules/structs/behaviour";
+import BehaviourLink from "../modules/structs/behaviourLink";
 import type Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
 import AtlasIcon from "./AtlasIcon.svelte";
@@ -13,31 +15,31 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
     export let card: CardInstance;
 
     console.log(`open sprite ${card.uuid}`);
-    let sprite: Sprite = $resourceManager?.getResource(card.uuid) as Sprite;
+    $: sSprite = $resourceManager?.getResourceStore(card.uuid) as Writable<Sprite>;
 
-    $: {card.name = sprite.name; $resourceManager;} // $resourceManager added for reactivity
-    $: card.className = "sprite-editor"
-    $: card.position.width = 350;
+    $: {card.name = $sSprite?.name;}
+    card.className = "sprite-editor"
+    card.position.width = 350;
 
     let mode: "draw" | "script" = "draw";
 
-    $: behaviours = sprite.resolveBehaviours();
+    $: behaviours = $sSprite.resolveBehaviours();
 
 
     function removeBehaviour(behaviour: Behaviour) {
-        sprite.removeBehaviour(behaviour);
-        sprite = sprite; // trigger reactivity
+        $sSprite.removeBehaviour(behaviour);
+        $sSprite = $sSprite; // trigger reactivity
     }
 
     function reinsertBehaviour(behaviour: Behaviour, position: number) {
-        let curIndex = sprite.behaviours.indexOf(behaviour);
+        let curIndex = $sSprite.behaviours.indexOf(behaviour);
         if(curIndex < 0) return;
         position = Math.min(Math.max(position, 0), behaviours.length);
         
-        sprite.behaviours.splice(curIndex, 1);
-        sprite.behaviours.splice(position, 0, behaviour);
+        $sSprite.behaviours.splice(curIndex, 1);
+        $sSprite.behaviours.splice(position, 0, behaviour);
 
-        sprite = sprite;
+        $sSprite = $sSprite;
     }
 
     /*
@@ -57,10 +59,9 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
             data: {},
             resolve,
         }));
-        if(result instanceof Behaviour) {
-            $resourceManager.addResource(result);
-            sprite.addBehaviour(result);
-            sprite = sprite;
+        if(result instanceof Behaviour || result instanceof BehaviourLink) {
+            $sSprite.addBehaviour(result);
+            $sSprite = $sSprite;
         }
     }
 </script>
@@ -71,13 +72,13 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
         <button on:click={() => mode = "script" } class:selected={mode == "script"}>script</button>
     </div>
     {#if mode=="draw"}
-        <ImageEditor spriteID={sprite.uuid}/>
+        <ImageEditor spriteID={$sSprite.uuid}/>
     {:else if mode == "script"}
         <ul class="behaviours">
             {#each behaviours as behaviour, i (behaviour.uuid)}
                 <li>
                     <BehaviourPreview 
-                        {sprite}
+                        sprite={$sSprite}
                         {behaviour}
                         on:move={(evt) => reinsertBehaviour(behaviour, i+evt.detail)}
                         on:remove={() => removeBehaviour(behaviour)}

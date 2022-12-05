@@ -4,7 +4,7 @@ import type Folder from "../structs/folder";
 import type Resource from "../structs/resource";
 import Room from "../structs/room";
 import Sprite from "../structs/sprite";
-import Behaviour from "./behaviour";
+import Behaviour from "../structs/behaviour";
 import { assert, rectInside } from "./utils";
 
 console.log("resource_manager.ts loading")

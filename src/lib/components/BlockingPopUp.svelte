@@ -15,9 +15,11 @@ import type { AbstractButton, AbstractPrompt } from "../modules/ui";
         prompt = null;
     }
 
-    onMount(() => {
+    let targetButton: HTMLButtonElement|null;
 
-    });
+    onMount(() => {
+        if(targetButton) targetButton.focus();
+    })
 </script>
 
 {#if prompt}
@@ -28,8 +30,12 @@ import type { AbstractButton, AbstractPrompt } from "../modules/ui";
             {/each}
             <slot></slot>
             <ul class=horizontal>
-                {#each prompt.buttons as but}
-                <li><button on:click={() => buttonClick(but)} disabled={but.disabled} >{but.text}</button></li>
+                {#each prompt.buttons as but, i}
+                {#if but.default}
+                    <li><button bind:this={targetButton} on:click={() => buttonClick(but)} disabled={but.disabled} >{but.text}</button></li>
+                {:else}
+                    <li><button on:click={() => buttonClick(but)} disabled={but.disabled} >{but.text}</button></li>
+                {/if}
                 {/each}
             </ul>
         </div>

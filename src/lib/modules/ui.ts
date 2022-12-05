@@ -20,22 +20,23 @@ export interface AbstractPrompt {
 export interface AbstractButton {
     text: string
     callback: () => Promise<void>|void
-    disabled?: boolean
+    disabled?: boolean,
+    default?: boolean,
 }
 
 
 export let blockingPopup = writable(null) as Writable<AbstractPrompt|null>;
 
 // TODO might never resolve
-export let asyncYesNoPopup = async (question: string) => {
+export let asyncYesNoPopup = async (question: string, defaultNo: boolean = true) => {
     return await new Promise(resolve => {
         blockingPopup.set({
             componentType: BlockingPopUpSvelte as any,
             text: question,
             data: null,
             buttons: [
-                { text: "yes", callback: () => resolve(true) },
-                { text: "no", callback: () => resolve(false) },
+                { text: "yes", callback: () => resolve(true), default: !defaultNo },
+                { text: "no", callback: () => resolve(false), default: defaultNo },
             ],
             resolve
         });

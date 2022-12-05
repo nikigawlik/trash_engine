@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Behaviour from "../modules/structs/behaviour";
     import { resourceManager } from "../modules/game/ResourceManager";
     import type Resource from "../modules/structs/resource";
     import Room from "../modules/structs/room";
@@ -11,8 +12,10 @@
     export let displayName: string;
 
     // TODO not like this
-    let resourceName = resourceConstructor == Sprite?  "sprite": 
-        resourceConstructor == Room?  "room":
+    let resourceName = 
+        (resourceConstructor == Sprite)?  "sprite": 
+        (resourceConstructor == Room)?  "room":
+        (resourceConstructor == Behaviour)?  "script":
         "null" 
     ;
 

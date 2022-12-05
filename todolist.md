@@ -110,6 +110,7 @@ vv START HERE vv
 - img icon in title of sprite cards
 - props in behaviour preview
 - props need a scollbar if there are a lot of them lol
+- resource stores -> do actually signal destruction, use this to close windows (e.h. behaviours)
 
 Useful for metroidvania: 
  - reusable behaviours (behaviour as resource)

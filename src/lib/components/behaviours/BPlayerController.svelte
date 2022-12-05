@@ -1,6 +1,6 @@
 
 <script lang="ts">
-    import type Behaviour from "../../modules/game/behaviour";
+    import type Behaviour from "../../modules/structs/behaviour";
     
     // export let sprite: Sprite;
     export let behaviour: Behaviour;

@@ -1,24 +1,45 @@
 <script lang="ts">
-    import Behaviour from "../modules/game/behaviour";
+    import type { SvelteComponentDev } from "svelte/internal";
+    import { resourceManager } from "../modules/game/ResourceManager";
+    import Behaviour from "../modules/structs/behaviour";
 import type { AbstractPrompt } from "../modules/ui";
     import BCustom from "./behaviours/BCustom.svelte";
     import BPlayerController from "./behaviours/BPlayerController.svelte";
 import BlockingPopUp from "./BlockingPopUp.svelte";
+import BehaviourLink from "../modules/structs/behaviourLink"
 
     export let prompt: AbstractPrompt|null;
+
+    interface BehOpt {
+        text: string,
+        behaviourComp?: typeof SvelteComponentDev,
+        linkedBehaviour?: Behaviour
+    }
     
-    let options = [
-        {text: "player controller", behaviourComp: BPlayerController},
-        {text: "custom", behaviourComp: BCustom},
+    let defaultOptions: BehOpt[] = [
+        { text: "player controller", behaviourComp: BPlayerController },
+        { text: "custom code", behaviourComp: BCustom },
     ];
+
+    let additionalOptions: BehOpt[] = resourceManager.get().getBehaviours().map(x => ({
+        text: `s: ${x.name}`,
+        linkedBehaviour: x,
+    }));
+
+    let options = defaultOptions.concat(additionalOptions);
 
     let selectedID: number;
     $: selected = options[selectedID]
     
     $: if(prompt) prompt.buttons = [
         {text: "ok", callback: () => {
-            let b = new Behaviour(selected.text);
-            b.svelteComponent = selected.behaviourComp;
+            let b: Behaviour;
+            if(selected.linkedBehaviour) {
+                b = new BehaviourLink(selected.linkedBehaviour.uuid);
+            } else {
+                b = new Behaviour(selected.text);
+                b.svelteComponent = selected.behaviourComp;
+            }
             prompt?.resolve(b);
         }},
         {text: "cancel", callback: () => prompt?.resolve(null)},
