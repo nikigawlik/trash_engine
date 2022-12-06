@@ -48,8 +48,10 @@ export default class Game {
     instanceSets: Map<string, WeakSet<SpriteInstance>>
     upForDeletion: WeakSet<SpriteInstance>
     instanceArrays: WeakMap<Room, SpriteInstance[]>
+    
     instanceSpriteInstanceMap: WeakMap<Instance, SpriteInstance>
-
+    permaDestroyed: WeakSet<SpriteInstance>
+    
     instanceDepth: WeakMap<SpriteInstance, number>
 
 
@@ -68,6 +70,7 @@ export default class Game {
         this.upForDeletion = new WeakSet();
         this.instanceArrays = new WeakMap();
         this.instanceSpriteInstanceMap = new WeakMap();
+        this.permaDestroyed = new WeakSet<SpriteInstance>();
         
         this.currentRoom = null;
         this.queuedRoom = null;
@@ -140,7 +143,12 @@ export default class Game {
 
         defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
         defineLibFunction("destroyImmediate", (instance: SpriteInstance) => this.destroyInstance(instance))
-        defineLibFunction("destroy", (instance: SpriteInstance) => this.upForDeletion.add(instance))
+        defineLibFunction("destroy", (instance: SpriteInstance, permanent: boolean = false) => {
+            this.upForDeletion.add(instance);
+            if(permanent) {
+                this.permaDestroyed.add(instance);
+            }
+        })
         defineLibFunction("find", (filter: string) => {
             const ws = this.instanceSets.get(filter);
             return this.instances.find(x => ws.has(x))
@@ -181,6 +189,9 @@ export default class Game {
         defineLibFunction("instancesAt", (instance: SpriteInstance, filter: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, filter, x, y)))
         
         defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
+        defineLibFunction("distance", (x1: number, y1: number, x2: number, y2: number) => 
+            ((x1-x2)**2 + (y1-y2)**2)**0.5 
+        )
         defineLibFunction("approach", (a: number, b: number, speed: number) => 
             a + Math.sign(b - a) * Math.min(speed, Math.abs(b-a))
         )
@@ -352,6 +363,10 @@ export default class Game {
 
         for(let roomInst of room.instances) {
             let existing = this.instanceSpriteInstanceMap.get(roomInst);
+            // don't respawn permanently destroyed instances
+            if(existing && this.permaDestroyed.has(existing)) {
+                continue;
+            }
             let pLevel = (existing && this.persistent.get(existing)) || 0;
 
             // persistence level 0 are respawned, level 1 instances are reused

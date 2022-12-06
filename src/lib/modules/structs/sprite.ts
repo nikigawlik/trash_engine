@@ -113,7 +113,7 @@ export default class Sprite extends Resource {
 
         const props = globals.map(g => g[0]).concat(params);
         let propAccessors = props.map(p => 
-`    get ${p}() {return ${p}}, set ${p}(value) {${p} = value},`
+`    get ${p}() {return ${p}}, set ${p}(_te_value) {${p} = _te_value},`
         );
 
         let code = `

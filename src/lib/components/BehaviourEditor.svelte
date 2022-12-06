@@ -6,24 +6,27 @@
     import Card from "./Card.svelte";
 
     export let card: CardInstance;
+    let uuid = card.uuid;
 
     console.log(`open behaviour ${card.uuid}`);
 
-    let isIndependent = !card.uuid.includes("/");
-
+    
     let behaviour: Behaviour;
     let sprite: Sprite|null;
-
-    if(isIndependent) {
-        sprite = null;
-        behaviour = $resourceManager.getResourceOfType(card.uuid, Behaviour) as Behaviour;
-    } else {
-        let [spriteUUID, behaviourUUID] = card.uuid.split("/");
-        
-        sprite = $resourceManager.getResourceOfType(spriteUUID, Sprite) as Sprite;
-        behaviour = 
+    const isIndependent = !card.uuid.includes("/");
+    
+    $: {
+        if(isIndependent) {
+            sprite = null;
+            behaviour = $resourceManager.getResourceOfType(uuid, Behaviour) as Behaviour;
+        } else {
+            let [spriteUUID, behaviourUUID] = uuid.split("/");
+            
+            sprite = $resourceManager.getResourceOfType(spriteUUID, Sprite) as Sprite;
+            behaviour = 
             sprite.behaviours.find(x => x.uuid == behaviourUUID)
-        ;
+            ;
+        }
     }
     
     $: {
