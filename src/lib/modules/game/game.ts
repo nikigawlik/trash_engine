@@ -5,6 +5,14 @@ import Renderer from "./renderer"
 import { Color, getColorHSVA, getColorRGBA, mod, xorshiftGetRandom01, xorshiftSetSeed } from "./utils";
 import type Instance from "../structs/instance";
 
+let animFrameHandle: number|undefined = undefined;
+
+if(import.meta.hot) {
+    import.meta.hot.dispose(data => {
+        window.cancelAnimationFrame(animFrameHandle);
+    })
+}
+
 export interface SpriteInstance {
     x: number,
     y: number,
@@ -144,10 +152,12 @@ export default class Game {
         defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
         defineLibFunction("destroyImmediate", (instance: SpriteInstance) => this.destroyInstance(instance))
         defineLibFunction("destroy", (instance: SpriteInstance, permanent: boolean = false) => {
+            if(!instance) return false;
             this.upForDeletion.add(instance);
             if(permanent) {
                 this.permaDestroyed.add(instance);
             }
+            return true;
         })
         defineLibFunction("find", (filter: string) => {
             const ws = this.instanceSets.get(filter);
@@ -244,14 +254,20 @@ export default class Game {
 
     async mainLoop() {
         while(!this.isEnding) {
-            await new Promise(resolve => window.requestAnimationFrame(() => { this.update(); resolve(null) }));
+            await new Promise(resolve => animFrameHandle = window.requestAnimationFrame(() => { this.update(); resolve(null); }));
         }
     }
 
     checkKeys(mode: "down" | "pressed" | "released", ...codes: string[]) {
         let map = 
             mode == "pressed"? this.pressedMap : (mode == "released"? this.releasedMap: this.keyMap)
+
         for(let code of codes) {
+            if(code == "KeyAny") {
+                if(Array.from(map.values()).includes(true)) {
+                    return true;
+                }
+            } else
             if(map.has(code) && map.get(code)) {
                 return true;
             }

@@ -111,6 +111,7 @@ vv START HERE vv
 - props in behaviour preview
 - props need a scollbar if there are a lot of them lol
 - resource stores -> do actually signal destruction, use this to close windows (e.h. behaviours)
+- general breaking bugs related to deleted resources
 
 Useful for metroidvania: 
  - reusable behaviours (behaviour as resource)

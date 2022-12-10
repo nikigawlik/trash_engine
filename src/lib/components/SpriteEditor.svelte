@@ -15,9 +15,9 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
     export let card: CardInstance;
 
     console.log(`open sprite ${card.uuid}`);
-    $: sSprite = $resourceManager?.getResourceStore(card.uuid) as Writable<Sprite>;
+    let sSprite = resourceManager.get().getResourceStore(card.uuid) as Writable<Sprite>;
 
-    $: {card.name = $sSprite?.name;}
+    $: { card.name = $sSprite?.name; card = card; }
     card.className = "sprite-editor"
     card.position.width = 350;
 
