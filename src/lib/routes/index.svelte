@@ -1,10 +1,8 @@
 <script lang="ts">
-import {blockingPopup} from "../modules/ui";
 import "../../assets/main.css";
 import "../../assets/reset.css";
 import "../../assets/svg.css";
-    import AtlasIcon from "../components/AtlasIcon.svelte";
-import GameData from "../components/GameData.svelte";
+import AtlasIcon from "../components/AtlasIcon.svelte";
 import GamePreview from "../components/GamePreview.svelte";
 import Icon from "../components/Icon.svelte";
 import LoadProjectPopUp from "../components/LoadProjectPopUp.svelte";
@@ -14,14 +12,14 @@ import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
 import { cards, openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
+import { blockingPopup } from "../modules/ui";
+import * as image_editor from "./../components/ImageEditor.svelte";
 import Main from "./../components/Main.svelte";
 import Settings from "./../components/Settings.svelte";
-import * as image_editor from "./../components/ImageEditor.svelte";
 import * as database from "./../modules/database";
 import * as globalData from "./../modules/globalData";
 import { nameConstructorMap } from "./../modules/structs/savenames";
 import * as ui from "./../modules/ui";
-    import { text } from "svelte/internal";
 
     let main: Main|null;
 
@@ -234,14 +232,10 @@ import * as ui from "./../modules/ui";
             <input type="text" bind:value={$resourceManager.settings.title}>
         </div>
         <ul class="topbar">
-            <!-- <li><button onclick="cloneFromTemplate("#objectEditorCard")">new object</button></li> -->
-            <!-- <li><button on:click={() => openCard(ScriptEditor)}>new script</button></li> -->
-            <!-- <li><button on:click={() => openCard(Log)}>new log</button></li> -->
-            <!-- <li><button on:click={() => openCard(GameData, false)}>game data</button></li> -->
             <li><button on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </button></li>
             <li><button on:click={() => openCard(Settings, false)}>           <AtlasIcon id={43} /> settings  </button></li>
             <li><button on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> game      </button></li>
-            <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </button></li>
+            <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> reference      </button></li>
             <li><button on:click={async() => await asyncSave()}>       <AtlasIcon id={7}  /> save      </button></li>
             <li><button on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </button></li>
             <li><button on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </button></li>

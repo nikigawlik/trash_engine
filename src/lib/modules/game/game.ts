@@ -198,11 +198,11 @@ export default class Game {
         defineLibFunction("instancesAt", (instance: SpriteInstance, filter: string, x: number, y: number) => Array.from(this._iterateCollisionsAt(instance, filter, x, y)))
         
         defineLibFunction("lerp", (a: number, b: number, factor: number) => a*(1-factor) + b*factor )
+        defineLibFunction("approach", (a: number, b: number, speed: number) => 
+        a + Math.sign(b - a) * Math.min(speed, Math.abs(b-a))
+        )
         defineLibFunction("distance", (x1: number, y1: number, x2: number, y2: number) => 
             ((x1-x2)**2 + (y1-y2)**2)**0.5 
-        )
-        defineLibFunction("approach", (a: number, b: number, speed: number) => 
-            a + Math.sign(b - a) * Math.min(speed, Math.abs(b-a))
         )
 
         defineLibFunction("colorRGBA", getColorRGBA)

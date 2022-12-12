@@ -1,24 +1,37 @@
 ## quick reference of functions & props
 
-- `roomWidth`
-- `roomHeight`
-- `mouseX`
-- `mouseY`
-- `all`
-- `noone`
-- `spawn(sprite: string, x: number, y: number)`
-- `destroy(instance: SpriteInstance)`
-- `find(sprite: string)`
-- `findAll(sprite: string)`
+
+- `roomWidth : number`
+- `roomHeight : number`
+- `mouseX : number`
+- `mouseY : number`
+- `all : uuid`
+- `noone : uuid`
+- `currentRoom : uuid`
+- `spawn(sprite: string, x: number, y: number) : SpriteInstance`
+- `destroy(instance: SpriteInstance) : boolean`
+- `find(sprite: string) : SpriteInstance`
+- `findClosest(sprite: string, x: number, y: number) : SpriteInstance`
+- `findAll(sprite: string) : SpriteInstance[]`
 - `setDepth(self: SpriteInstance, depth: number)`
 - `goToNextRoom()`
 - `goToPreviousRoom()`
 - `moveRooms(difference: number)`
-- `keyIsDown(...codes: string[])`
-- `keyIsPressed(...codes: string[])`
-- `keyIsReleased(...codes: string[])`
-- `collisionAt(instance: SpriteInstance, spriteID: string, x: number, y: number)`
-- `instancesAt(instance: SpriteInstance, spriteID: string, x: number, y: number)`
-- `lerp(a: number, b: number, factor: number)`
-- `persist(instance: SpriteInstance)`
+- `nameOf(uuid: string) : string`
+- `keyIsDown(...codes: string[]) : boolean`
+- `keyIsPressed(...codes: string[]) : boolean`
+- `keyIsReleased(...codes: string[]) : boolean`
+- `collisionAt(instance: SpriteInstance, spriteID: string, x: number, y: number) : boolean`
+- `instancesAt(instance: SpriteInstance, spriteID: string, x: number, y: number) : SpriteInstance[]`
+- `lerp(a: number, b: number, factor: number) : number`
+- `approach(a: number, b: number, speed: number) : number`
+- `distance(x1: number, y1: number, x2: number, y2: number) : number`
+- `colorRGBA(r: number, g: number, b: number, a?: number) : Color`
+- `colorHSVA(h: number, s: number, v: number, a?: number) : Color`
+- `persist(instance: SpriteInstance, level: number = 1)`
 - `tag(instance: SpriteInstance, tagName: string)`
+- `untag(instance: SpriteInstance, tagName: string)`
+- `drandom() : number`
+- `drandomSetSeed(seed: string)`
+- `getCanvas2DContext() : CanvasRenderingContext2D`
+- `openRemixMenu()`
