@@ -24,7 +24,7 @@ interface SaveData {
 
 export default class ResourceManager {
     settings: typeof defaultSettings;
-    stores: WeakMap<Resource, Writable<Resource>> // TODO weak map -> needs symbol
+    stores: WeakMap<Resource, Writable<Resource>>
     resources: Map<string, Resource>
     constructor() {
         this.settings = defaultSettings;
@@ -293,7 +293,7 @@ update(x => x)
 
 let isLoadedPromise = _value.load();
 
-// TODO we should get rid of this
+// TODO should I get rid of this?
 export let resourceManager = {
     subscribe,
     get: () => _value,

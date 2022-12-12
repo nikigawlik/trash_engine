@@ -244,7 +244,6 @@
     let canvasContainer: HTMLElement;
 
     // resize button
-    // TODO doesn't work
     let resizeButtonClick = async() => {
         // make a popup
         let result = await new Promise<any>(resolve =>

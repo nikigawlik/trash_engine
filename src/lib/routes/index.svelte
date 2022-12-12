@@ -65,11 +65,6 @@ import * as ui from "./../modules/ui";
         })
     }
 
-    // // TODO save to game data somewhere
-    // $: gameName = $resourceManager.settings.title;
-    // $: resourceManager.update(rm => { rm.settings.title = gameName; return rm; })
-
-
     function save() {
         let p1 = resourceManager.get().save();
         let p2 = data.save();

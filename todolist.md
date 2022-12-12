@@ -120,6 +120,22 @@ Useful for metroidvania:
  - destroy event
  - animation
 
+MTV TDL:
+ - restart button & cheats
+ - remix behaviour, saves, etc. (including url param bugs, index db key sharing, "initial save" state, etc.)
+ - sound lol
+ - popup window with disclaimer
+ - licensing?
+
+Popup quickstart:
+ - you can save&load different versions of this game using the save and load buttons
+ - (these are stored in your browser, specifically your indexed db storage)
+ - you can return to the original game, by deleting all save data in the settings menu
+ - alternatively you can create a save right now, to have a copy of the original state!
+ - you can (and should) keep backups of the data using the export button
+ - be careful with big images! The engine was tested on sprites in the 60-120 pixel range, high-res images might break the engine.
+ - Bugs, questions, feature requests: Please message me on itch or mastodon!
+
 
 blockers:
 - tests (?)

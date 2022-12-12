@@ -33,7 +33,8 @@ const NOONE_UUID = "a33e372b-c773-4a10-9106-83bae17c9626";
 export default class Game {
     tickRate: number;
     resourceManager: ResourceManager;
-    canvas: HTMLCanvasElement;
+    canvasWebgl: HTMLCanvasElement;
+    canvas2d: HTMLCanvasElement;
     tickNumber: number;
     isEnding: boolean;
     currentRoom: Room
@@ -54,31 +55,34 @@ export default class Game {
     
     persistent: WeakMap<SpriteInstance, number>
     instanceSets: Map<string, WeakSet<SpriteInstance>>
-    upForDeletion: WeakSet<SpriteInstance>
+    destroyed: WeakSet<SpriteInstance>
     instanceArrays: WeakMap<Room, SpriteInstance[]>
     
     instanceSpriteInstanceMap: WeakMap<Instance, SpriteInstance>
-    permaDestroyed: WeakSet<SpriteInstance>
     
     instanceDepth: WeakMap<SpriteInstance, number>
+    editorCallback: (() => void) | null;
 
 
-    constructor(resourceManager: ResourceManager, canvas: HTMLCanvasElement, startRoomID?: string) {
+    constructor(resourceManager: ResourceManager, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, startRoomID?: string) {
         this.tickRate = 60;
         this.resourceManager = resourceManager;
-        this.canvas = canvas;
+        this.editorCallback = null;
+
+        this.canvasWebgl = canvasWebGL;
+        this.canvas2d = canvas2d;
         this.tickNumber = 0;
         this.instances = [];
         this.isEnding = false;
+       
         this.mouseX = 0;
         this.mouseY = 0;
 
         this.persistent = new WeakMap();
         this.instanceSets = new Map();
-        this.upForDeletion = new WeakSet();
+        this.destroyed = new WeakSet();
         this.instanceArrays = new WeakMap();
         this.instanceSpriteInstanceMap = new WeakMap();
-        this.permaDestroyed = new WeakSet<SpriteInstance>();
         
         this.currentRoom = null;
         this.queuedRoom = null;
@@ -103,14 +107,12 @@ export default class Game {
         // extra instance info
         this.instanceDepth = new WeakMap<SpriteInstance, number>()
 
-        this.renderer = new Renderer(canvas, resourceManager);
+        this.renderer = new Renderer(canvasWebGL, resourceManager);
 
         // safety to combat problems with hot-reloading in development
         if(window["_game"]) window["_game"].quit()
         window["_game"] = this;
         
-        // TODO weird and hacky
-        // window.setTimeout(() => this.init(), 10);
         this.init();
     }
 
@@ -151,12 +153,9 @@ export default class Game {
 
         defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
         defineLibFunction("destroyImmediate", (instance: SpriteInstance) => this.destroyInstance(instance))
-        defineLibFunction("destroy", (instance: SpriteInstance, permanent: boolean = false) => {
+        defineLibFunction("destroy", (instance: SpriteInstance) => {
             if(!instance) return false;
-            this.upForDeletion.add(instance);
-            if(permanent) {
-                this.permaDestroyed.add(instance);
-            }
+            this.destroyed.add(instance);
             return true;
         })
         defineLibFunction("find", (filter: string) => {
@@ -227,6 +226,10 @@ export default class Game {
         defineLibFunction("drandom", () => xorshiftGetRandom01());
         defineLibFunction("drandomSetSeed", (seed: string) => xorshiftSetSeed(seed));
 
+        defineLibFunction("getCanvas2DContext", () => this.canvas2d.getContext("2d"));
+
+        defineLibFunction("openRemixMenu", () => this.requestOpenEditor());
+
         window.onkeydown = (event: KeyboardEvent) => {
             // keys.set(event.key, true);
             this.keyMap.set(event.code, true);
@@ -254,8 +257,18 @@ export default class Game {
 
     async mainLoop() {
         while(!this.isEnding) {
-            await new Promise(resolve => animFrameHandle = window.requestAnimationFrame(() => { this.update(); resolve(null); }));
+            await new Promise(resolve => animFrameHandle = window.requestAnimationFrame(() => { 
+                this.update(); resolve(null); 
+            }));
         }
+    }
+
+    registerEditorCallback(callback: () => void) {
+        this.editorCallback = callback;
+    }
+
+    requestOpenEditor() {
+        this.editorCallback();
     }
 
     checkKeys(mode: "down" | "pressed" | "released", ...codes: string[]) {
@@ -362,8 +375,8 @@ export default class Game {
 
     _setRoomDirect(room: Room) {
         this.currentRoom = room;
-        this.canvas.width = room.width;
-        this.canvas.height = room.height;
+        this.canvasWebgl.width = room.width;
+        this.canvasWebgl.height = room.height;
 
         document.body.style.backgroundColor = room.backgroundColor;
 
@@ -380,7 +393,7 @@ export default class Game {
         for(let roomInst of room.instances) {
             let existing = this.instanceSpriteInstanceMap.get(roomInst);
             // don't respawn permanently destroyed instances
-            if(existing && this.permaDestroyed.has(existing)) {
+            if(existing && this.persistent.has(existing) && this.persistent.get(existing) > 0 && this.destroyed.has(existing)) {
                 continue;
             }
             let pLevel = (existing && this.persistent.get(existing)) || 0;
@@ -415,13 +428,15 @@ export default class Game {
             this.releasedMap.set(key, previous && !value);
             this.keyMapSnapshot.set(key, value);
         }
+        
+        this.canvas2d.getContext("2d").clearRect(0, 0, this.canvas2d.width, this.canvas2d.height);
 
         for(let inst of this.instances) {
             inst.update(inst);
         }
 
         for(let inst of this.instances) {
-            if(this.upForDeletion.has(inst))
+            if(this.destroyed.has(inst))
                 this.destroyInstance(inst);
         }
 
@@ -441,29 +456,6 @@ export default class Game {
         this.tickNumber ++;
 
     }
-
-    // draw() {
-    //     let room = this.currentRoom();
-    //     if(!room) return;
-        
-    //     let ctx = this.canvas?.getContext("2d")!;
-    //     if(!ctx) return;
-
-    //     // ctx.clearRect(0, 0, room.width, room.height);
-    //     ctx.fillStyle = room.backgroundColor;
-    //     ctx.fillRect(0, 0, room.width, room.height);
-
-    //     room.filterInstances(); // TODO kind of unnecessary work
-
-    //     for(let inst of this.instances) {
-    //         inst.draw(ctx);
-    //     }
-
-    //     ctx.fillStyle = "white";
-    //     ctx.textAlign = "left";
-    //     ctx.textBaseline = "top";
-    //     ctx.fillText(`${this.tickNumber}`, 5, 5);
-    // }
 }
 
 function defineLibFunction(name: string, func: Function) {

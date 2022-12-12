@@ -31,13 +31,16 @@ import * as globalData from "./../modules/globalData";
 
     let initPromise = init();
 
-    let canvas: HTMLCanvasElement|null;
+    let canvasWebgl: HTMLCanvasElement|null;
+    let canvas2d: HTMLCanvasElement|null;
     let game: Game|null;
 
-    $: (canvas && !game)? reload() : null
+    let requestEditorOpen = false;
 
-    $: canvasWidth = canvas? canvas.width : 0;
-    $: canvasHeight = canvas? canvas.height : 0;
+    $: (canvasWebgl && !game)? reload() : null
+
+    $: canvasWidth = canvasWebgl? canvasWebgl.width : 0;
+    $: canvasHeight = canvasWebgl? canvasWebgl.height : 0;
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth);
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
@@ -62,10 +65,23 @@ import * as globalData from "./../modules/globalData";
 
 
     function reload() {
-        if(!canvas) return;
+        if(!canvasWebgl || !canvas2d) return;
         if(game) game.quit();
-        game = new Game(resourceManager.get(), canvas, startRoom);
-        canvas = canvas;
+        game = new Game(resourceManager.get(), canvasWebgl, canvas2d, startRoom);
+        game.registerEditorCallback(requestOpenEditor);
+        canvasWebgl = canvasWebgl;
+        // canvas2d = canvas2d;
+    }
+
+    function requestOpenEditor() {
+        requestEditorOpen = true;
+    }
+
+    function getEditorHREF() {
+        let url = new URL(location.href);
+        url.searchParams.delete("game");
+        url.searchParams.set("editor", "");
+        return url.href;
     }
 
     async function onMessage(msg: MessageEvent) {
@@ -101,16 +117,70 @@ import * as globalData from "./../modules/globalData";
 {#await initPromise}
     <p>loading...</p>
 {:then}
-    <canvas 
-        bind:this={canvas} 
-        style:width={canvasDisplayWidth}px 
-        style:height={canvasDisplayHeight}px
-    ></canvas>
+<div class="contains-main">
+    <main>
+        <canvas 
+            class="canvas-2d"
+            bind:this={canvas2d} 
+            style:width={canvasDisplayWidth}px 
+            style:height={canvasDisplayHeight}px
+            width={canvasWidth}
+            height={canvasHeight}
+        ></canvas>
+        <div
+            class="text-overlay"
+            style:width={canvasDisplayWidth}px 
+            style:height={canvasDisplayHeight}px
+        >
+            <!-- <div class="centered"></div> -->
+            {#if requestEditorOpen}
+            <section class="request-editor-overlay">    
+                <p><a href={ getEditorHREF() }>remix game</a></p>
+                <p><button on:click={() => requestEditorOpen = false}>no thanks</button></p>
+            </section>
+            {/if}
+        </div>
+        <canvas 
+            class="canvas-webgl"
+            bind:this={canvasWebgl} 
+            style:width={canvasDisplayWidth}px 
+            style:height={canvasDisplayHeight}px
+        ></canvas>
+    </main>
+</div>
 {/await}
 
 <style>
-    canvas {
+    .contains-main {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-items: center;;
+    }
+
+    main {
         margin: auto;
         border: 1px solid #888;
+    }
+
+    .canvas-2d, .text-overlay {
+        position: absolute;
+        color: white
+    }
+
+    /* .text-overlay {
+    } */
+
+    .request-editor-overlay {
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-color);
+        color: var(--main-color);
+        display: flex;
+        align-items: center;
+        justify-items: center;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1rem;
     }
 </style>

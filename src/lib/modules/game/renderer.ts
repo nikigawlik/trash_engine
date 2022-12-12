@@ -299,7 +299,7 @@ export function makeSpriteMap(sprites: Sprite[]): {canvas: HTMLCanvasElement, co
                         height: (r.bottom - r.top - gap*2),
                     });
                     searching = false;
-                    console.log(`placed ${spr.name} at ${r.left} ${r.top}`);
+                    //console.log(`placed ${spr.name} at ${r.left} ${r.top}`);
                 }
             }
             if(searching) continue outer;

@@ -18,7 +18,7 @@ let maxZ = 0;
 const { subscribe, set, update } = writable([]) as Writable<CardInstance[]>;
 
 let _value: CardInstance[];
-subscribe(v => _value = v); // TODO evil code?
+subscribe(v => _value = v);
 
 export let cards = {
     subscribe,

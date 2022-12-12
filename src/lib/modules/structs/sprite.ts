@@ -105,7 +105,7 @@ export default class Sprite extends Resource {
 
         for(let behaviour of _behaviours) {
             for(let global of behaviour.props) {
-                globalsMap.set(global, 0); // TODO let user specify default value
+                globalsMap.set(global, 0); // TODO let user specify default value ?
             }
         }
         const globals = Array.from(globalsMap);

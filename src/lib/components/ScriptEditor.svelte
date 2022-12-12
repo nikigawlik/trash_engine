@@ -32,7 +32,7 @@ import Card from "./Card.svelte";
 
                 console.log(`line: ${line} column: ${column} error: ${e.message}`);
                 
-                // TODO this shit -> How do we create cards, where is the central hook for that (need to expose it from Main)
+                // TODO re-add errors
 
                 // let errorCard = html`
                 // <${ErrorWindow} 
