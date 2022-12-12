@@ -4,7 +4,12 @@
 
     import { createEventDispatcher, getContext } from "svelte";
 
-    let changePage = getContext<{changePage: (string) => void}>("markdownManager").changePage;
+    let changePage = getContext<{changePage: (string) => boolean}>("markdownManager").changePage;
+
+    let clickLink = (event: MouseEvent) => {
+        let success = changePage(href);
+        if(success) event.preventDefault();
+    }
 </script>
 
-<a {href} {title} on:click|preventDefault={() => changePage(href)}><slot></slot></a>
+<a {href} {title} on:click={clickLink}><slot></slot></a>

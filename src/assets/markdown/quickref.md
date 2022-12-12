@@ -1,6 +1,5 @@
 ## quick reference of functions & props
 
-
 - `roomWidth : number`
 - `roomHeight : number`
 - `mouseX : number`
@@ -35,3 +34,7 @@
 - `drandomSetSeed(seed: string)`
 - `getCanvas2DContext() : CanvasRenderingContext2D`
 - `openRemixMenu()`
+
+## other stuff
+
+[read disclaimer](disclaimer)

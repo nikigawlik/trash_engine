@@ -11,6 +11,7 @@ console.log("resource_manager.ts loading")
 
 const defaultSettings = {
     title: "your game's name here",
+    LICENSE: "No license specified.",
 }
 
 const saveVersion = 4;

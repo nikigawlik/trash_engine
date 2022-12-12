@@ -1,7 +1,6 @@
 import type { SvelteComponent } from "svelte";
 import { writable, type Writable } from "svelte/store";
 import { data } from "./globalData";
-import { findWindowPos } from "./ui";
 
 export interface CardInstance {
     componentType: (typeof SvelteComponent)
@@ -11,6 +10,7 @@ export interface CardInstance {
     position: DOMRect
     isMaximized: boolean
     className?: string
+    data?: any
 }
 
 let maxZ = 0;
@@ -22,7 +22,7 @@ subscribe(v => _value = v);
 
 export let cards = {
     subscribe,
-    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), isMaximized = false, uuid?: string) => update(store => {
+    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), isMaximized = false, uuid?: string, data: any = {}) => update(store => {
         console.log(`added ${uuid}`)
         if(!store.find(x => x.uuid === uuid)) {
             store.push({
@@ -32,6 +32,7 @@ export let cards = {
                 name,
                 position,
                 isMaximized,
+                data,
             });
         }
         return store;
@@ -57,6 +58,7 @@ export function openCard(
     allowDuplicate: boolean = true, 
     uuid?: string, 
     position: DOMRect = new DOMRect(),
+    customData?: any,
 ) {
         
     // either an existing card or false/undefined
@@ -80,6 +82,6 @@ export function openCard(
 
         const isMax = data.get().editor.settings.openResourcesMaximized;
 
-        cards.add(type, "", position, isMax, uuid);
+        cards.add(type, "", position, isMax, uuid, customData);
     }
 }

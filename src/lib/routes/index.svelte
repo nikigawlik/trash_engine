@@ -116,17 +116,23 @@ import * as ui from "./../modules/ui";
         let obj = await resourceManager.get().getSerializedData();
         let textData = JSON.stringify(obj);
 
-        let htmltext;
+        let htmltext: string;
         try {
             let gameFileResponse = await fetch(location.href); // just fetches itself, works in a single-file build
             htmltext = await gameFileResponse.text();
         } catch(e) {
-            if(window["origText"]) htmltext = window["origText"]; // hack, refers to hack in the index.html
+            throw new Error("There is no way to get the original source for exporting, therefore we can not export the game. Consider running the game in a server environment, or try a different browser.")
         }
 
         let parser = new DOMParser();
         let htmlDoc = parser.parseFromString(htmltext, "text/html");
-        htmlDoc.querySelector("script[type=gamedata]").textContent = textData;
+        let gameDataElmt = htmlDoc.querySelector("script[type=gamedata]");
+        gameDataElmt.textContent = textData;
+        
+        let licenseComment = htmlDoc.createComment(`LICENSE (game data): \n${resourceManager.get().settings.LICENSE}\n`);
+
+        gameDataElmt.parentElement.insertBefore(licenseComment, gameDataElmt);
+        
 
         let text = htmlDoc.documentElement.innerHTML;
 

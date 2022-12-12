@@ -8,22 +8,35 @@
     import reference from '../../assets/markdown/reference.md?raw';
     import collisions from '../../assets/markdown/collisions.md?raw';
     import quickref from '../../assets/markdown/quickref.md?raw';
+    import disclaimer from '../../assets/markdown/disclaimer.md?raw';
 
     export let card: CardInstance;
     $: card.name = "reference";
+    $: card.position.width = 450;
 
     const markdownFiles = {
         reference,
         collisions,
         quickref,
+        disclaimer,
     }
 
-    let source = quickref;
+    let pageName = (card.data?.pageName as string|undefined) || null;
+
+    let source = pageName && markdownFiles[pageName] ?
+        markdownFiles[pageName]
+    :
+        quickref;
 
     setContext("markdownManager", {
         changePage: (route: string) => {
             const src = markdownFiles[route];
-            if(src != undefined) source = src;
+            if(src != undefined) {
+                source = src;
+                return true;
+            } else {
+                return false;
+            }
         }
     })
 </script>

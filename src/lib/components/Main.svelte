@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { setContext } from "svelte";
-import { blockingPopup } from "../modules/ui";
+import { setContext } from "svelte";
 import { cards, openCard } from "./../modules/cardManager";
-    import AtlasIcon from "./AtlasIcon.svelte";
+import Reference from "./Reference.svelte";
 import Resources from "./Resources.svelte";
 
     openCard(Resources, false)
+    openCard(Reference, false, undefined, undefined, { pageName: "disclaimer" })
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 
