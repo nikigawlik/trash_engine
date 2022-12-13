@@ -13,6 +13,7 @@ import ResourceTreeResource from "./ResourceTreeResource.svelte";
 export let card: CardInstance;
 $: card.name = "resources";
 $: card.className = "resources";
+$: card.position.width = 240;
 
 // let root = resourceManager.get()?.root;
 $: sprites = $resourceManager.getSprites();
@@ -25,30 +26,33 @@ $: behaviours = $resourceManager.getBehaviours();
 
 <Card {card}>
     <div class="scroll-box">
-        <ResourcesFolder displayName="sprites" resourceConstructor={Sprite} />
-        <ul class="resources sprites">
-            {#each sprites as sprite (sprite.uuid)}
-                <li>
-                    <ResourceTreeResource selfResource={sprite}></ResourceTreeResource>
-                </li>
-            {/each}
-        </ul>
-        <ResourcesFolder displayName="rooms" resourceConstructor={Room} />
-        <ul class="resources sprites">
-            {#each rooms as room (room.uuid)}
-                <li>
-                    <ResourceTreeResource selfResource={room}></ResourceTreeResource>
-                </li>
-            {/each}
-        </ul>
-        <ResourcesFolder displayName="scripts" resourceConstructor={Behaviour} />
-        <ul class="resources behaviours">
-            {#each behaviours as behaviour (behaviour.uuid)}
-                <li>
-                    <ResourceTreeResource selfResource={behaviour}></ResourceTreeResource>
-                </li>
-            {/each}
-        </ul>
+        <ResourcesFolder displayName="sprites" resourceConstructor={Sprite}>
+            <ul class="resources sprites">
+                {#each sprites as sprite (sprite.uuid)}
+                    <li>
+                        <ResourceTreeResource selfResource={sprite}></ResourceTreeResource>
+                    </li>
+                {/each}
+            </ul>
+        </ResourcesFolder>
+        <ResourcesFolder displayName="rooms" resourceConstructor={Room}>
+            <ul class="resources sprites">
+                {#each rooms as room (room.uuid)}
+                    <li>
+                        <ResourceTreeResource selfResource={room}></ResourceTreeResource>
+                    </li>
+                {/each}
+            </ul>
+        </ResourcesFolder>
+        <ResourcesFolder displayName="scripts" resourceConstructor={Behaviour}>
+            <ul class="resources behaviours">
+                {#each behaviours as behaviour (behaviour.uuid)}
+                    <li>
+                        <ResourceTreeResource selfResource={behaviour}></ResourceTreeResource>
+                    </li>
+                {/each}
+            </ul>
+        </ResourcesFolder>
     </div>
 </Card>
 

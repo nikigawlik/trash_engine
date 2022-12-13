@@ -62,7 +62,7 @@ export default class ResourceManager {
         let r1 = this.getResource(resourceUUID);
         let r2 = this.getResource(beforeResourceUUID);
         
-        if(!(r1 && r2)) return false;
+        if(!(r1 && r2) || resourceUUID == beforeResourceUUID) return false;
 
         let resources = Array.from(this.resources.values());
         

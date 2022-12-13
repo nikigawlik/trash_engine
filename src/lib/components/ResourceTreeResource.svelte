@@ -14,73 +14,44 @@
 </script>
 
 <script lang="ts">
-import { openCard } from "../modules/cardManager";
-import Behaviour from "../modules/structs/behaviour";
+import { cards, openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
+import Behaviour from "../modules/structs/behaviour";
 import type Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
 import Sprite from "../modules/structs/sprite";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
+import AtlasIcon from "./AtlasIcon.svelte";
 import BehaviourEditor from "./BehaviourEditor.svelte";
-import type { ContextMenuData } from "./ContextMenu.svelte";
-import ContextMenu from "./ContextMenu.svelte";
 import RoomEditor from "./RoomEditor.svelte";
 import SpriteEditor from "./SpriteEditor.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
-// import { currentContextMenu } from "./ContextMenu.svelte";
+
+
     export let selfResource: Room | Sprite | Behaviour;
 
     let hover: boolean = false;
-    let currentContextMenu: ContextMenuData|null = null;
 
-    function openContextMenu(clickEvent: MouseEvent, resource: Resource) {
-        let options = getContextMenuOptions(resource);
+    function openMe() {
+        openEditorWindow(selfResource);
+    }
 
-        currentContextMenu = {
-            title: "",
-            options: options,
-            x: clickEvent.offsetX,
-            y: clickEvent.offsetY,
-        };
+    async function deleteMe() {
+        let confirmed = await asyncYesNoPopup(`Delete ${selfResource.name}?`);
+
+        if(confirmed) {   
+            $resourceManager.deleteResource(selfResource.uuid);
+            cards.remove(selfResource.uuid);
+            $resourceManager.refresh();   
+        }
     }
-    
-    function getContextMenuOptions(resource: Resource) {
-        return [
-            {
-                id: "open",
-                text: "open",
-                callback: async () => openEditorWindow(resource)
-            },
-            {
-                id: "delete",
-                text: `delete`,
-                callback: async () => {
-                    let confirmed = await asyncYesNoPopup(`Delete ${resource.name}?`);
-        
-                    if(confirmed) {   
-                        $resourceManager.deleteResource(resource.uuid);
-                        let resourceWindow = document.querySelector(`main .card[data-resource-uuid="${resource.uuid}"]`);
-                        if(resourceWindow) resourceWindow.remove();
-                        $resourceManager.refresh();   
-                    }
-                }
-            },
-            {
-                id: "rename",
-                text: `rename`,
-                callback: async () => {
-                    let name = await asyncGetTextPopup(`Choose new name:`, resource.name);
-                    if(name) {
-                        resource.name = name;
-                        $resourceManager.refresh();
-                    }
-                }
-            }
-        ];
-    }
-    
-    function onclick(evt: MouseEvent)  {
-        openContextMenu(evt, selfResource);
+
+    async function renameMe() {
+        let name = await asyncGetTextPopup(`Choose new name:`, selfResource.name);
+        if(name) {
+            selfResource.name = name;
+            $resourceManager.refresh();
+        }
     }
 
     function ondragover(evt: DragEvent) {
@@ -130,25 +101,25 @@ import SpriteIcon from "./SpriteIcon.svelte";
     on:dragstart={ondragstart}
     on:drop={ondrop}
 >
-    <ContextMenu bind:data={currentContextMenu}>
-        <!-- 
-draggable="true" 
-         -->
-        <button class="grabbable" class:drag-hover={hover}
-        on:click={onclick}
-        >
-            <span class=icon>
-                {#if selfResource instanceof Sprite}
-                    <SpriteIcon spriteID={selfResource.uuid}></SpriteIcon>
-                {:else}
-                    {selfResource.getIconElement()}
-                {/if}
-            </span>
-            <span class=name>{selfResource.name}</span> 
+    <span class="grabbable container" class:drag-hover={hover}
+    >
+        <span class=icon>
+            {#if selfResource instanceof Sprite}
+                <SpriteIcon spriteID={selfResource.uuid}></SpriteIcon>
+            {:else}
+                {selfResource.getIconElement()}
+            {/if}
+        </span>
+        <button class="name borderless" on:click={ () => openMe() } title="open">
+            {selfResource.name}
         </button>
-    </ContextMenu>
-    <!-- {#if currentContextMenu}
-    {/if} -->
+        <button class="borderless" on:click={ () => renameMe() } title="rename">
+            <AtlasIcon id={33} />
+        </button>
+        <button class="borderless" on:click={ () => deleteMe() } title="delete">
+            <AtlasIcon id={51} />
+        </button>
+    </span>
 </div>
 
 <style>
@@ -156,22 +127,18 @@ draggable="true"
         white-space: nowrap;
     }
 
-    button {    
-        /* do not style like other buttons */
-        border: none;
-        box-shadow: none;
-        text-align: left;
-        
-        /* alignment stuff */
-        display: table-cell;
+    .container {
         width: 100%;
-        vertical-align: middle;
-        /* padding-top: auto; */
-        /* padding-bottom: auto; */
+        display: flex;
+        align-items: center;
+        align-content: stretch;
     }
 
-    button > span {
-        vertical-align: middle;
+    .name {
+        flex-grow: 1;
+        flex-shrink: 1;
+        min-width: 0;
+        text-align: left;
     }
 
     .icon {
