@@ -12,7 +12,7 @@
 
     export let card: CardInstance;
     $: card.name = "reference";
-    $: card.position.width = 450;
+    $: card.position.width = 600;
 
     const markdownFiles = {
         reference,

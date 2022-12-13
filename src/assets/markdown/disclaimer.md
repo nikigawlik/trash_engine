@@ -1,4 +1,6 @@
-## Disclaimer
+## Disclaimer & Hello
+
+Hi! You are currently looking at "Trash Engine"!
 
 This engine is in alpha. It comes without any warranty, contains bugs, and is generally rough around the edges.
 
@@ -15,11 +17,13 @@ Some things to consider using this engine:
  - you can (and should) keep backups of the data using the export button
  - be careful with big images! The engine was tested on sprites in the 60-120 pixel range, very high-res images might break the engine.
 
-Have fun! :)
+Have fun! :) -Niki
 
 ## Licensing / legal stuff
 
 This version of Trash Engine is licensed under [Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](http://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1).
+
+I will probably re-license under something more permissive like LGPL once the engine is open source, but for now I'm being slightly more restrictive.
 
 Colloquially speaking this means you can freely publish games made with Trash Engine, provided you 
 
@@ -31,8 +35,8 @@ Anything you create of course belongs to you! You can and should (!!!), add your
 
 If you got here from my 2022 Metroidvania Month Jam entry, the game data (sprites, code, etc.) is licensed under the same license. So remixes are also fine and encouraged under the above conditions.
 
-If not, the game data might be licensed under a different License!
+If not, the copyright situation might be different!
 
-Check the settings menu for any license information!
+Check the settings menu and the contents of the html file for any license information, or ask the author!
 
 [< back to reference](quickref)
