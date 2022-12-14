@@ -3,6 +3,7 @@
     import Behaviour from "../modules/structs/behaviour";
     import type Resource from "../modules/structs/resource";
     import Room from "../modules/structs/room";
+    import SoundEffect from "../modules/structs/soundEffect";
     import Sprite from "../modules/structs/sprite";
     import { asyncGetTextPopup } from "../modules/ui";
     import AtlasIcon from "./AtlasIcon.svelte";
@@ -18,6 +19,7 @@
         (resourceConstructor == Sprite)?  "sprite": 
         (resourceConstructor == Room)?  "room":
         (resourceConstructor == Behaviour)?  "script":
+        (resourceConstructor == SoundEffect)?  "sound effect":
         "null" 
     ;
 

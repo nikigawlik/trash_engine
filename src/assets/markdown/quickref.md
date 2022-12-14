@@ -56,6 +56,7 @@ In the future there will be documentation for every function, but not right now,
 - `drandomSetSeed(seed: string)`
 - `getCanvas2DContext() : CanvasRenderingContext2D`
 - `openRemixMenu()`
+- `playSound(soundID: string, gain: number = 1.0)`
 
 ## other stuff
 

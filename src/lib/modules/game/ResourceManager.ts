@@ -1,11 +1,12 @@
 import { Writable, writable } from "svelte/store";
 import { db, deserialize, getDocumentGameData, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
+import Behaviour from "../structs/behaviour";
 import type Folder from "../structs/folder";
 import type Resource from "../structs/resource";
 import Room from "../structs/room";
+import SoundEffect from "../structs/soundEffect";
 import Sprite from "../structs/sprite";
-import Behaviour from "../structs/behaviour";
-import { assert, rectInside } from "./utils";
+import { assert } from "./utils";
 
 console.log("resource_manager.ts loading")
 
@@ -97,6 +98,10 @@ export default class ResourceManager {
 
     getBehaviours(): Behaviour[] {
         return this.getAllOfResourceType(Behaviour) as Behaviour[];
+    }
+
+    getSoundEffects(): SoundEffect[] {
+        return this.getAllOfResourceType(SoundEffect) as SoundEffect[];
     }
 
     getResourceStore(resource: Resource|string): Writable<Resource> | null {

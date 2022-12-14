@@ -12,6 +12,7 @@ import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
 import { cards, openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
+    import SoundEffect from "../modules/structs/soundEffect";
 import { blockingPopup } from "../modules/ui";
 import * as image_editor from "./../components/ImageEditor.svelte";
 import Main from "./../components/Main.svelte";
@@ -39,7 +40,19 @@ import * as ui from "./../modules/ui";
     }
 
     let init = async () => {
-        console.log("--- window.onload ---")
+        console.log("--- window.onload ---");
+        
+        // sfx (out of the timeline)
+        (async () => {
+            await new Promise( resolve => {
+                window.addEventListener("mousedown", resolve);
+                window.addEventListener("touchstart", resolve);
+                window.addEventListener("keydown", resolve);
+            });
+            SoundEffect.init();
+        })();
+
+
         // initialize different modules
         await database.init(nameConstructorMap);
         console.log("load app...");

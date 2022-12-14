@@ -160,12 +160,12 @@ import * as globalData from "./../modules/globalData";
 
     main {
         margin: auto;
-        border: 1px solid #888;
+        /* border: 1px solid #888; */
     }
 
     .canvas-2d, .text-overlay {
         position: absolute;
-        color: white
+        color: white;
     }
 
     /* .text-overlay {

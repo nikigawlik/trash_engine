@@ -1,9 +1,10 @@
-import Room from "../structs/room";
-import Sprite from "../structs/sprite";
-import type ResourceManager from "./ResourceManager";
-import Renderer from "./renderer"
-import { Color, getColorHSVA, getColorRGBA, mod, xorshiftGetRandom01, xorshiftSetSeed } from "./utils";
 import type Instance from "../structs/instance";
+import Room from "../structs/room";
+import SoundEffect from "../structs/soundEffect";
+import Sprite from "../structs/sprite";
+import Renderer from "./renderer";
+import type ResourceManager from "./ResourceManager";
+import { Color, getColorHSVA, getColorRGBA, mod, xorshiftGetRandom01, xorshiftSetSeed } from "./utils";
 
 let animFrameHandle: number|undefined = undefined;
 
@@ -128,6 +129,22 @@ export default class Game {
             this.instanceSets.set(sprite.uuid, new WeakSet());
         }
 
+        // render sfx IS DONE ASYNC (not waiting)
+
+        (async () => {
+            await new Promise( resolve => {
+                window.addEventListener("mousedown", resolve);
+                window.addEventListener("touchstart", resolve);
+                window.addEventListener("keydown", resolve);
+            });
+
+            SoundEffect.init();
+
+            for(let soundEffect of this.resourceManager.getSoundEffects()) {
+                soundEffect.createBuffer();
+            }
+        })();
+
         // special sets
         this.instanceSets.set(ALL_UUID, new WeakSet());
         this.instanceSets.set(NOONE_UUID, new WeakSet());
@@ -229,6 +246,16 @@ export default class Game {
         defineLibFunction("getCanvas2DContext", () => this.canvas2d.getContext("2d"));
 
         defineLibFunction("openRemixMenu", () => this.requestOpenEditor());
+
+        defineLibFunction("playSound", (soundID: string, gain: number = 1.0, detune = 0) => {
+            let sfx = this.resourceManager.getResourceOfType(soundID, SoundEffect) as SoundEffect;
+            if(sfx) {
+                sfx.play(gain, detune);
+            }
+        });
+
+        window.onmousedown = () => {
+        }
 
         window.onkeydown = (event: KeyboardEvent) => {
             // keys.set(event.key, true);

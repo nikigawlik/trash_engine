@@ -128,6 +128,7 @@ let me = {
 ${propAccessors.join("\n")}
     get spriteID() {return "${this.uuid}";},
 }
+const spriteID = me.spriteID;
 ${
     _behaviours.map(b => `
 /* begin ${b.name} */ {

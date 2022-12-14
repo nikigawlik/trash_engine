@@ -6,6 +6,7 @@ import Behaviour from "./behaviour";
 import BehaviourLink from "./behaviourLink";
 import BCustomSvelte from "../../components/behaviours/BCustom.svelte";
 import BPlayerControllerSvelte from "../../components/behaviours/BPlayerController.svelte";
+import SoundEffect from "./soundEffect";
 
 // export let nameConstructorMap: Map<string, {new (): Object}> = new Map();
 
@@ -17,6 +18,8 @@ nameConstructorMap.set("Room", Room);
 nameConstructorMap.set("Folder", Folder);
 nameConstructorMap.set("Instance", Instance);
 nameConstructorMap.set("Behaviour", Behaviour);
+nameConstructorMap.set("SoundEffect", SoundEffect);
+
 nameConstructorMap.set("BehaviourLink", BehaviourLink);
 nameConstructorMap.set("BCustomSvelte", BCustomSvelte);
 nameConstructorMap.set("BPlayerControllerSvelte", BPlayerControllerSvelte);

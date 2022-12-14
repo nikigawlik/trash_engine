@@ -7,6 +7,8 @@
             openCard(RoomEditor, true, resource.uuid);
         } else if (resource instanceof Behaviour) {
             openCard(BehaviourEditor, true, resource.uuid);
+        } else if (resource instanceof SoundEffect) {
+            openCard(SoundEffectEditor, true, resource.uuid);
         } else {
             console.log(`no window implemented for ${resource.type}`);
         }
@@ -19,16 +21,18 @@ import { resourceManager } from "../modules/game/ResourceManager";
 import Behaviour from "../modules/structs/behaviour";
 import type Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
+import SoundEffect from "../modules/structs/soundEffect";
 import Sprite from "../modules/structs/sprite";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
 import AtlasIcon from "./AtlasIcon.svelte";
 import BehaviourEditor from "./BehaviourEditor.svelte";
 import RoomEditor from "./RoomEditor.svelte";
+import SoundEffectEditor from "./SoundEffectEditor.svelte";
 import SpriteEditor from "./SpriteEditor.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
 
 
-    export let selfResource: Room | Sprite | Behaviour;
+    export let selfResource: Room | Sprite | Behaviour | SoundEffect;
 
     let hover: boolean = false;
 

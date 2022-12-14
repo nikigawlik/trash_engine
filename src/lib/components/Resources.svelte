@@ -9,6 +9,7 @@ import Sprite from "../modules/structs/sprite";
 import Card from "./Card.svelte";
 import ResourcesFolder from "./ResourcesFolder.svelte";
 import ResourceTreeResource from "./ResourceTreeResource.svelte";
+    import SoundEffect from "../modules/structs/soundEffect";
 
 export let card: CardInstance;
 $: card.name = "resources";
@@ -19,6 +20,7 @@ $: card.position.width = 240;
 $: sprites = $resourceManager.getSprites();
 $: rooms = $resourceManager.getRooms();
 $: behaviours = $resourceManager.getBehaviours();
+$: soundEffects = $resourceManager.getSoundEffects();
 
 </script>
 
@@ -49,6 +51,15 @@ $: behaviours = $resourceManager.getBehaviours();
                 {#each behaviours as behaviour (behaviour.uuid)}
                     <li>
                         <ResourceTreeResource selfResource={behaviour}></ResourceTreeResource>
+                    </li>
+                {/each}
+            </ul>
+        </ResourcesFolder>
+        <ResourcesFolder displayName="sounds" resourceConstructor={SoundEffect}>
+            <ul class="resources sounds">
+                {#each soundEffects as soundEffect (soundEffect.uuid)}
+                    <li>
+                        <ResourceTreeResource selfResource={soundEffect}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>

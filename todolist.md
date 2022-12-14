@@ -111,11 +111,12 @@ vv START HERE vv
 - props in behaviour preview
 - props need a scollbar if there are a lot of them lol
 - resource stores -> do actually signal destruction, use this to close windows (e.h. behaviours)
-- general breaking bugs related to deleted resources
+- general breaking bugs related to deleted resources]
+- improve license info -> it should be a list, that users add to
 
 Useful for metroidvania: 
- - reusable behaviours (behaviour as resource)
- - rotating and scaling sprites
+<!-- ~~- reusable behaviours (behaviour as resource)~~ -->
+ - rotating ~~and scaling~~ sprites
  - world map room arrangement
  - destroy event
  - animation
@@ -124,8 +125,18 @@ MTV TDL:
  - restart button & cheats
  - remix behaviour, saves, etc. (including url param bugs, index db key sharing, "initial save" state, etc.)
  - sound lol
- - popup window with disclaimer
- - licensing?
+<!-- ~~ - popup window with disclaimer~~ -->
+<!-- ~~ - licensing?~~ -->
+
+Triage, last day:
+
+ - item pick up text
+ - double-check remix game view etc.
+ - music?
+ - ending
+ - story
+ - fill empty rooms
+
 
 Popup quickstart:
  - you can save&load different versions of this game using the save and load buttons
