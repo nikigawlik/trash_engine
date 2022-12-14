@@ -285,8 +285,8 @@ export function makeSpriteMap(sprites: Sprite[]): {canvas: HTMLCanvasElement, co
             let sw = spr.canvas.width;
             let sh = spr.canvas.height
             let searching = true;
-            for(let y = 0; y <= h-sh && searching; y++) 
-            for(let x = 0; x <= w-sw && searching; x++) {
+            for(let y = 0; y <= h-sh && searching; y+=4) 
+            for(let x = 0; x <= w-sw && searching; x+=4) {
                 // 1 px extra space
                 const gap = 1;
                 const r = {left: x-gap, top: y-gap, right: x+sw+gap, bottom: y+sh+gap};

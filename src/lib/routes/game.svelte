@@ -107,8 +107,8 @@ import * as globalData from "./../modules/globalData";
     })
 
     function windowOnKeyDown(event: KeyboardEvent) {
-        if(event.code == "KeyR")
-            reload()
+        // if(event.code == "KeyR")
+        //     reload()
     }
 </script>
 
