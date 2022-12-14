@@ -124,7 +124,7 @@ import * as ui from "./../modules/ui";
         let obj = await resourceManager.get().getSerializedData();
         
         const textData = JSON.stringify(obj);
-        const filename = `${resourceManager.get().settings.title}.txt`;
+        const filename = `${resourceManager.get().settings.title}.json`;
 
         _downloadTextFile(filename, textData, "text/plain");
 
