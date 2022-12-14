@@ -141,8 +141,8 @@ Triage, last day:
  <!-- - 5 3  1.6  double-check remix game view etc. -->
  <!-- - 6 4  1.5  cheats and restart -->
  <!-- - 4 2  2.0  green guys -->
- - 6 4  1.5  error messages ingame
- - 5 5  1.0  story
+ <!-- - 6 4  1.5  error messages ingame -->
+ <!-- - 5 5  1.0  story -->
  - 5 5  1.0  fill empty rooms
  - 2 2  1.0  2nd boss death anim
  - 3 3  1.0  some dmg up

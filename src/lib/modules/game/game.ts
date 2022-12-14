@@ -286,11 +286,21 @@ export default class Game {
     }
 
     async mainLoop() {
+        let lastFrame = Date.now();
+        let minimumTimeBetweenFrames = 1000/70; // 70 fps delta
+
         while(!this.isEnding) {
             await new Promise(resolve => animFrameHandle = window.requestAnimationFrame(() => { 
                 resolve(null); 
             }));
-            await this.update(); 
+            const now = Date.now();
+            const delta = now - lastFrame;
+            // if the game runs quicker than 70fps, we start skipping frames
+            // 70, so that we have some buffer, most machines should be 60, some 120, etc.
+            if(delta > minimumTimeBetweenFrames) {
+                await this.update(); 
+                lastFrame = now;
+            }
         }
         if(this.quitGameCallback) this.quitGameCallback();
     }
