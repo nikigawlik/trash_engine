@@ -130,12 +130,20 @@ MTV TDL:
 
 Triage, last day:
 
- - item pick up text
+ - item pick up text / sfx
  - double-check remix game view etc.
  - music?
  - ending
  - story
  - fill empty rooms
+ - fix disclaimer after save
+ - hat sprite!!
+ - error messages ingame
+ - blue boss timer / start
+ - green guys
+ - 2nd boss death anim
+ - some dmg up
+ - that one spike pit?
 
 
 Popup quickstart:

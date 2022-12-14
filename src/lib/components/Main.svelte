@@ -1,11 +1,9 @@
 <script lang="ts">
 import { setContext } from "svelte";
 import { cards, openCard } from "./../modules/cardManager";
-import Reference from "./Reference.svelte";
 import Resources from "./Resources.svelte";
 
-    openCard(Resources, false)
-    openCard(Reference, false, undefined, undefined, { pageName: "disclaimer" })
+    openCard(Resources, false);
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
 import "../../assets/main.css";
 import "../../assets/reset.css";
 import "../../assets/svg.css";
@@ -75,6 +76,10 @@ import * as ui from "./../modules/ui";
             setTimeout(() => reject("timeout"), milliseconds);
         })
     }
+
+    onMount(() => {
+        openCard(Reference, false, undefined, undefined, { pageName: "disclaimer" })
+    })
 
     function save() {
         let p1 = resourceManager.get().save();
