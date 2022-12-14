@@ -63,6 +63,7 @@ export default class Game {
     
     instanceDepth: WeakMap<SpriteInstance, number>
     editorCallback: (() => void) | null;
+    quitGameCallback: (() => void) | null;
 
 
     constructor(resourceManager: ResourceManager, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, startRoomID?: string) {
@@ -246,6 +247,7 @@ export default class Game {
         defineLibFunction("getCanvas2DContext", () => this.canvas2d.getContext("2d"));
 
         defineLibFunction("openRemixMenu", () => this.requestOpenEditor());
+        defineLibFunction("endGame", () => this.quit());
 
         defineLibFunction("playSound", (soundID: string, gain: number = 1.0, detune = 0) => {
             let sfx = this.resourceManager.getResourceOfType(soundID, SoundEffect) as SoundEffect;
@@ -288,6 +290,7 @@ export default class Game {
                 this.update(); resolve(null); 
             }));
         }
+        if(this.quitGameCallback) this.quitGameCallback();
     }
 
     registerEditorCallback(callback: () => void) {

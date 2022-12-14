@@ -66,9 +66,13 @@ import * as globalData from "./../modules/globalData";
 
     function reload() {
         if(!canvasWebgl || !canvas2d) return;
-        if(game) game.quit();
+        if(game) {
+            game.quitGameCallback = null;
+            game.quit();
+        }
         game = new Game(resourceManager.get(), canvasWebgl, canvas2d, startRoom);
         game.registerEditorCallback(requestOpenEditor);
+        game.quitGameCallback = () => reload(); // for quitting in game
         canvasWebgl = canvasWebgl;
         // canvas2d = canvas2d;
     }
@@ -135,6 +139,7 @@ import * as globalData from "./../modules/globalData";
             <!-- <div class="centered"></div> -->
             {#if requestEditorOpen}
             <section class="request-editor-overlay">    
+                <p>(use mouse)</p>
                 <p><a href={ getEditorHREF() }>remix game</a></p>
                 <p><button on:click={() => requestEditorOpen = false}>no thanks</button></p>
             </section>

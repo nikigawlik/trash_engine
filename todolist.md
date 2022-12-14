@@ -113,6 +113,7 @@ vv START HERE vv
 - resource stores -> do actually signal destruction, use this to close windows (e.h. behaviours)
 - general breaking bugs related to deleted resources]
 - improve license info -> it should be a list, that users add to
+- unlink the renderer / clean up webgl
 
 Useful for metroidvania: 
 <!-- ~~- reusable behaviours (behaviour as resource)~~ -->
@@ -129,21 +130,24 @@ MTV TDL:
 <!-- ~~ - licensing?~~ -->
 
 Triage, last day:
-
- - item pick up text / sfx
- - double-check remix game view etc.
- - music?
- - ending
- - story
- - fill empty rooms
- - fix disclaimer after save
- - hat sprite!!
- - error messages ingame
- - blue boss timer / start
- - green guys
- - 2nd boss death anim
- - some dmg up
- - that one spike pit?
+   I D
+ <!-- - 0 0   item pick up text / sfx -->
+ <!-- - 0 0    fix disclaimer after save -->
+ <!-- - 3 1  3.0  blue boss timer / start -->
+ <!-- - 3 1  3.0  that one spike pit? -->
+ <!-- - 5 2  2.5  hat sprite!! -->
+ <!-- - 5 2  2.5  game title -->
+ <!-- - 9 4  2.2  ending -->
+ <!-- - 5 3  1.6  double-check remix game view etc. -->
+ - 6 4  1.5  cheats and restart
+ - 6 4  1.5  error messages ingame
+ - 5 5  1.0  story
+ - 5 5  1.0  fill empty rooms
+ - 2 2  1.0  2nd boss death anim
+ - 3 3  1.0  some dmg up
+ - 1 2  0.5  game title
+ - 2 5  0.4  green guys
+ - 1 8  0.1  music?
 
 
 Popup quickstart:
