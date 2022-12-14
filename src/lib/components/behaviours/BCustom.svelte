@@ -16,6 +16,7 @@
     $: behaviour.code = code
 
     let focus = false;
+    
     function propInputKeyDown(keyEvt: KeyboardEvent, index: number) {
         if(keyEvt.key == "Enter") {
             props.splice(index + 1, 0, "");
@@ -23,10 +24,54 @@
             props = props;
         }
     }
+    
     function propCreate(el: HTMLElement) {
         if(focus) el.focus();
         focus = false;
         console.log("hi")
+    }
+
+    let syntaxError = "";
+
+    $: {
+        code;
+        syntaxCheck();
+    }
+
+    function syntaxCheck() {
+        // change the stack trace to custom format (only Chrome / V8)
+        Error.prepareStackTrace = function(error, structuredStackTrace) {
+            let cs = structuredStackTrace[0];
+            return {
+                lineNumber: cs.getLineNumber(),
+                columnNumber: cs.getColumnNumber(),
+            };
+        }
+
+        // let scriptText = `
+        //     ${props.map(p => `let ${p} = 0;`).join("\n")}
+        //     ${code}
+        // `
+        let scriptText = code;
+        syntaxError = "";
+
+        try {
+            let f = new Function(scriptText);
+            // f();
+        } catch(e) {
+            if(e instanceof Error) {
+
+                // @ts-ignore
+                let line = e.lineNumber || e.stack.lineNumber;
+                // @ts-ignore
+                let column = e.columnNumber || e.stack.columnNumber;
+
+                line = line != undefined? `line: ${line}` : "";
+                column = column != undefined? `column: ${column}` : "";
+
+                syntaxError = `syntax error ${line},${column}: ${e.message}`;
+            }
+        }
     }
 </script>
 <label><input type="text" bind:value={$behaviourStore.name} /></label>
@@ -52,6 +97,9 @@
 </ul>
 <p>code: </p>
 <textarea bind:value={code}></textarea>
+<p class="syntax-error">
+    {syntaxError}
+</p>
 
 <style>
     textarea {
@@ -67,5 +115,9 @@
 
     li {
         margin: .2rem 0;
+    }
+
+    .syntax-error {
+        color: rgb(171, 173, 126);
     }
 </style>

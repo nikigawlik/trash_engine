@@ -49,6 +49,7 @@ import * as globalData from "./../modules/globalData";
             sendSizeUpdate();
     }
 
+
     let startRoom: string = null;
 
     function sendSizeUpdate() {
@@ -63,6 +64,9 @@ import * as globalData from "./../modules/globalData";
         }
     }
 
+    let currentError: Error|null = null;
+    let onErrorRestartClick = null;
+    let onErrorContinueClick = null;
 
     function reload() {
         if(!canvasWebgl || !canvas2d) return;
@@ -73,6 +77,16 @@ import * as globalData from "./../modules/globalData";
         game = new Game(resourceManager.get(), canvasWebgl, canvas2d, startRoom);
         game.registerEditorCallback(requestOpenEditor);
         game.quitGameCallback = () => reload(); // for quitting in game
+        game.errorCallback = async(e: Error)=> {
+            currentError = e;
+            let result = await new Promise<boolean>((resolve) => {
+                onErrorRestartClick = () => resolve(true);
+                onErrorContinueClick = () => resolve(false);
+            });
+            onErrorContinueClick = onErrorRestartClick = null;
+            currentError = null;
+            return result;
+        };
         canvasWebgl = canvasWebgl;
         // canvas2d = canvas2d;
     }
@@ -142,6 +156,14 @@ import * as globalData from "./../modules/globalData";
                 <p>(use mouse)</p>
                 <p><a href={ getEditorHREF() }>remix game</a></p>
                 <p><button on:click={() => requestEditorOpen = false}>no thanks</button></p>
+            </section>
+            {/if}
+            {#if currentError}
+            <section class="error-msg">
+                <p>The game encountered an error: </p>
+                <p>{currentError.message}</p>
+                <button on:click={onErrorRestartClick}>restart game</button>
+                <button on:click={onErrorContinueClick}>continue</button>
             </section>
             {/if}
         </div>

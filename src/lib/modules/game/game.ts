@@ -62,8 +62,9 @@ export default class Game {
     instanceSpriteInstanceMap: WeakMap<Instance, SpriteInstance>
     
     instanceDepth: WeakMap<SpriteInstance, number>
-    editorCallback: (() => void) | null;
-    quitGameCallback: (() => void) | null;
+    editorCallback: (() => void) | null
+    quitGameCallback: (() => void) | null
+    errorCallback: ((e: Error) => Promise<boolean>) | null
 
 
     constructor(resourceManager: ResourceManager, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, startRoomID?: string) {
@@ -287,8 +288,9 @@ export default class Game {
     async mainLoop() {
         while(!this.isEnding) {
             await new Promise(resolve => animFrameHandle = window.requestAnimationFrame(() => { 
-                this.update(); resolve(null); 
+                resolve(null); 
             }));
+            await this.update(); 
         }
         if(this.quitGameCallback) this.quitGameCallback();
     }
@@ -321,6 +323,7 @@ export default class Game {
     createInstance(spriteUUID: string, x: number, y: number) {
         // const inst = new Instance(spriteUUID, x, y);
         const sprite = this.resourceManager.getResource(spriteUUID) as Sprite;
+        if(!sprite._instanceConstructor) throw Error(`Compiler error in ${sprite.name}`);
         const inst = sprite._instanceConstructor(x, y);
         if(!inst) return;
         // inst.x = x;
@@ -431,8 +434,12 @@ export default class Game {
             // persistence level 0 are respawned, level 1 instances are reused
             if(!existing || pLevel <= 0) {
                 // respawned
-                let inst = this.createInstance(roomInst.spriteID, roomInst.x, roomInst.y)
-                this.instanceSpriteInstanceMap.set(roomInst, inst);
+                try {
+                    let inst = this.createInstance(roomInst.spriteID, roomInst.x, roomInst.y)
+                    this.instanceSpriteInstanceMap.set(roomInst, inst);
+                } catch(e) {
+                    this.handleError(e);
+                }
             } else
             if(pLevel == 1) {
                 // reuse
@@ -451,7 +458,22 @@ export default class Game {
         this.isEnding = true;
     }
 
-    update() {
+    async handleError(e: Error) {
+        if(this.errorCallback) {
+            let abort = await this.errorCallback(e);
+            if(abort) {
+                this.quit();
+            }
+            console.error(e);
+        } else {
+            // do nothing
+            console.error(e);
+            this.quit();
+        }
+    }
+
+    async update() {
+        // set up keyboard stuff
         for(let [key, value] of this.keyMap) {
             const previous = this.keyMapSnapshot.has(key) && this.keyMapSnapshot.get(key);
             this.pressedMap.set(key, !previous && value);
@@ -459,22 +481,32 @@ export default class Game {
             this.keyMapSnapshot.set(key, value);
         }
         
+        // clear 2d canvas
         this.canvas2d.getContext("2d").clearRect(0, 0, this.canvas2d.width, this.canvas2d.height);
 
+        // update instances
         for(let inst of this.instances) {
-            inst.update(inst);
+            // generic try catch, so that game doesn't break at small error
+            try {
+                inst.update(inst);
+            } catch(e) {
+                await this.handleError(e);
+            }
         }
 
+        // destroy instances
         for(let inst of this.instances) {
             if(this.destroyed.has(inst))
                 this.destroyInstance(inst);
         }
 
-        // this.draw();
+        // sort by depth
         this.instances.sort((a, b) => 
             (this.instanceDepth.get(a) || 0) -
             (this.instanceDepth.get(b) || 0)
         )
+
+        // render!
         this.renderer.render(this.instances);
 
         // change rooms
@@ -484,7 +516,6 @@ export default class Game {
         }
         
         this.tickNumber ++;
-
     }
 }
 

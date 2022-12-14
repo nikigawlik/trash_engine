@@ -139,16 +139,15 @@ Triage, last day:
  <!-- - 5 2  2.5  game title -->
  <!-- - 9 4  2.2  ending -->
  <!-- - 5 3  1.6  double-check remix game view etc. -->
- - 6 4  1.5  cheats and restart
+ <!-- - 6 4  1.5  cheats and restart -->
+ <!-- - 4 2  2.0  green guys -->
  - 6 4  1.5  error messages ingame
  - 5 5  1.0  story
  - 5 5  1.0  fill empty rooms
  - 2 2  1.0  2nd boss death anim
  - 3 3  1.0  some dmg up
- - 1 2  0.5  game title
- - 2 5  0.4  green guys
+ - 3 5  0.6  cover art
  - 1 8  0.1  music?
-
 
 Popup quickstart:
  - you can save&load different versions of this game using the save and load buttons
