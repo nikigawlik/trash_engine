@@ -34,21 +34,29 @@ export async function init(constructorMap?: Map<string, {new (): Object}>) {
 
     let upgradePromise: null | Promise<void> = null;
     
-    db = await new Promise((resolve, reject) => {
-        request.onsuccess = event => {
-            resolve(request.result);     
-        }
-        request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-            upgradePromise = upgrade(request.result, event.oldVersion, event.newVersion);
-            // (this doesn't resolve or reject, if successful it will trigger onsuccess)
-        }
-        request.onblocked = event => {
-            reject("database opening blocked");
-        }
-        request.onerror = event => {
-            reject("database opening error " + request.error?.code);
-        }
-    });
+    try {
+        db = await new Promise((resolve, reject) => {
+            request.onsuccess = event => {
+                resolve(request.result);     
+            }
+            request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+                upgradePromise = upgrade(request.result, event.oldVersion, event.newVersion);
+                // (this doesn't resolve or reject, if successful it will trigger onsuccess)
+            }
+            request.onblocked = event => {
+                reject("database opening blocked");
+            }
+            request.onerror = event => {
+                reject("database opening error " + request.error.name + ": " + request.error.message);
+                for(let x in request.error) {
+                    console.log(`${x}: ${request.error[x]}`)
+                }
+            }
+        });
+    } catch(e) {
+        console.error(e);
+        return;
+    }
 
     if(upgradePromise) await upgradePromise; // wait for this too
 

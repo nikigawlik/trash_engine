@@ -229,7 +229,7 @@ export default class ResourceManager {
     }
 
     async load(customData? : string, customKey? : any) {
-        if(!db || !db.transaction) {
+        if((!db || !db.transaction) && !customData) {
             console.log("no database...")
             return;
         }

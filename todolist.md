@@ -143,11 +143,12 @@ Triage, last day:
  <!-- - 4 2  2.0  green guys -->
  <!-- - 6 4  1.5  error messages ingame -->
  <!-- - 5 5  1.0  story -->
- - 5 5  1.0  fill empty rooms
- - 2 2  1.0  2nd boss death anim
- - 3 3  1.0  some dmg up
- - 3 5  0.6  cover art
+ <!-- - 2 2  1.0  2nd boss death anim -->
+ <!-- - 7 3  2.2  credits -->
+ <!-- - 5 5  1.0  fill empty rooms -->
+ <!-- - 5 5  1.0  cover art -->
  - 1 8  0.1  music?
+ - 3 3  1.0  some dmg up
 
 Popup quickstart:
  - you can save&load different versions of this game using the save and load buttons
