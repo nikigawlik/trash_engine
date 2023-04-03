@@ -130,8 +130,9 @@ export default class Renderer {
                 (inst, spr) => [
                     inst.imgScaleX, 
                     inst.imgScaleY, 
-                    0.0, 
-                    0.0
+                    // rotation is a 2d vector / imaginary number (1,0 = no rotation, 0,1 = 90deg, etc.) 
+                    Math.cos(inst.imgRotation * Math.PI / 180), 
+                    Math.sin(inst.imgRotation * Math.PI / 180)
                 ]
             );
             this._fillFloat4BufferInstances(gl,

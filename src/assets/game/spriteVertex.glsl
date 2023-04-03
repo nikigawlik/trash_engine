@@ -4,7 +4,7 @@ in vec2 a_localPos; // coordinates of a unit square (6 verts -> 2 tris)
 
 in vec4 a_objectPos; // positions, and origins of instances (x, y, ox, oy)
 in vec4 a_spriteMapPos; // UV coordinates as a rectangle (x, y, w, h)
-in vec4 a_objectScaleRot; // scale and rotation (sx, sy, rot, 0) 
+in vec4 a_objectScaleRot; // scale and rotation (sx, sy, rx, ry), rotation is a (unit) vector 
 in vec4 a_color; // color, multiplicative / transparency
 in vec4 a_tint; // tint, alpha drives strength of tint
 
@@ -22,9 +22,12 @@ void main() {
     vec2 adjPosition = a_localPos * a_spriteMapPos.zw * u_spriteMap_resolution;
     //move by origin                        (-30, -30) (30, 30)
     adjPosition -= a_objectPos.zw;
+    //rotate                                (15, -15) (-15, 15)
+    vec2 a = adjPosition;
+    vec2 b = a_objectScaleRot.zw;
+    adjPosition = vec2((a.x * b.x) - (a.y * b.y), (a.x * b.y) + (a.y * b.x));
     //scale                                 (-15, -15) (15, 15)
     adjPosition *= a_objectScaleRot.xy;
-    //rotate                                (15, -15) (-15, 15)
     // move to actual pos
     adjPosition += a_objectPos.xy;
     // todo
