@@ -28,6 +28,7 @@ export default class ResourceManager {
     settings: typeof defaultSettings;
     stores: WeakMap<Resource, Writable<Resource>>
     resources: Map<string, Resource>
+    
     constructor() {
         this.settings = defaultSettings;
         this.stores = new Map();
@@ -50,7 +51,7 @@ export default class ResourceManager {
             return null;
     }
 
-    getResource(uuid: string) {
+    getResource(uuid: string): Resource|null {
         return this.resources.get(uuid) || null;
     }
 
@@ -128,6 +129,14 @@ export default class ResourceManager {
 
     refresh() {
         update(x => x);
+    }
+
+    clear() {
+        this.setFromSerializedData({
+            version: saveVersion,
+            resources: [],
+            settings: defaultSettings,
+        })
     }
 
     async getSerializedData() {

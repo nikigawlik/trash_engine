@@ -382,3 +382,132 @@ Movement ideas can be generated
   - Context driven -> applies automatically in certain contexts (auto-duck, ledge grabs, etc.)
   - Input driven -> User presses a button(-combination)
   - Hybrid -> The effect of the input changes based on context (wall jump, generic interact button, duck to slide)
+
+
+# UI refactor
+
+important shit
+- new project 
+  - from example
+  - empty
+- new...
+  - sprite
+  - room
+  - sound
+
+
+# data management & undo / redo
+data is somewhere (central?)
+transformations of data are well defined -> allows for undo/redo
+
+example: 
+- cards -> open/close
+- resource -> create, read, update, delete
+
+stores: list of things -> create, [read, ]update, delete
+- inverses: create/delete
+- update: diff -> path, previous, current
+- an action can be a list of diffs
+- subscribe to a path -> changes to obj and children trigger update
+  - parent store --subscribes--> child store
+  - or no stores, just paths?
+  - or index / database
+
+possible research: selective undo
+
+possible data structures
+- blobs + index (canvases are blobs, might be compressed or something?)
+- actions / diffs (see above)
+- everything is a big tree (but that doesn't exclude some index/head kind of thing, it just means we have paths)
+
+design rules: 
+- undo is neccessary when:
+  - manually undoing some actions is very hard (more clicks, or impossible (deletion))
+  - the user doesn't know how to undo (accidental clicks, accidentally hit a keyboard shortcuts, etc.)
+
+anti-undo: 
+- no-undo can be fun! => it's like paper, you have to commit to something
+- you never lose to much progress because the scope of the project is small
+- there are saves for when you really need to undo a fuckup
+- counter:
+  - deleting things accidentally really can happen
+  - can be useful for graphics & sound
+- access only through stores
+  - Resource manager has all the data
+  - only exposes stores
+  - stores enforce crud
+
+# visual programming language #
+
+small square blocks arranged like this:
+```
+  \/  <-------.
+[ if ]--.     /\
+  |     \/    /\
+  |   [ op ]  /\
+  |   [ ak ]  /\
+  |   [ lm ]  /\
+  V     \/    /\
+[ mv ]<-'     /\
+[ cl ]        /\
+[ cl ]        /\
+[ if ]--------'
+  \/ 
+```
+
+It's basically assembly, but jumps are clearly indicated by arrows
+Also basic instructions are very high level of course!
+Also this might (might!) double as a dialog system!
+
+This hides a lot of details in the blocks, which is good, i think
+
+Also you could do crazy time branching shit with async!
+(basically break of a behaviour into an async function)
+let people use everyhting like they use coroutines in unity!
+
+let's also say a block is a bit like an excel cell 
+-> it can have state! (oh no lol)
+-> the declaration of a variable _is_ the variable (conceptually)
+-> a variable can be declared in reference to another variable
+-> unlike excel, execution order is explicit
+
+crossroads, pick one: 
+- code is interpreted
+- code compiles to js
+- blocks/statements are data, but inner-block code are compiled
+
+if it compiles to js, then we can't do completely free GOTO,
+it's going to have to be loops
+
+individual blocks can still always be javascript though.
+'variables' still can be fields!
+
+the blocks are still kinda like blueprints
+but it's less messy (lol really?)
+and there is crucially not data shit
+there is no data flow to speak of
+so it's kind of not real programming tbh, and that's ok
+you can do some excel bullshit tho
+- like instead of number just put in random(0, 4)
+- or put in a reference to another variable
+- etc. (it's like game maker lol, it's literally just game maker)
+
+Implementation could be a css grid
+or a table
+or something like that
+
+
+# room editor / general ui musings
+
+the camera can just be another game object
+
+construct is pretty kewl
+
+i can't compete with construct lol :p
+
+easy flip between edit & play
+
+2 different UI philosophies:
+- every editor has a window (sprite editor, room editor)
+- every resource has a window
+- 

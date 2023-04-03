@@ -9,11 +9,16 @@ import Icon from "../components/Icon.svelte";
 import LoadProjectPopUp from "../components/LoadProjectPopUp.svelte";
 import Reference from "../components/Reference.svelte";
 import Resources from "../components/Resources.svelte";
+    import { openEditorWindow } from "../components/ResourceTreeResource.svelte";
 import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
 import { cards, openCard } from "../modules/cardManager";
-import { resourceManager } from "../modules/game/ResourceManager";
+import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
 import { data } from "../modules/globalData";
-    import SoundEffect from "../modules/structs/soundEffect";
+import Behaviour from "../modules/structs/behaviour";
+import type Resource from "../modules/structs/resource";
+import Room from "../modules/structs/room";
+import SoundEffect from "../modules/structs/soundEffect";
+import Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
 import * as image_editor from "./../components/ImageEditor.svelte";
 import Main from "./../components/Main.svelte";
@@ -227,6 +232,22 @@ import * as ui from "./../modules/ui";
         }
     }
 
+    async function newResource(resourceName: string, resourceConstructor: typeof Resource) {
+        let name = await ui.asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
+        if(name) {    
+            let newResource = new resourceConstructor(name);
+            $resourceManager.addResource(newResource);
+            openEditorWindow(newResource);
+        }
+    }
+
+    async function clearProject() {
+        let res = await ui.asyncYesNoPopup("Do you really want to start over?", true);
+        if(res) {
+            $resourceManager.clear();
+        }
+    }
+
 
 </script>
 
@@ -256,23 +277,28 @@ import * as ui from "./../modules/ui";
             <input type="text" bind:value={$resourceManager.settings.title}>
         </div>
         <ul class="topbar">
-            <li><button on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </button></li>
-            <li><button on:click={() => openCard(Settings, false)}>           <AtlasIcon id={43} /> settings  </button></li>
-            <li><button on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> game      </button></li>
-            <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> reference      </button></li>
+            <li><button on:click={clearProject}>   <AtlasIcon id={33} /> new project </button></li>
+            <li><button on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </button></li>
+            <li><button on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </button></li>
+            <li><button on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </button></li>
+            <li><button on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </button></li>
+            <li><button on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> play      </button></li>
+            <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </button></li>
             <li><button on:click={async() => await asyncSave()}>       <AtlasIcon id={7}  /> save      </button></li>
             <li><button on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </button></li>
             <li><button on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </button></li>
             <li><button on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </button></li>
             <li><button on:click={() => importData()}>                 <AtlasIcon id={58} /> import    </button></li>
+            <li><button on:click={() => openCard(Settings, false)}>           <AtlasIcon id={43} /> settings  </button></li>
             <li><button on:click={toggleFullscreen}>
                 {#if isFullscreen}
-                    <AtlasIcon id={19} height={16}></AtlasIcon>
-                    {:else}
-                    <AtlasIcon id={20} height={16}></AtlasIcon>
+                <AtlasIcon id={19} height={16}></AtlasIcon>
+                {:else}
+                <AtlasIcon id={20} height={16}></AtlasIcon>
                 {/if}
                 fullscreen
             </button></li>
+            <li><button on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </button></li>
             <!-- <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li> -->
         </ul>
     </header>
