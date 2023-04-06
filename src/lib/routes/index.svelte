@@ -82,9 +82,9 @@ import * as ui from "./../modules/ui";
         })
     }
 
-    onMount(() => {
-        openCard(Reference, false, undefined, undefined, { pageName: "disclaimer" })
-    })
+    // onMount(() => {
+    //     openCard(Reference, false, undefined, undefined, { pageName: "disclaimer" })
+    // })
 
     function save() {
         let p1 = resourceManager.get().save();
