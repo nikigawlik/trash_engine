@@ -7,6 +7,8 @@
     import AtlasIcon from "./AtlasIcon.svelte";
     import BehaviourEditor from "./BehaviourEditor.svelte";
     import BehaviourLink from "../modules/structs/behaviourLink";
+    import { asyncYesNoPopup } from "../modules/ui";
+    import BCustom from "./behaviours/BCustom.svelte";
 
     export let behaviour: Behaviour;
     export let sprite: Sprite;
@@ -35,6 +37,10 @@
     function remove() {
         dispatch("remove");
     }
+    async function transformToCode() {
+        let result = await asyncYesNoPopup("Do you want to convert this component to a code block? This is not reversible at the moment.")
+        if(result) behaviour.svelteComponent = BCustom;
+    }
 
 </script>
 
@@ -48,7 +54,12 @@
 </p>
 <!-- <svelte:component this={behaviour.svelteComponent} {behaviour}></svelte:component> -->
 
-<button on:click={() => { openCard(BehaviourEditor, true, uuid) }}>open</button>
+<p class="bottom-bar">
+    <button on:click={() => { openCard(BehaviourEditor, true, uuid) }}>open</button>
+    {#if behaviour.svelteComponent != BCustom}
+        <button on:click={() => { transformToCode() }}>convert to code</button>
+    {/if}
+</p>
 
 <style>
 
@@ -59,4 +70,10 @@
     p.behaviour-title > .name {
         flex-grow: 1;
     }
+
+    p.bottom-bar {
+        display: flex;
+        justify-content: space-between;
+    }
+
 </style>
