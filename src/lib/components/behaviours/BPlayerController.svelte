@@ -1,6 +1,7 @@
 
 <script lang="ts">
-    import type Behaviour from "../../modules/structs/behaviour";
+    import { resourceManager } from "../../modules/game/ResourceManager";
+import type Behaviour from "../../modules/structs/behaviour";
     
     // export let sprite: Sprite;
     export let behaviour: Behaviour;
@@ -8,34 +9,41 @@
 
     let moveMode: "continuous" | "grid"      = behaviour.data.moveMode;
     let smoothMode: "none" | "smooth"        = behaviour.data.smoothMode;
-    let unique: boolean                      = behaviour.data.unique;
 
     let gridCellWidth: number = behaviour.data.gridCellWidth != undefined? behaviour.data.gridCellWidth : 60;
     let gridCellHeight: number = behaviour.data.gridCellHeight != undefined? behaviour.data.gridCellHeight : 60;
 
     let lerpSpeed: number = behaviour.data.lerpSpeed != undefined? behaviour.data.lerpSpeed : 4;
+    let moveSpeed: number = behaviour.data.moveSpeed != undefined? behaviour.data.moveSpeed : 4;
+    
+    let collisionSpriteUUID: string = behaviour.data.collisionSpriteUUID != undefined? behaviour.data.collisionSpriteUUID : "";
+
+    let flipSprite: boolean = behaviour.data.flipSprite != undefined? behaviour.data.flipSprite : true;
+
+    $: selectedCollisionSpriteStore = $resourceManager.getResourceStore(collisionSpriteUUID);
 
     $: behaviour.data = {
         moveMode,
+        moveSpeed,
         smoothMode,
-        unique,
         gridCellWidth,
         gridCellHeight,
         lerpSpeed,
+        collisionSpriteUUID,
+        flipSprite
     }
 
-    $: if(behaviour) behaviour.props = ["x", "y", "xspd", "yspd", "xx", "yy"];
+    $: if(behaviour) behaviour.props = ["xspd", "yspd", "xx", "yy"];
     $: if(behaviour) behaviour.code = `
         xspd = 0;
         yspd = 0;
         
-        ${
-            smoothMode == "smooth"?
-            `
+        // should not do it like this blabla
         xx = x;
         yy = y;
-            ` : ""
-        }
+
+        const moveSpeed = ${moveSpeed};
+
         onUpdate(() => {
         ${
             moveMode == "grid"?
@@ -51,29 +59,54 @@
             let hor = keyIsDown("KeyD", "ArrowRight") - keyIsDown("KeyA", "ArrowLeft");
             let ver = keyIsDown("KeyS", "ArrowDown") - keyIsDown("KeyW", "ArrowUp");
 
-            xspd = hor * 4;
-            yspd = ver * 4;
+            xspd = hor * moveSpeed;
+            yspd = ver * moveSpeed;
+            `
+        }
+        ${
+            $selectedCollisionSpriteStore?
+            `
+            // collision
+            // for(let i = 0; i < Math.abs(xspd); i++) {
+            //     if(!collisionAt(me, ${$selectedCollisionSpriteStore.name}, xx + Math.sign(xspd), yy))
+            //       xx += Math.sign(xspd);
+            // }
+            // for(let i = 0; i < Math.abs(yspd); i++) {
+            //     if(!collisionAt(me, ${$selectedCollisionSpriteStore.name}, xx, yy + Math.sign(yspd)))
+            //       yy += Math.sign(yspd);
+            // }
+            if(!collisionAt(me, ${$selectedCollisionSpriteStore.name}, xx + xspd, yy))
+                xx += xspd;
+            if(!collisionAt(me, ${$selectedCollisionSpriteStore.name}, xx, yy + yspd))
+                yy += yspd;
+            ` :
+            `
+            xx += xspd;
+            yy += yspd;
             `
         }
         ${
             smoothMode == "smooth"?
             `
-            xx += xspd;
-            yy += yspd;
-            const l = ${1/(1+lerpSpeed)};
+            const l = ${1-1/(1+lerpSpeed/10)};
             x = l * xx + (1-l) * x;
             y = l * yy + (1-l) * y;
             `:
             `
-            x += xspd;
-            y += yspd;
+            x = xx;
+            y = yy;
             `
+        }
+        ${
+            flipSprite?
+            "if(xspd != 0) imgScaleX = Math.sign(xspd);":
+            ""
         }
     });
     `
 
-</script>
 
+</script>
 <table>
     <tr>
         <td>movement: </td>
@@ -85,6 +118,14 @@
             </select>
         </td>
     </tr>
+    {#if moveMode == "continuous"}
+    <tr>
+        <td> &mdash; move speed:</td>
+        <td>
+            <input type="number" bind:value={moveSpeed} />
+        </td>
+    </tr>
+    {/if}
     {#if moveMode == "grid"}
     <tr>
         <td> &mdash; cell width:</td>
@@ -117,6 +158,21 @@
         </td>
     </tr>
     {/if}
+    <tr>
+        <td>collision: </td>
+        <td>
+            <select bind:value={collisionSpriteUUID}>
+                <option value="">(no collision)</option>
+                {#each $resourceManager.getSprites() as sprite}
+                    <option value={sprite.uuid}>{sprite.name}</option>
+                {/each}
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>flip sprite: </td>
+        <td><input type="checkbox" bind:checked={flipSprite}></td>
+    </tr>
 </table>
 
 
