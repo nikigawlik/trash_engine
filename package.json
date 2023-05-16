@@ -10,13 +10,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.2",
-    "svelte": "^3.49.0",
-    "svelte-preprocess": "^4.10.7",
-    "typescript": "^4.8.3",
-    "vite": "^3.1.0",
-    "vite-plugin-mkcert": "^1.10.1",
-    "vite-plugin-singlefile": "^0.12.2"
+    "@sveltejs/vite-plugin-svelte": "^2.2.0",
+    "svelte": "^3.59.1",
+    "svelte-preprocess": "^5.0.3",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.6",
+    "vite-plugin-mkcert": "^1.15.0",
+    "vite-plugin-singlefile": "^0.13.5"
   },
   "dependencies": {
     "svelte-markdown": "^0.2.3"
