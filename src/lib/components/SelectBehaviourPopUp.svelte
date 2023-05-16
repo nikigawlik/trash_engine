@@ -1,18 +1,18 @@
 <script lang="ts">
-    import type { SvelteComponentDev } from "svelte/internal";
+    import type { ComponentType, SvelteComponentTyped } from "svelte/internal";
     import { resourceManager } from "../modules/game/ResourceManager";
     import Behaviour from "../modules/structs/behaviour";
-import type { AbstractPrompt } from "../modules/ui";
+    import BehaviourLink from "../modules/structs/behaviourLink";
+    import type { AbstractPrompt } from "../modules/ui";
+    import BlockingPopUp from "./BlockingPopUp.svelte";
     import BCustom from "./behaviours/BCustom.svelte";
     import BPlayerController from "./behaviours/BPlayerController.svelte";
-import BlockingPopUp from "./BlockingPopUp.svelte";
-import BehaviourLink from "../modules/structs/behaviourLink"
 
     export let prompt: AbstractPrompt|null;
 
     interface BehOpt {
         text: string,
-        behaviourComp?: typeof SvelteComponentDev,
+        behaviourComp?:  ComponentType<SvelteComponentTyped<{behaviour: Behaviour}>>,
         linkedBehaviour?: Behaviour
     }
     

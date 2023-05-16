@@ -1,13 +1,13 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { openCard } from "../modules/cardManager";
-    import type Behaviour from "../modules/structs/behaviour";
     import { resourceManager } from "../modules/game/ResourceManager";
+    import type Behaviour from "../modules/structs/behaviour";
+    import BehaviourLink from "../modules/structs/behaviourLink";
     import type Sprite from "../modules/structs/sprite";
+    import { asyncYesNoPopup } from "../modules/ui";
     import AtlasIcon from "./AtlasIcon.svelte";
     import BehaviourEditor from "./BehaviourEditor.svelte";
-    import BehaviourLink from "../modules/structs/behaviourLink";
-    import { asyncYesNoPopup } from "../modules/ui";
     import BCustom from "./behaviours/BCustom.svelte";
 
     export let behaviour: Behaviour;
