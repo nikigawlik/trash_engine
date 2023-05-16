@@ -23,7 +23,7 @@
     style:mask-size="{columns*w*scale}px {rows*h*scale}px"
     style:-webkit-mask-position="-{x*w*scale}px -{y*h*scale}px"
     style:-webkit-mask-size="{columns*w*scale}px {rows*h*scale}px"
-    alt="icon"
+    title="icon"
 ></div>
 
 <style>

@@ -1,16 +1,23 @@
 console.log("database.ts loading")
 
 const VERSION = 2;
-const NAME = "ngine_Database"
+const NAME = "trash_engine";
+// const NAME = "ngine_Database"; // old name
 
-export const STORE_NAME_RESOURCES = "resources";
+export const STORE_NAME_RESOURCES = "game_data";
 export const STORE_NAME_GLOBAL_DATA = "global_data";
 
 let constructors: Map<string, {new (): Object}> = new Map();
 let inverseConstructors: Map<{new (): Object}, string> = new Map();
 
 // database object
-export let db: IDBDatabase;
+export let db: IDBDatabase | null;
+
+export class NoDatabaseError extends Error {
+    constructor() {
+        super("A database could not be established, this could be due to incognito/private mode, browser privacy settings, or storage limitations.")
+    }
+}
 
 export async function init(constructorMap?: Map<string, {new (): Object}>) {
     if(constructorMap) {
@@ -24,17 +31,17 @@ export async function init(constructorMap?: Map<string, {new (): Object}>) {
         }
     }
 
-    console.log("opening database...");
-    if (!window.indexedDB) {
-        console.log("Your browser doesn't support a stable version of IndexedDB. Damn.");
-        return;
-    }
-    
-    let request = window.indexedDB.open(NAME, VERSION);
-
-    let upgradePromise: null | Promise<void> = null;
-    
     try {
+        console.log("opening database...");
+        if (!window.indexedDB) {
+            console.log("Your browser doesn't support a stable version of IndexedDB. Damn.");
+            return;
+        }
+        
+        let request = window.indexedDB.open(NAME, VERSION);
+
+        let upgradePromise: null | Promise<void> = null;
+        
         db = await new Promise((resolve, reject) => {
             request.onsuccess = event => {
                 resolve(request.result);     
@@ -47,23 +54,19 @@ export async function init(constructorMap?: Map<string, {new (): Object}>) {
                 reject("database opening blocked");
             }
             request.onerror = event => {
-                reject("database opening error " + request.error.name + ": " + request.error.message);
-                for(let x in request.error) {
-                    console.log(`${x}: ${request.error[x]}`)
-                }
+                // reject("lol")
+                reject(request.error)
             }
         });
+
+        if(upgradePromise) await upgradePromise; // wait for this too
+
+        console.log(".");
     } catch(e) {
-        console.error(e);
-        return;
+        console.log("Could not open database. Possible reasons: user settings, incognito/private mode, browser support, etc.")
+        console.log("Save/load will not be possible")
+        db = null
     }
-
-    if(upgradePromise) await upgradePromise; // wait for this too
-
-    console.log(".");
-
-    // let trans = db.transaction([STORE_NAME_RESOURCES, "readonly"]);
-
 }
 
 export function getDocumentGameData() : string | null {

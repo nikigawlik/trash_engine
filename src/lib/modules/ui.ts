@@ -43,6 +43,21 @@ export let asyncYesNoPopup = async (question: string, defaultNo: boolean = true)
     });
 }
 
+// TODO might never resolve
+export let asyncInfoPopup = async (text: string) => {
+    return await new Promise(resolve => {
+        blockingPopup.set({
+            componentType: BlockingPopUpSvelte as any,
+            text,
+            data: null,
+            buttons: [
+                { text: "ok", callback: () => resolve(true), default: true },
+            ],
+            resolve
+        });
+    });
+}
+
 
 export let asyncGetTextPopup = async (question: string, defaultText: string) : Promise<string> => {
     return await new Promise(resolve => {

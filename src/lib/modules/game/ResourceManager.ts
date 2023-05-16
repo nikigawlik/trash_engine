@@ -1,5 +1,5 @@
 import { Writable, writable } from "svelte/store";
-import { db, deserialize, getDocumentGameData, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
+import { db, deserialize, getDocumentGameData, NoDatabaseError, requestAsync, serialize, STORE_NAME_RESOURCES } from "../database";
 import Behaviour from "../structs/behaviour";
 import type Folder from "../structs/folder";
 import type Resource from "../structs/resource";
@@ -218,7 +218,7 @@ export default class ResourceManager {
     }
 
     async save(replaceKey?: number) {
-        if(!db || !db.transaction) return;
+        if(!db || !db.transaction) throw new NoDatabaseError();
         
         let dataObject = await this.getSerializedData();
 
@@ -239,7 +239,7 @@ export default class ResourceManager {
 
     async load(customData? : string, customKey? : any) {
         if((!db || !db.transaction) && !customData) {
-            console.log("no database...")
+            console.log("! no database support & no inline data -> use empty project.")
             return;
         }
 
@@ -284,6 +284,10 @@ export default class ResourceManager {
     }
 
     public static async getSaveFiles(): Promise<{key:any, value:any}[]> {
+        if(!db || !db.transaction) {
+            return [];
+        }
+
         let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
 

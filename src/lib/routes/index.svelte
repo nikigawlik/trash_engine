@@ -27,6 +27,7 @@ import * as database from "./../modules/database";
 import * as globalData from "./../modules/globalData";
 import { nameConstructorMap } from "./../modules/structs/savenames";
 import * as ui from "./../modules/ui";
+    import WhackyButton from "../components/WhackyButton.svelte";
 
     let main: Main|null;
 
@@ -41,7 +42,7 @@ import * as ui from "./../modules/ui";
     }
 
     $: {
-        window.onbeforeunload = $data.editor.settings.showWarningBeforeClosingApp?
+        window.onbeforeunload = $data.editor.settings.showWarningBeforeClosingApp && !import.meta.env.DEV?
           () => true : null;
     }
 
@@ -82,17 +83,27 @@ import * as ui from "./../modules/ui";
         })
     }
 
+    function makeNonCrashingPromise<T>(promise: Promise<T>): Promise<T|null> {
+        return new Promise((resolve, reject) => {
+            promise.then(resolve).catch(async (error: Error) => {
+                await ui.asyncInfoPopup(`${error.name}: ${error.message}`);
+                resolve(null);
+            });
+        })
+    }
+
     // onMount(() => {
     //     openCard(Reference, false, undefined, undefined, { pageName: "disclaimer" })
     // })
 
-    function save() {
-        let p1 = resourceManager.get().save();
+    async function save(id?: number) {
+        let p1 = resourceManager.get().save(id); // id can be undefined -> thats ok
         let p2 = data.save();
-        savingPromise = makeTimedPromise(Promise.all([p1, p2]));
+
+        savingPromise = makeNonCrashingPromise(makeTimedPromise(Promise.all([p1, p2])));
     }
 
-    async function asyncSave() {
+    async function promptSave() {
         let result: {id:number, name:string} = await new Promise(resolve => {
             // this is a AbstractGetTextPrompt
             ui.blockingPopup.set({
@@ -102,9 +113,10 @@ import * as ui from "./../modules/ui";
             });
         });
         if(result) {
-            let p1 = result.id < 0? resourceManager.get().save() : resourceManager.get().save(result.id);
-            let p2 = data.save();
-            savingPromise = makeTimedPromise(Promise.all([p1, p2]));
+            if(result.id < 0) 
+                await save();
+            else
+                await save(result.id);
         }
     }
 
@@ -247,8 +259,6 @@ import * as ui from "./../modules/ui";
             $resourceManager.clear();
         }
     }
-
-
 </script>
 
 <svelte:head>
@@ -277,41 +287,38 @@ import * as ui from "./../modules/ui";
             <input type="text" bind:value={$resourceManager.settings.title}>
         </div>
         <ul class="topbar">
-            <li><button on:click={clearProject}>   <AtlasIcon id={33} /> new project </button></li>
-            <li><button on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </button></li>
-            <li><button on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </button></li>
-            <li><button on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </button></li>
-            <li><button on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </button></li>
-            <li><button on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> play      </button></li>
-            <li><button on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </button></li>
-            <li><button on:click={async() => await asyncSave()}>       <AtlasIcon id={7}  /> save      </button></li>
-            <li><button on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </button></li>
-            <li><button on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </button></li>
-            <li><button on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </button></li>
-            <li><button on:click={() => importData()}>                 <AtlasIcon id={58} /> import    </button></li>
-            <li><button on:click={() => openCard(Settings, false)}>           <AtlasIcon id={43} /> settings  </button></li>
-            <li><button on:click={toggleFullscreen}>
+            <li><WhackyButton on:click={clearProject}>   <AtlasIcon id={33} /> new project </WhackyButton></li>
+            <li><WhackyButton on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </WhackyButton></li>
+            <li><WhackyButton on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </WhackyButton></li>
+            <li><WhackyButton on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </WhackyButton></li>
+            <li><WhackyButton on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> play      </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </WhackyButton></li>
+            <li><WhackyButton on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </WhackyButton></li>
+            <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li>
+            <li><WhackyButton on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </WhackyButton></li>
+            <li><WhackyButton on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </WhackyButton></li>
+            <li><WhackyButton on:click={() => importData()}>                 <AtlasIcon id={58} /> import    </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(Settings, false)}>           <AtlasIcon id={43} /> settings  </WhackyButton></li>
+            <li><WhackyButton on:click={toggleFullscreen}>
                 {#if isFullscreen}
                 <AtlasIcon id={19} height={16}></AtlasIcon>
                 {:else}
                 <AtlasIcon id={20} height={16}></AtlasIcon>
                 {/if}
                 fullscreen
-            </button></li>
-            <li><button on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </button></li>
-            <!-- <li><button on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</button></li> -->
+            </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </WhackyButton></li>
+            <!-- <li><WhackyButton on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</WhackyButton></li> -->
         </ul>
     </header>
     <Main bind:this={main}></Main>
 
-    {#if $blockingPopup}
-        <svelte:component this={$blockingPopup.componentType} bind:prompt={$blockingPopup} />
-    {/if}
 {:catch err}
  <!-- init promise fail -->
  <p>saving failed</p>
- <pre>err.name</pre>
- <pre>err.message</pre>
+ <pre>{err.name}</pre>
+ <pre>{err.message}</pre>
  {/await}
  {:catch err}
  <!-- save promise fail -->
@@ -319,6 +326,9 @@ import * as ui from "./../modules/ui";
  <pre>{err.name}</pre>
  <pre>{err.message}</pre>
 {/await}
+{#if $blockingPopup}
+    <svelte:component this={$blockingPopup.componentType} bind:prompt={$blockingPopup} />
+{/if}
 
 <style>
     .spacer {

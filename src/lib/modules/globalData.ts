@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { db, requestAsync, STORE_NAME_GLOBAL_DATA } from "./database";
+import { db, NoDatabaseError, requestAsync, STORE_NAME_GLOBAL_DATA } from "./database";
 
 // ---- save data ----
 
@@ -38,8 +38,7 @@ export const data = {
 
 
 export async function save() {
-    
-    if(!db || !db.transaction) return;
+    if(!db || !db.transaction) throw new NoDatabaseError();
         
     let trans = db.transaction([STORE_NAME_GLOBAL_DATA], "readwrite");
     let objectStore = trans.objectStore(STORE_NAME_GLOBAL_DATA);
@@ -56,6 +55,11 @@ export async function save() {
 }
 
 export async function load() {
+    if(!db || !db.transaction) {
+        console.log("! no database support, loading default values.")
+        return;
+    }
+
     console.log("- loading global data...")
     let trans = db.transaction(STORE_NAME_GLOBAL_DATA, "readonly");
     let objectStore = trans.objectStore(STORE_NAME_GLOBAL_DATA);

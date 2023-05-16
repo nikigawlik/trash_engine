@@ -168,6 +168,7 @@
         background: none;
         border: none;
         -webkit-appearance: none;
+        appearance: none;
     }
 
     /* input[type=range]:focus {
@@ -209,6 +210,7 @@
         background: var(--main-color);
         cursor: pointer;
         -webkit-appearance: none;
+        appearance: none;
         margin-top: -4px;
     }
 

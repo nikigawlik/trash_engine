@@ -1,5 +1,8 @@
 vv START HERE vv
 
+- exported game should not load from database (unless player chooses remix)
+
+
 <!-- ~~- redo undo -> either in stores / or through some kind of command system~~ -->
 <!-- ~~- prevent cards from being outside of window, inaccesible, softlocked   OR   have a close all window button?~~ -->
 <!-- ~~ sprite icons (easy peasy) ~~ -->
@@ -12,17 +15,11 @@ vv START HERE vv
 <!-- ~~ room editor grid + placement etc ~~ -->
 <!-- ~~- calculate bounding boxes from transparency~~ -->
 <!-- ~~- kb shortcut -> ctrl-s~~ -->
-- [B] tutorial page
-  - resizing windows
-  - sprites
-  - rooms
-  - play
-  - scripts / anims
 <!-- ~~- rename Card to Window? -> wont fix~~ -->
+- tutorial page
 <!-- ~~- horizontal flex window management (bitsy style)~~ -->
 - mobile sprite editor support?
 <!-- ~~- make drop down menu different (relative to resource, not mouse cursor; not cropped by scroll area)~~ -->
-- redo undo -> either in stores / or through some kind of command system
 - Clamp cards to the main area on bottom and right
 <!-- ~~- scripting support and run game button~~ -->
 - link to sprites/scripts on disk (offline version)
@@ -30,22 +27,22 @@ vv START HERE vv
 <!-- ~~- room editor toolbar!~~ -->
 - room editor middle click -> pick
 <!-- ~~- [B] (bug) save should preserve component state.~~ -->
-- sprite sheet support (there is a build in pixi packer, i think?)
+<!-- - sprite sheet support (there is a build in pixi packer, i think?) -->
 - alternative resources -> shapes, text
-- delta time
+- delta time -> why? lol
 <!-- ~~- export game data (json)~~ -->
 <!-- ~~- room editor persistent data -> grid & snap settings~~ -->
 <!-- ~~- multiple projects? -> export/import/project-select or bitsy-style ?~~ -->
 <!-- ~~- export game (html)~~ -->
 <!-- ~~- prevent ofuscation of save-critical class names like "Sprite", "Room", etc.~~ -->
 <!-- ~~- room change should change game size in browser (pixi resize vs. svelte size code)~~ -->
-- indexed db -> some kind of game id (also useful for file protocol stuff -> all html files share the same indexed db!!!)
+- indexed db -> some kind of game id (also useful for file protocol stuff -> all html files share the same indexed db!!!) -> but what is the id? an extra setting?
 <!-- ~~- [B] ability to name game (changes title in export too)~~ -->
 <!-- ~~- corrupt save data? -> ability to delete data if game doesn't load after X seconds~~ -->
 <!-- ~~- [B] cards should have default size & not reset on load (implementation overlap)~~ -->
 <!-- ~~- [B] game does not work when ?editor / get rid of ?editor?game~~ -->
 <!-- ~~- [B] scrollbar arrows are excluded from build (only affects chrome)~~ -->
-- export game in dev mode -> wont fix?
+- export game in dev mode -> wont fix? , but could be good for offline version / dev version?
 <!-- ~~- differentiate "export game" and "export game data"~~ -->
 <!-- ~~- [B] evaluate app from perspective of "user does not know how to resize windows"~~ -->
 <!-- ~~- proper window resize bars (resize handle on all borders and corners)~~ -->
@@ -63,7 +60,7 @@ vv START HERE vv
 <!-- ~~- [B] dont' clutter index db without reason~~ -->
 - [B] how are people going to make even a simple game? -> behaviour blocks
 <!-- ~~- [B] Redo pop ups (modals) to actually block stuff and cover whole screen~~ -->
-- Resources card should have larger default width
+<!-- - Resources card should have larger default width -->
 - Change image save format -> paletted
 <!-- ~~- [B] simple scripting doc -> can be opened next to scripting window~~ -->
 <!-- ~~- Sprite editor tabs dont look right~~ -->
@@ -114,6 +111,25 @@ vv START HERE vv
 - general breaking bugs related to deleted resources]
 - improve license info -> it should be a list, that users add to
 - unlink the renderer / clean up webgl
+- github update remote
+- make toolbar more useful (for people doing random things)
+- think about views/modes like blender (level editing, sprite editing, scripting, etc.)
+- room editor hierarchy
+- more failsafes for errors -> delete database, for example -> make things work without database (esp. in play mode!)
+- rethink how the indexeddb actually functions, it's requirement, role, size limits, etc.
+- engine modding support (hooks, components, etc.)
+- different room sizes / camera / game size ?
+- palette swap -> UI
+- custom CSS
+- mods?
+- 3d support (!)
+- remind user that they have unsaved changes / make saving more obvious
+- transform current lib function into drag and drop blocks!
+- redo undo -> either in stores / or through some kind of command system
+- some kind of textbox system
+- room code
+- palette swap -> game
+- player controller move speed
 
 Useful for metroidvania: 
 <!-- ~~- reusable behaviours (behaviour as resource)~~ -->
@@ -158,6 +174,12 @@ Popup quickstart:
  - you can (and should) keep backups of the data using the export button
  - be careful with big images! The engine was tested on sprites in the 60-120 pixel range, high-res images might break the engine.
  - Bugs, questions, feature requests: Please message me on itch or mastodon!
+
+  - resizing windows
+  - sprites
+  - rooms
+  - play
+  - scripts / anims
 
 
 blockers:
