@@ -1,44 +1,44 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-import "../../assets/main.css";
-import "../../assets/reset.css";
-import "../../assets/svg.css";
-import AtlasIcon from "../components/AtlasIcon.svelte";
-import GamePreview from "../components/GamePreview.svelte";
-import Icon from "../components/Icon.svelte";
-import LoadProjectPopUp from "../components/LoadProjectPopUp.svelte";
-import Reference from "../components/Reference.svelte";
-import Resources from "../components/Resources.svelte";
+    import "../../assets/main.css";
+    import "../../assets/reset.css";
+    import "../../assets/svg.css";
+    import AtlasIcon from "../components/AtlasIcon.svelte";
+    import GamePreview from "../components/GamePreview.svelte";
+    import Icon from "../components/Icon.svelte";
+    import LoadProjectPopUp from "../components/LoadProjectPopUp.svelte";
+    import Reference from "../components/Reference.svelte";
     import { openEditorWindow } from "../components/ResourceTreeResource.svelte";
-import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
-import { cards, openCard } from "../modules/cardManager";
-import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
-import { data } from "../modules/globalData";
-import Behaviour from "../modules/structs/behaviour";
-import type Resource from "../modules/structs/resource";
-import Room from "../modules/structs/room";
-import SoundEffect from "../modules/structs/soundEffect";
-import Sprite from "../modules/structs/sprite";
-import { blockingPopup } from "../modules/ui";
-import * as image_editor from "./../components/ImageEditor.svelte";
-import Main from "./../components/Main.svelte";
-import Settings from "./../components/Settings.svelte";
-import * as database from "./../modules/database";
-import * as globalData from "./../modules/globalData";
-import { nameConstructorMap } from "./../modules/structs/savenames";
-import * as ui from "./../modules/ui";
+    import Resources from "../components/Resources.svelte";
+    import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
     import WhackyButton from "../components/WhackyButton.svelte";
+    import { cards, openCard } from "../modules/cardManager";
+    import { resourceManager } from "../modules/game/ResourceManager";
+    import { currentTheme, data } from "../modules/globalData";
+    import Behaviour from "../modules/structs/behaviour";
+    import type Resource from "../modules/structs/resource";
+    import Room from "../modules/structs/room";
+    import SoundEffect from "../modules/structs/soundEffect";
+    import Sprite from "../modules/structs/sprite";
+    import { blockingPopup } from "../modules/ui";
+    import * as image_editor from "./../components/ImageEditor.svelte";
+    import Main from "./../components/Main.svelte";
+    import Settings from "./../components/Settings.svelte";
+    import * as database from "./../modules/database";
+    import * as globalData from "./../modules/globalData";
+    import { nameConstructorMap } from "./../modules/structs/savenames";
+    import * as ui from "./../modules/ui";
 
     let main: Main|null;
 
     $: {
-        if($data.editor.settings.darkMode){
-            document.body.classList.add("dark"); 
-            document.body.classList.remove("light"); 
-        } else {
-            document.body.classList.add("light"); 
-            document.body.classList.remove("dark");
-        }
+        // let root = document.querySelector(":root")
+        let root = document.body;
+
+        root.style.setProperty("--bg-color", $currentTheme.bgColor)
+        root.style.setProperty("--main-color", $currentTheme.mainColor)
+        root.style.setProperty("--neutral-color", $currentTheme.neutralColor)
+        root.style.setProperty("--off-main-color", $currentTheme.offMainColor)
+        root.style.setProperty("--off-bg-color", $currentTheme.offBgColor)
     }
 
     $: {

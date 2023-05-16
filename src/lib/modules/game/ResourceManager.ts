@@ -312,8 +312,6 @@ let {subscribe, set, update } = writable(_value);
 subscribe(x => _value = x);
 update(x => x)
 
-let isLoadedPromise = _value.load();
-
 // TODO should I get rid of this?
 export let resourceManager = {
     subscribe,
@@ -323,5 +321,4 @@ export let resourceManager = {
             throw new Error("When accessing the resourceManager object store, you are not allowed to change the instance of the manager, only change it's contents.")
         set(value);
     },
-    waitForLoad: () => isLoadedPromise,
 }

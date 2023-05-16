@@ -49,7 +49,7 @@
     import { blockingPopup } from "../modules/ui";
     import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
     import { adjustedCanvasSize } from "../modules/game/utils";
-    import { data } from "../modules/globalData";
+    import { currentTheme, data } from "../modules/globalData";
     import { onMount } from "svelte";
     import AtlasIcon from "./AtlasIcon.svelte";
 
@@ -105,9 +105,24 @@
     }
     
     // let dummyIcon = () => `<canvas width=${~~iconDisplayWidth + "px"} height=${~~iconDisplayWidth + "px"} />`
-    
 
-    $: colorMode = $data.editor.settings.darkMode? "dark" : "light";
+
+    $: mainColor = $currentTheme.mainColor
+    $: modeIsDark = brightnessFromColor($currentTheme.bgColor) < 128
+    $: console.log(brightnessFromColor($currentTheme.bgColor))
+
+    function brightnessFromColor(color: string) {
+        let canvas = document.createElement("canvas")
+        canvas.width = canvas.height = 1;
+        let ctx = canvas.getContext("2d");
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, 1, 1);
+        let val = ctx.getImageData(0, 0, 1, 1).data;
+        let brightness = (val[0] + val[1] + val[2]) / 3;
+        return brightness;
+    }
+
+    $: colorMode = modeIsDark? "dark" : "light";
     $: tweak = colorUIAdjust[currentColor] == colorMode;
 
 
@@ -149,7 +164,7 @@
             if(!brush) break;
             let ctx = brush.getContext("2d")!;
             ctx.globalCompositeOperation = "source-in";
-            ctx.fillStyle = !eraser? currentColor : $data.editor.settings.darkMode? '#fff' : '#000'; // TODO not white
+            ctx.fillStyle = !eraser? currentColor : modeIsDark? '#fff' : '#000'; // TODO not white
             ctx.fillRect(0, 0, brushWidth, brushWidth);
             // main canvas
             currentCanvasOP = eraser? "destination-out" : "source-over";
@@ -328,7 +343,7 @@
 
     function drawBBox() {
         if(!canvasCtx) return;
-        canvasCtx.strokeStyle = $data.editor.settings.darkMode? "white" : "black";
+        canvasCtx.strokeStyle = modeIsDark? "white" : "black";
         canvasCtx.strokeRect(
             $s_sprite.bBoxX + .5, 
             $s_sprite.bBoxY + .5, 

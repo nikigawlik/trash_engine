@@ -12,27 +12,14 @@ body {
         var(--main-color) var(--pattern-stop2));
 }
 
-/* light mode */
+/* light mode / default */
 body {
     --bg-color: #fdfdfd;
     --main-color: #111;
-    --corner-image: url("/engineAssets/corners.png");
-    
     --neutral-color: #888;
     --off-main-color: #333;
     --off-bg-color: #ccc;
 }
-
-/* dark mode */
-body.dark {
-    --bg-color: #222;
-    --main-color: #ccc;
-    --corner-image: url("/engineAssets/corners_inverted.png");
-    
-    --neutral-color: #555;
-    --off-main-color: #aaa;
-    --off-bg-color: #444;
-} 
 
 body {
     height: 100%;

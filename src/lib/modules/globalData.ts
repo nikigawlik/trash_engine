@@ -1,31 +1,57 @@
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 import { db, NoDatabaseError, requestAsync, STORE_NAME_GLOBAL_DATA } from "./database";
 
 // ---- save data ----
 
-interface GlobalSettings {
+let defaultSettings = {
+    version: 1,
     editor: {
         settings: {
-            darkMode: boolean,
-            subFolders: boolean,
-            openResourcesMaximized: boolean,
-            showWarningBeforeClosingApp: boolean,
-        }
-    }
-}
-
-const { subscribe, set, update } = writable({
-    editor: {
-        settings: {
-            darkMode: true,
+            themes: [
+                {
+                  "name": "dark",
+                  "bgColor": "#222",
+                  "mainColor": "#ccc",
+                  "neutralColor": "#555",
+                  "offMainColor": "#aaa",
+                  "offBgColor": "#444"
+                },
+                {
+                  "name": "light",
+                  "bgColor": "#fdfdfd",
+                  "mainColor": "#111",
+                  "neutralColor": "#888",
+                  "offMainColor": "#333",
+                  "offBgColor": "#ccc"
+                },
+                {
+                  "name": "trash",
+                  "bgColor": "#404",
+                  "mainColor": "#fda",
+                  "neutralColor": "#3a3",
+                  "offMainColor": "#adf",
+                  "offBgColor": "#505"
+                },
+                {
+                  "name": "hotdog",
+                  "bgColor": "red",
+                  "mainColor": "yellow",
+                  "neutralColor": "red",
+                  "offMainColor": "black",
+                  "offBgColor": "red"
+                }
+            ],
+            currentTheme: "trash",
             subFolders: false,
             openResourcesMaximized: true,
             showWarningBeforeClosingApp: true,
         }
     }
-} as GlobalSettings);
+}
 
-let _value: GlobalSettings;
+const { subscribe, set, update } = writable(defaultSettings);
+
+let _value: typeof defaultSettings;
 subscribe(v => _value = v);
 
 export const data = {
@@ -36,6 +62,11 @@ export const data = {
     save,
 }
 
+export const currentTheme = derived(data, ($data) => {
+    let themes = $data.editor.settings.themes;
+    let themeName = $data.editor.settings.currentTheme;
+    return themes.find(a => a.name == themeName) || themes[0];
+})
 
 export async function save() {
     if(!db || !db.transaction) throw new NoDatabaseError();
@@ -66,8 +97,11 @@ export async function load() {
     let results = await requestAsync(objectStore.getAll());
     let result = results[results.length - 1];
     
-    if(result) {       
-        data.set(result);
+    if(result) {
+        if(result.version == defaultSettings.version) {
+            data.set(result);
+        }
+        console.log(data.get())
         console.log("- global data loaded")
     } else {
         console.log("!! no save data found")

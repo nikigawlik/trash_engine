@@ -28,8 +28,8 @@ import { cards, type CardInstance } from "../modules/cardManager";
     let clientWidth = card.position.width;
     let clientHeight = card.position.height;
 
-    $: console.log(`width: ${clientWidth}`)
-    $: console.log(`height: ${clientHeight}`)
+    // $: console.log(`width: ${clientWidth}`)
+    // $: console.log(`height: ${clientHeight}`)
     // $: name = `${clientWidth} ${clientHeight}`;
     $: {
         clientWidth; clientHeight;
@@ -63,7 +63,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
 
 
     onMount(() => {     
-        console.log("new card elmt")
+        // console.log("new card elmt")
         if(elmt && autoFocus) {
             elmt.focus()
         }
