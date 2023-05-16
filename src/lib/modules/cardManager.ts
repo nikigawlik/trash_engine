@@ -37,7 +37,14 @@ export let cards = {
         }
         return store;
     }),
-    remove: (uuid: string) => update(store => store.filter(x => x.uuid != uuid)),
+    remove: (uuid: string, removeDependents = false) => 
+        update(store => store.filter(removeDependents? 
+            (x => !x.uuid.startsWith(uuid))
+            :
+            (x => x.uuid !== uuid)
+        )
+    )
+    ,
     focus: (uuid: string) => update(store => {
         let inst = store.find(x => x.uuid == uuid);
         if(inst) inst.zIndex = ++maxZ;

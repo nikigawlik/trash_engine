@@ -7,6 +7,7 @@ import Room from "../structs/room";
 import SoundEffect from "../structs/soundEffect";
 import Sprite from "../structs/sprite";
 import { assert } from "./utils";
+import { cards } from "../cardManager";
 
 console.log("resource_manager.ts loading")
 
@@ -57,6 +58,7 @@ export default class ResourceManager {
 
     deleteResource(uuid: string) {
         this.resources.delete(uuid);
+        cards.remove(uuid, true);
     }
 
     // expensive-ish

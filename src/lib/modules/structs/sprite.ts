@@ -2,6 +2,7 @@ import type Behaviour from "./behaviour";
 import { resourceManager } from "../game/ResourceManager";
 import Resource from "./resource";
 import BehaviourLink from "./behaviourLink";
+import { cards } from "../cardManager";
 
 export default class Sprite extends Resource {
     canvas: HTMLCanvasElement | null;
@@ -32,6 +33,9 @@ export default class Sprite extends Resource {
     }
 
     removeBehaviour(behaviour: Behaviour|string) {
+        const behaviourUUID = (behaviour as Behaviour).uuid || (behaviour as string);
+        cards.remove(`${this.uuid}/${behaviourUUID}`);
+        
         this.behaviours = this.behaviours.filter(
             x => x != behaviour && x.uuid != behaviour
         );
