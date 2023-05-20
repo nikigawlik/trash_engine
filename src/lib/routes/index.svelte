@@ -1,4 +1,5 @@
 <script lang="ts">
+    import licenseText from "../../../LICENSE?raw";
     import "../../assets/main.css";
     import "../../assets/reset.css";
     import "../../assets/svg.css";
@@ -263,6 +264,7 @@
 
 <svelte:head>
     <title>{$resourceManager.settings.title} | trash engine</title>
+    {@html `<!-- ${licenseText} -->`}
 </svelte:head>
 
 <svelte:window on:resize={windowResize}></svelte:window>

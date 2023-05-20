@@ -1,12 +1,13 @@
 <script lang="ts">
-import "../../assets/reset.css";
 import { onMount } from "svelte";
+import licenseText from "../../../LICENSE?raw";
+import "../../assets/reset.css";
 import * as database from "../modules/database";
-import Game from "../modules/game/game";
 import { resourceManager } from "../modules/game/ResourceManager";
+import Game from "../modules/game/game";
+import { adjustedCanvasSize } from "../modules/game/utils";
 import { nameConstructorMap } from "../modules/structs/savenames";
 import * as globalData from "./../modules/globalData";
-    import { adjustedCanvasSize } from "../modules/game/utils";
 
     // TODO lot's of code overlap with index.svelte
 
@@ -133,6 +134,7 @@ import * as globalData from "./../modules/globalData";
 <svelte:window on:keydown={windowOnKeyDown} />
 <svelte:head>
     <title>{$resourceManager.settings.title}</title>
+    {@html `<!-- ${licenseText} -->`}
 </svelte:head>
 
 {#await initPromise}

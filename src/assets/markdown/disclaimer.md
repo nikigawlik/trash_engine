@@ -21,22 +21,10 @@ Have fun! :) -Niki
 
 ## Licensing / legal stuff
 
-This version of Trash Engine is licensed under [Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](http://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1).
+This version of Trash Engine is licensed under MIT license.
 
-I will probably re-license under something more permissive like LGPL once the engine is open source, but for now I'm being slightly more restrictive.
+Check the settings menu and the contents of the html file for any additional license information, or ask the author!
 
-Colloquially speaking this means you can freely publish games made with Trash Engine, provided you 
-
-- A) credit me in some way (in-game, on the download page etc.)
-- B) Indicate that you are using trash engine
-- C) your game is non-commercial
-
-Anything you create of course belongs to you! You can and should (!!!), add your own license information in the settings menu (don't forget to save!).
-
-If you got here from my 2022 Metroidvania Month Jam entry, the game data (sprites, code, etc.) is licensed under the same license. So remixes are also fine and encouraged under the above conditions.
-
-If not, the copyright situation might be different!
-
-Check the settings menu and the contents of the html file for any license information, or ask the author!
+You can add your own license info in the setting menu.
 
 [< back to reference](quickref)
