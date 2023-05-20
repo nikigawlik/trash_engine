@@ -70,6 +70,7 @@ import * as globalData from "./../modules/globalData";
 
     function reload() {
         if(!canvasWebgl || !canvas2d) return;
+        currentError = null;
         if(game) {
             game.quitGameCallback = null;
             game.quit();
