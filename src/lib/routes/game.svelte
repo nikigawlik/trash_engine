@@ -184,9 +184,7 @@ import * as globalData from "./../modules/globalData";
                 <button on:click={onErrorContinueClick}>continue</button>
             </section>
             {/if}
-            {#if game}
             <div class="gametext" bind:this={htmlOverlay}></div>
-            {/if}
         </div>
         <canvas 
             class="canvas-webgl"
