@@ -78,6 +78,7 @@ export default class Game {
         this.canvasWebgl = canvasWebGL;
         this.canvas2d = canvas2d;
         this.htmlOverlay = htmlOverlay;
+        this.htmlOverlay.innerText = "";
         this.tickNumber = 0;
         this.instances = [];
         this.isEnding = false;
