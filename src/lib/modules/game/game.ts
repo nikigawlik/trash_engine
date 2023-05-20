@@ -36,11 +36,14 @@ export default class Game {
     resourceManager: ResourceManager;
     canvasWebgl: HTMLCanvasElement;
     canvas2d: HTMLCanvasElement;
+    htmlOverlay: HTMLElement
+
     tickNumber: number;
     isEnding: boolean;
     currentRoom: Room
     queuedRoom: Room
     startRoom: Room
+
 
     instances: SpriteInstance[];
     renderer: Renderer;
@@ -67,13 +70,14 @@ export default class Game {
     errorCallback: ((e: Error) => Promise<boolean>) | null
 
 
-    constructor(resourceManager: ResourceManager, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, startRoomID?: string) {
+    constructor(resourceManager: ResourceManager, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, htmlOverlay: HTMLDivElement, startRoomID?: string) {
         this.tickRate = 60;
         this.resourceManager = resourceManager;
         this.editorCallback = null;
 
         this.canvasWebgl = canvasWebGL;
         this.canvas2d = canvas2d;
+        this.htmlOverlay = htmlOverlay;
         this.tickNumber = 0;
         this.instances = [];
         this.isEnding = false;
@@ -169,6 +173,11 @@ export default class Game {
         defineLibProperty("all", () => ALL_UUID);
         defineLibProperty("noone", () => NOONE_UUID);
         defineLibProperty("currentRoom", () => this.currentRoom.uuid);
+        
+        defineLibProperty("overlayText", 
+            () => this.htmlOverlay.textContent, 
+            (text: string) => { this.htmlOverlay.textContent = text}
+        );
 
         defineLibFunction("spawn", (sprite: string, x: number, y: number): SpriteInstance => this.createInstance(sprite, x, y))
         defineLibFunction("destroyImmediate", (instance: SpriteInstance) => this.destroyInstance(instance))
@@ -537,7 +546,7 @@ function defineLibFunction(name: string, func: Function) {
     })
 }
 
-function defineLibProperty(name: string, getter: () => any, setter: () => any = undefined) {
+function defineLibProperty(name: string, getter: () => any, setter: (value: any) => void = undefined) {
     let config: PropertyDescriptor = {
         configurable: true,
         get: getter,

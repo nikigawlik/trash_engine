@@ -44,6 +44,7 @@ In the future there will be documentation for every function, but not right now,
 - `all : string (uuid)`
 - `noone : string (uuid)`
 - `currentRoom : string (uuid)`
+- `overlayText: string`
 - `spawn(sprite: string, x: number, y: number) : SpriteInstance`
 - `destroy(instance: SpriteInstance) : boolean`
 - `find(sprite: string) : SpriteInstance`

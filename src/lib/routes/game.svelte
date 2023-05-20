@@ -68,6 +68,8 @@ import * as globalData from "./../modules/globalData";
     let onErrorRestartClick = null;
     let onErrorContinueClick = null;
 
+    let htmlOverlay: HTMLDivElement|null = null;
+
     function reload() {
         if(!canvasWebgl || !canvas2d) return;
         currentError = null;
@@ -75,7 +77,7 @@ import * as globalData from "./../modules/globalData";
             game.quitGameCallback = null;
             game.quit();
         }
-        game = new Game(resourceManager.get(), canvasWebgl, canvas2d, startRoom);
+        game = new Game(resourceManager.get(), canvasWebgl, canvas2d, htmlOverlay, startRoom);
         game.registerEditorCallback(requestOpenEditor);
         game.quitGameCallback = () => reload(); // for quitting in game
         game.errorCallback = async(e: Error)=> {
@@ -167,6 +169,9 @@ import * as globalData from "./../modules/globalData";
                 <button on:click={onErrorContinueClick}>continue</button>
             </section>
             {/if}
+            {#if game}
+            <div class="gametext" bind:this={htmlOverlay}></div>
+            {/if}
         </div>
         <canvas 
             class="canvas-webgl"
@@ -196,8 +201,21 @@ import * as globalData from "./../modules/globalData";
         color: white;
     }
 
-    /* .text-overlay {
-    } */
+    .text-overlay {
+        /* display: flex; */
+        /* justify-content: center;
+        align-items: center; */
+    }
+
+    .gametext {
+        font-size: 2rem;
+        text-shadow: .2rem .2rem black;
+
+        -webkit-user-select: none;  
+        -moz-user-select: none;    
+        -ms-user-select: none;      
+        user-select: none;
+    }
 
     .request-editor-overlay {
         width: 100%;
