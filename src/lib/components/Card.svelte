@@ -55,7 +55,7 @@ import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
     let elmt : HTMLElement | null = null;
 
     let focusCounter = 0; // hack
-    $: card.onFocus = () => { elmt.focus(); focusCounter++; };
+    $: card.onFocus = () => { if(!elmt) return; elmt.focus(); focusCounter++; };
 
     export let isMaximized: boolean = card.isMaximized;
     $: card.isMaximized = isMaximized;
