@@ -1,8 +1,9 @@
 
 <script lang="ts">
 import { getContext, onMount } from "svelte";
-import { cards, type CardInstance } from "../modules/cardManager";
+import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
     import AtlasIcon from "./AtlasIcon.svelte";
+    import { bounce } from "../transitions";
 
     export let card: CardInstance;
     $: uuid = card.uuid;
@@ -17,7 +18,8 @@ import { cards, type CardInstance } from "../modules/cardManager";
     };
 
     function focusWindow() {
-        cards.focus(card.uuid);
+        // cards.focus(card.uuid);
+        bringToFront(card);
     }
 
     let getCardsBounds = getContext<() => HTMLElement|null>("getCardsBounds");
@@ -52,6 +54,9 @@ import { cards, type CardInstance } from "../modules/cardManager";
 
     let elmt : HTMLElement | null = null;
 
+    let focusCounter = 0; // hack
+    $: card.onFocus = () => { elmt.focus(); focusCounter++; };
+
     export let isMaximized: boolean = card.isMaximized;
     $: card.isMaximized = isMaximized;
 
@@ -83,7 +88,7 @@ import { cards, type CardInstance } from "../modules/cardManager";
 
         if(event.target.matches("button")) return;
 
-        cards.focus(uuid);
+        bringToFront(card);
 
         if(isMaximized) {
             return;
@@ -219,9 +224,10 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="bottom right"></div>
     <div on:mousedown={onResizeMouseDown} class:resize={!isMaximized} class="bottom left"></div>
 
-    <div class="inner-card">
+    {#key focusCounter}
+    <div class="inner-card" in:bounce={{duration: 300}}>
         <h3>
-            <div class="name">{name}</div> 
+            <div class="name" >{name}</div> 
             <div class="buttons">
                 <button class="maxWindow borderless" on:click={maxWindow}>
                     <!-- { isMaximized? "❐" : "☐" } -->
@@ -241,6 +247,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
             <slot></slot>
         </div>
     </div>
+    {/key}
 </section>
 
 

@@ -11,6 +11,7 @@ export interface CardInstance {
     isMaximized: boolean
     className?: string
     data?: any
+    onFocus?: () => void
 }
 
 let maxZ = 0;
@@ -47,7 +48,10 @@ export let cards = {
     ,
     focus: (uuid: string) => update(store => {
         let inst = store.find(x => x.uuid == uuid);
-        if(inst) inst.zIndex = ++maxZ;
+        if(inst) {
+            inst.zIndex = ++maxZ;
+            if(inst.onFocus instanceof Function) inst.onFocus();
+        }
         return store;
     }),
     reset: () => set([]),
