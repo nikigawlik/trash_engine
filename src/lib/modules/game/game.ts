@@ -290,6 +290,8 @@ export default class Game {
             
             // start
             this.mainLoop();
+        } else {
+            this.htmlOverlay.innerText = "please create a room"
         }
         
     }
