@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { Writable } from "svelte/store";
-import type { CardInstance } from "../modules/cardManager";
+import { CardInstance, openCard } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
 import Behaviour from "../modules/structs/behaviour";
 import BehaviourLink from "../modules/structs/behaviourLink";
@@ -11,6 +11,7 @@ import BehaviourPreview from "./BehaviourPreview.svelte";
 import Card from "./Card.svelte";
 import ImageEditor from "./ImageEditor.svelte";
 import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
+    import BehaviourEditor from "./BehaviourEditor.svelte";
 
     export let card: CardInstance;
 
@@ -60,6 +61,16 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
             resolve,
         }));
         if(result instanceof Behaviour || result instanceof BehaviourLink) {
+            // TODO code duplication, I can't do this everywhere
+            let b = result;
+            let uuid = b instanceof BehaviourLink? 
+                b.uuid 
+            : 
+                `${$sSprite.uuid}/${b.uuid}`
+            ;
+            
+            openCard(BehaviourEditor, true, uuid);
+            
             $sSprite.addBehaviour(result);
             $sSprite = $sSprite;
         }

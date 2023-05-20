@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { openCard } from "../modules/cardManager";
+    import { cards, openCard } from "../modules/cardManager";
     import { resourceManager } from "../modules/game/ResourceManager";
     import type Behaviour from "../modules/structs/behaviour";
     import BehaviourLink from "../modules/structs/behaviourLink";
@@ -40,6 +40,8 @@
     async function transformToCode() {
         let result = await asyncYesNoPopup("Do you want to convert this component to a code block? This is not reversible at the moment.")
         if(result) behaviour.svelteComponent = BCustom;
+        cards.remove(uuid);
+        openCard(BehaviourEditor, true, uuid);
     }
 
 </script>
