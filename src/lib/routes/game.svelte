@@ -65,6 +65,16 @@ import * as globalData from "./../modules/globalData";
         }
     }
 
+    function sendLoadedMessage() {
+        let parent = window.parent;
+        if(parent) {
+            parent.postMessage({
+                type: "engineLoaded",
+            })
+            console.log("send engine loaded message")
+        }
+    }
+
     let currentError: Error|null = null;
     let onErrorRestartClick = null;
     let onErrorContinueClick = null;
@@ -120,8 +130,11 @@ import * as globalData from "./../modules/globalData";
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
         window.onmessage = onMessage;
+
+        await initPromise;
+        sendLoadedMessage();
     })
 
     function windowOnKeyDown(event: KeyboardEvent) {

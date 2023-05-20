@@ -1,5 +1,7 @@
 
 <script lang="ts">
+    import { onMount } from "svelte";
+
 
 import type { CardInstance } from "../modules/cardManager";
 import { resourceManager } from "../modules/game/ResourceManager";
@@ -11,7 +13,6 @@ import Card from "./Card.svelte";
     $: card.name = "game preview";
 
     let iframe: HTMLIFrameElement|null;
-    
 
     async function reload() {
         if(!iframe) return;
@@ -46,6 +47,8 @@ import Card from "./Card.svelte";
             iframeDisplayWidth = msg.data.displayWidth;
             iframeDisplayHeight = msg.data.displayHeight;
             console.log("game size update")
+        } else if(msg.data.type == "engineLoaded") {
+            reload();
         }
     }
 
