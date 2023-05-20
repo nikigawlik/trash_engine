@@ -1,3 +1,7 @@
+# This
+
+This is a document containing all kinds of random ideas and research notes concerning the engine...
+
 
 ## GAME
 
@@ -194,36 +198,10 @@ https://medium.com/swlh/need-a-local-static-server-here-are-several-options-bbbe
 
 ## licensing ##
 
-p5js -> lgpl
-- including p5js is ok, especially if it's not minified
-- if it is minified, in theory I need to offer a way for a user to find the unminified version?
-- I need to include a copyright notice referring to p5js and GNU LGPL 2.1
- 
-- trash engine uses p5js ()
-- any work made with trash engine uses p5js
-- a work made with trash engine...
-  - ... is a derivative of trash engine
-  - ... or uses trash engine?
-
-- "trash engine lib" -> LGPL
-- "p5.js" -> LGPL
-- index.html -> can be any license, preferably MIT
-
-Sooo:
-
+Sooo Idea:
 "trash engine lib" is licensed under the LGPL (v...) license.
-"p5.js" is licensed under the LGPL 2.1 license.
 The contents of "gamedata" are subject to copyright.
 Uless specified otherwise contents of this file are licensed under the MIT license.
-
-### example text ###
-
-This software uses p5.js (https://github.com/processing/p5.js), which is released under the GNU Lesser General Public License v2.1. 
-
-Games created with Trash Engine also contain a copy of p5.js. So please make sure to give proper attribution, for example by including the paragraph above alongside in alongside any other copyright notices in your game.
-
-
-
 
 
 ## serialization
