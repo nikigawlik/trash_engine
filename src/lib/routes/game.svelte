@@ -201,11 +201,11 @@ import * as globalData from "./../modules/globalData";
         color: white;
     }
 
-    .text-overlay {
+    /* .text-overlay { */
         /* display: flex; */
         /* justify-content: center;
         align-items: center; */
-    }
+    /* } */
 
     .gametext {
         font-size: 2rem;
