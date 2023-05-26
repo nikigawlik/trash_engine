@@ -6,6 +6,7 @@ import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
 import { data } from "./../modules/globalData";
 import Card from "./Card.svelte";
 import { resourceManager } from "../modules/game/ResourceManager";
+import { version } from "../../../package.json"
 
     export let card: CardInstance;
     $: card.name = "settings";
@@ -31,6 +32,7 @@ import { resourceManager } from "../modules/game/ResourceManager";
 </script>
 
 <Card card={card}>
+    <p>running tash engine version {version}</p>
     <h2>editor: </h2>
     <p>
       <label for="theme">color theme &nbsp</label>
@@ -44,7 +46,6 @@ import { resourceManager } from "../modules/game/ResourceManager";
     <p><label>open resources maximized &nbsp <input type="checkbox" bind:checked={$data.editor.settings.openResourcesMaximized} /></label></p>
     <p><label>show warning before leaving app &nbsp <input type="checkbox" bind:checked={$data.editor.settings.showWarningBeforeClosingApp} /></label></p>
     <p><button on:click={deleteData}>DELETE ALL SAVE DATA</button></p>
-    <p></p>
     <h2>game:</h2>
     <p><label for="licenseText">license info included in the build: </label></p>
 <textarea name="licenseText" bind:value={$resourceManager.settings.LICENSE}></textarea>
