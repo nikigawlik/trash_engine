@@ -80,17 +80,6 @@ export function openCard(
     if(existing) {
         cards.focus(existing.uuid);
     } else {
-        // if(position == undefined) {
-        //     console.log("here")
-        //     let bounds = document.querySelector("main")?.getBoundingClientRect() || new DOMRect(0, 0, 1000, 1000);
-        //     let result = findWindowPos(
-        //         new DOMRect(0, 0, 100, 100), 
-        //         new DOMRect(0, 0, bounds.width, bounds.height),
-        //         cards.get().map(x => x.position)
-        //     )
-        //     position = new DOMRect(result.x, result.y, 0, 0);
-        // }
-
         const isMax = data.get().editor.settings.openResourcesMaximized;
 
         cards.add(type, "", position, isMax, uuid, customData);
