@@ -75,7 +75,7 @@
     }
 </script>
 <label><input type="text" bind:value={$behaviourStore.name} /></label>
-<p>properties: </p>
+<p>public properties: </p>
 <ul>
     {#each props as prop, i}
         <li>
