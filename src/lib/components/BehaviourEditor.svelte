@@ -45,7 +45,18 @@
 
 
 <Card autoFocus={true} contentMinWidth={240} {card}>
+    {#if isIndependent}
+    <p>(this behaviour/script needs to be added to a sprite to run)</p>
+    {/if}
     {#if $behaviour}
         <svelte:component this={$behaviour.svelteComponent} behaviour={$behaviour}></svelte:component>
     {/if}
 </Card>
+
+
+<style>
+    p {
+        font-style: italic;
+        font-size: smaller;
+    }
+</style>

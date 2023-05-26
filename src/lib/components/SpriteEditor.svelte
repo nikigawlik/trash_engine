@@ -69,7 +69,8 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
                 `${$sSprite.uuid}/${b.uuid}`
             ;
             
-            openCard(BehaviourEditor, true, uuid);
+            if(!(b instanceof BehaviourLink))
+                openCard(BehaviourEditor, true, uuid);
             
             $sSprite.addBehaviour(result);
             $sSprite = $sSprite;
