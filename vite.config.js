@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import { resolve } from 'path'
 import mkcert from 'vite-plugin-mkcert'
+import { readFileSync } from 'fs'
 
 
 
@@ -16,12 +17,18 @@ export default defineConfig({
     https: true,
   },
   build: {
-    // rollupOptions: {
-    //   input: {
-    //     main: resolve(__dirname, 'index.html'),
-    //     game: resolve(__dirname, 'game.html')
-    //   }
-    // },
+    rollupOptions: {
+      output: {
+        dir: getOutputDir(),
+      },
+    },
     minify: false
   }
 })
+
+function getOutputDir() {
+  const packageJson = JSON.parse(readFileSync('./package.json'));
+  const version = packageJson.version;
+
+  return `dist/${version}`;
+}
