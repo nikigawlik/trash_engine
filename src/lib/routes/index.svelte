@@ -258,6 +258,8 @@
         let res = await ui.asyncYesNoPopup("Do you really want to start over?", true);
         if(res) {
             $resourceManager.clear();
+            cards.reset();
+            openCard(Resources, false);
         }
     }
 </script>
