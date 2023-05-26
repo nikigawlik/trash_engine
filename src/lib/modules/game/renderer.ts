@@ -258,7 +258,12 @@ export function makeSpriteMap(sprites: Sprite[]): {canvas: HTMLCanvasElement, co
     // sprites.sort((a, b) => maxd(b) - maxd(a));
     sprites.sort((a, b) => area(b) - area(a));
 
-    let totalPixels = sprites.map(area).reduce((a, b) => a+b);
+    let totalPixels = sprites.length > 0?
+        sprites.map(area).reduce((a, b) => a+b)
+    :
+        1
+    ;
+
     totalPixels *= 1.3; // insurance
     let minPower = Math.ceil(Math.log2(totalPixels**0.5));
     console.log(`sprite min size: ${2**minPower}`);
