@@ -12,6 +12,7 @@ import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
 
     export let autoFocus = true;
     export let contentMinWidth = 90; // px
+    export let contentMaxWidth = 1000; // px // TODO could be smaller / can do this differently, but low prio
 
     function closeWindow() {
         cards.remove(card.uuid);
@@ -243,7 +244,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
                 </button>
             </div>
         </h3>
-        <div class=content style:min-width={contentMinWidth}px>
+        <div class=content style:min-width={contentMinWidth}px style:max-width={contentMaxWidth}px>
             <slot></slot>
         </div>
     </div>
