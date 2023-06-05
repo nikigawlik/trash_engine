@@ -288,7 +288,7 @@ export async function deserialize(obj: any | null, additionalProperties: WeakMap
 // }
 
 
-export function requestAsync(request: IDBRequest<any[]>): Promise<any[]> {
+export function requestAsync<T>(request: IDBRequest<T>): Promise<T> {
     return new Promise((resolve, reject) => { 
         request.onsuccess = (e): void => resolve(request.result); 
         request.onerror = (e): void => reject(request.error); 

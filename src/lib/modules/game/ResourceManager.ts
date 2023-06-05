@@ -23,6 +23,10 @@ interface SaveData {
     version: typeof saveVersion,
 }
 
+// small hack
+
+let lastSavedTime = 0;
+
 // /** @type {ResourceManager} */ export let resourceManager;
 
 export default class ResourceManager {
@@ -219,7 +223,7 @@ export default class ResourceManager {
         this.refresh();
     }
 
-    async save(replaceKey?: number) {
+    async save(replaceKey?: IDBValidKey) {
         if(!db || !db.transaction) throw new NoDatabaseError();
         
         let dataObject = await this.getSerializedData();
@@ -227,7 +231,27 @@ export default class ResourceManager {
         let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
 
-        let request = replaceKey != undefined? objectStore.put(dataObject, replaceKey) : objectStore.put(dataObject);
+        if(replaceKey == undefined) {
+            // if last save is less than 10 mins we override, else we save a new save
+            const saveDelay = 10*60*1000; // 10 min
+
+            let currentTime = (new Date()).getTime();
+            if(currentTime - lastSavedTime < saveDelay) {
+                // override save
+                let keys = await requestAsync(objectStore.getAllKeys());
+                if(keys.length > 0)
+                    replaceKey = keys[keys.length - 1]
+            } else {
+                lastSavedTime = currentTime;
+            }
+        }
+
+        let request = replaceKey != undefined? 
+            objectStore.put(dataObject, replaceKey) 
+            : 
+            objectStore.put(dataObject)
+        ;
+
         request.onsuccess = event => {
             // event.target.result === customer.ssn;
             console.log(`saved resource ${request.result}`);
@@ -263,6 +287,7 @@ export default class ResourceManager {
                 }
             } catch (e) {
                 console.log(`getting data failed: ${(e as Error)?.message}`);
+                console.error(e)
                 result = null;
             }
         }
@@ -293,15 +318,22 @@ export default class ResourceManager {
         let trans = db.transaction(STORE_NAME_RESOURCES, "readonly");
         let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
 
-        let pKeys = requestAsync(objectStore.getAllKeys());
-        let pValues = requestAsync(objectStore.getAll());
+        let results = [];
+
+        let cursorReq = objectStore.openCursor();
         
-        let [keys, values] = await Promise.all([pKeys, pValues]);
-        assert(keys.length == values.length);
-        let results: {key:any, value:any}[] = keys.map((_, i:number) => ({
-            key: keys[i],
-            value: values[i],
-        }))
+        while(true) {
+            let cursor = await requestAsync(cursorReq)
+            if(!cursor) break;
+
+            results.push({
+                key: cursor.key,
+                value: cursor.value,
+            });
+            
+            cursor.continue();
+        }
+        
         return results;
     }
 }
