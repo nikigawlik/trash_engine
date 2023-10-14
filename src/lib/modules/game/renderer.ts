@@ -116,11 +116,12 @@ export default class Renderer {
                 instances,
                 (inst, sprite) => [inst.x, inst.y, sprite.originX, sprite.originY]
             );
+            const nocoords = {x:0, y: 0, width: 0, height: 0};
             this._fillFloat4BufferInstances(gl,
                 spriteCoordBuffer,
                 instances,
                 (inst, sprite) => {
-                    const p = coords.get(sprite);
+                    const p = coords.get(sprite) || nocoords; // TODO meh, it's just a workaround
                     return [p.x, p.y, p.width, p.height]
                 }
             );
