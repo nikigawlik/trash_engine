@@ -296,9 +296,6 @@
         document.body.removeChild(element);
 
         if(imgFile) {
-            let width: number;
-            let height: number;
-            let fileSize: number;
             let reader = new FileReader();
             let readPromise: Promise<ProgressEvent<FileReader>> = new Promise((resolve, reject) => { reader.onload = event => resolve(event); reader.onerror = reject });
             
@@ -308,12 +305,21 @@
             let dataUri = event.target.result as string,
             img = document.createElement("img");
             let imgLoadPromise = new Promise(resolve => img.onload = resolve)
+            let container = document.createElement("div");
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            document.body.append(container);
+            container.append(img);
             img.src = dataUri;
-            width = img.width;
-            height = img.height;
-            fileSize = imgFile.size;
+            // let width: number = img.width;
+            // let height: number = img.height;
+            // let fileSize: number = imgFile.size;
 
             await imgLoadPromise;
+
+            console.log(`img width: ${img.width} img height: ${img.height}`)
+            console.log(`nat width: ${img.naturalWidth} nat height: ${img.naturalHeight}`)
+            if(!img.width || !img.height) return; // TODO weird, hacky
 
             canvasWidth = img.width;
             canvasHeight = img.height;
@@ -326,6 +332,8 @@
                 _canvas.getContext("2d").drawImage(img, 0, 0);
                 return sprite;
             });
+
+            document.body.removeChild(container);
             
             requestAnimationFrame(() => resetDisplayCanvas()); // TODO this is hacky
         }
