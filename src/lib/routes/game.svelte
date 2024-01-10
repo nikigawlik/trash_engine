@@ -242,4 +242,28 @@ import * as globalData from "./../modules/globalData";
         justify-content: center;
         gap: 1rem;
     }
+
+    .error-msg, .error-msg>button {
+        background-color: black;
+        color: white;
+        font-family: monospace;
+    }
+
+    .error-msg {
+        padding: .3rem;
+    }
+
+    .error-msg>button {
+        border: 1px solid white;
+        margin: .15rem;
+    }
+
+    .error-msg>button:hover {
+        background-color: #333;
+    }
+    .error-msg>button:active {
+        background-color: white;
+        color: black;
+    }
+
 </style>
