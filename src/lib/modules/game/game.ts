@@ -174,6 +174,9 @@ export default class Game {
         defineLibProperty("all", () => ALL_UUID);
         defineLibProperty("noone", () => NOONE_UUID);
         defineLibProperty("currentRoom", () => this.currentRoom.uuid);
+
+        defineLibProperty("cameraX", () => this.renderer.cameraX, x => this.renderer.cameraX = x);
+        defineLibProperty("cameraY", () => this.renderer.cameraY, y => this.renderer.cameraY = y);
         
         defineLibProperty("overlayText", 
             () => this.htmlOverlay.textContent, 
@@ -366,7 +369,10 @@ export default class Game {
         const ws = this.instanceSets.get(filter);
         if(!ws) return false;
 
-        for(let other of this.instances) {
+        // for(let other of this.instances) {
+        let other;
+        for(let i = 0; i < this.instances.length; i++) {
+            other = this.instances[i];
             if(other != instance && ws.has(other)) {
                 if(this.spriteIntersect(instance.spriteID, x, y, other.spriteID, other.x, other.y)) {
                     return true;
@@ -432,6 +438,8 @@ export default class Game {
         this.currentRoom = room;
         this.canvasWebgl.width = room.width;
         this.canvasWebgl.height = room.height;
+        this.renderer.cameraX = room.width/2;
+        this.renderer.cameraY = room.height/2;
 
         document.body.style.backgroundColor = room.backgroundColor;
 

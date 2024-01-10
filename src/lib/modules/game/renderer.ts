@@ -12,8 +12,13 @@ export default class Renderer {
     renderFunc: (instances: SpriteInstance[]) => void
     resourceManager: ResourceManager
 
+    cameraX: number;
+    cameraY: number;
+
     constructor(canvas: HTMLCanvasElement, resourceManager: ResourceManager) {
         this.resourceManager = resourceManager;
+        this.cameraX = 0;
+        this.cameraY = 0;
 
         let gl = canvas.getContext("webgl2");
         if (!gl) throw Error("No webgl!");
@@ -34,6 +39,7 @@ export default class Renderer {
 
         // locations
         let resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+        let cameraPosUniformLocation = gl.getUniformLocation(program, "u_cameraPos");
         let spriteMapResolutionUniformLocation = gl.getUniformLocation(program, "u_spriteMap_resolution");
         
         let localPosAttributeLocation = gl.getAttribLocation(program, "a_localPos");
@@ -106,6 +112,7 @@ export default class Renderer {
             
             // set uniforms
             gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
+            gl.uniform2f(cameraPosUniformLocation, this.cameraX, this.cameraY);
             gl.uniform2f(spriteMapResolutionUniformLocation, spriteMap.width, spriteMap.height);
             
             gl.bindVertexArray(vao);

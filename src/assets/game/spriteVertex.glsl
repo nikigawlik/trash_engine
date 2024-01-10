@@ -9,6 +9,7 @@ in vec4 a_color; // color, multiplicative / transparency
 in vec4 a_tint; // tint, alpha drives strength of tint
 
 uniform vec2 u_resolution; // screen resolution
+uniform vec2 u_cameraPos; // camera position
 uniform vec2 u_spriteMap_resolution; // sprite map resolution
 
 out vec2 v_texcoord;
@@ -30,6 +31,8 @@ void main() {
     adjPosition *= a_objectScaleRot.xy;
     // move to actual pos
     adjPosition += a_objectPos.xy;
+    // adjust for camera
+    adjPosition -= u_cameraPos - u_resolution/2.0;
     // todo
     gl_Position = vec4(adjPosition, 0, 1) / vec4(u_resolution, 1, 1) * 2.0 - 1.0;
     gl_Position *= vec4(1.0, -1.0, 1.0, 1.0);

@@ -37,14 +37,19 @@ Below there is a list of all global functions and properties, which are hopefull
 
 In the future there will be documentation for every function, but not right now, sorry!
 
+(Properties are read-only unless otherwise specified.)
+
 - `roomWidth : number`
 - `roomHeight : number`
 - `mouseX : number`
 - `mouseY : number`
+- `cameraX : number  (settable)`
+- `cameraY : number  (settable)`
 - `all : string (uuid)`
 - `noone : string (uuid)`
 - `currentRoom : string (uuid)`
-- `overlayText: string`
+- `overlayText: string   (settable)`
+
 - `spawn(sprite: string, x: number, y: number) : SpriteInstance`
 - `destroy(instance: SpriteInstance) : boolean`
 - `find(sprite: string) : SpriteInstance`
