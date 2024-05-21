@@ -2,8 +2,15 @@
 import { setContext } from "svelte";
 import { cards, openCard } from "./../modules/cardManager";
 import Resources from "./Resources.svelte";
+    import { resourceManager } from "../modules/game/ResourceManager";
+    import RoomEditor from "./RoomEditor.svelte";
+    import Room from "../modules/structs/room";
 
     openCard(Resources, false);
+    let rooms = $resourceManager.getAllOfResourceType(Room);
+    openCard(RoomEditor, true, rooms[0].uuid)
+
+    let loadPromise = $resourceManager.loadDefaultProject();
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 
@@ -13,11 +20,15 @@ import Resources from "./Resources.svelte";
 </script>
 
 <main>
+    {#await loadPromise}
+        ...loading
+    {:then _} 
     <div class=cards bind:this={boundsElmt}>
         {#each sortedCards as card (card.uuid)}
-            <svelte:component this={card.componentType} card={card} />
+        <svelte:component this={card.componentType} card={card} />
         {/each}
     </div>
+    {/await}
 </main>
 
 <style>

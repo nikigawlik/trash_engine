@@ -8,6 +8,7 @@ import SoundEffect from "../structs/soundEffect";
 import Sprite from "../structs/sprite";
 import { assert } from "./utils";
 import { cards } from "../cardManager";
+import defaultProjectData from "../../../assets/engineAssets/default_game.json"
 
 console.log("resource_manager.ts loading")
 
@@ -38,6 +39,12 @@ export default class ResourceManager {
         this.settings = defaultSettings;
         this.stores = new Map();
         this.resources = new Map();
+    }
+
+    static async DefaultProject() {
+        let rm = new ResourceManager();
+        await rm.loadDefaultProject();
+        return rm;
     }
 
     static async init() {
@@ -137,12 +144,16 @@ export default class ResourceManager {
         update(x => x);
     }
 
-    clear() {
-        this.setFromSerializedData({
+    async clear() {
+        await this.setFromSerializedData({
             version: saveVersion,
             resources: [],
             settings: defaultSettings,
         })
+    }
+
+    async loadDefaultProject() {
+        await this.setFromSerializedData(defaultProjectData);
     }
 
     async getSerializedData() {

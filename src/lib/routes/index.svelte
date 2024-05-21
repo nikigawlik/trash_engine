@@ -10,6 +10,7 @@
     import Reference from "../components/Reference.svelte";
     import { openEditorWindow } from "../components/ResourceTreeResource.svelte";
     import Resources from "../components/Resources.svelte";
+    import RoomEditor from "../components/RoomEditor.svelte";
     import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
     import WhackyButton from "../components/WhackyButton.svelte";
     import { cards, openCard } from "../modules/cardManager";
@@ -257,9 +258,12 @@
     async function clearProject() {
         let res = await ui.asyncYesNoPopup("Do you really want to start over?", true);
         if(res) {
-            $resourceManager.clear();
+            // $resourceManager.clear();
+            await $resourceManager.loadDefaultProject();
             cards.reset();
             openCard(Resources, false);
+            let rooms = $resourceManager.getAllOfResourceType(Room);
+            openCard(RoomEditor, true, rooms[0].uuid)
         }
     }
 </script>
