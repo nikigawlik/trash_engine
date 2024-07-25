@@ -1,6 +1,7 @@
 import type { SvelteComponent } from "svelte";
 import { writable, type Writable } from "svelte/store";
 import { data } from "./globalData";
+import { assert } from "./game/utils";
 
 export interface CardInstance {
     componentType: (typeof SvelteComponent)
@@ -23,10 +24,12 @@ subscribe(v => _value = v);
 
 export let cards = {
     subscribe,
-    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), isMaximized = false, uuid?: string, data: any = {}) => update(store => {
-        console.log(`added ${uuid}`)
-        if(!store.find(x => x.uuid === uuid)) {
-            store.push({
+    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), isMaximized = false, uuid?: string, data: any = {}, replaceUUID?: string) => update(cardsArray => {
+        console.log(`add/replace ${content.name} / ${uuid}`)
+        let replacePos = replaceUUID? cardsArray.findIndex(x => x.uuid === replaceUUID) : -1;
+        
+        if(!cardsArray.find(x => x.uuid === uuid)) {
+            let cardObj = {
                 uuid: uuid || crypto.randomUUID(),
                 componentType: content,
                 zIndex: ++maxZ,
@@ -34,9 +37,13 @@ export let cards = {
                 position,
                 isMaximized,
                 data,
-            });
+            };
+            if(replacePos >= 0) 
+                cardsArray[replacePos] = cardObj
+            else
+                cardsArray.push(cardObj);
         }
-        return store;
+        return cardsArray;
     }),
     remove: (uuid: string, removeDependents = false) => 
         update(store => store.filter(removeDependents? 
@@ -66,22 +73,34 @@ export function bringToFront(card: CardInstance) {
 
 export function openCard(
     type: any, 
-    allowDuplicate: boolean = true, 
     uuid?: string, 
     position: DOMRect = new DOMRect(),
     customData?: any,
 ) {
+    const allowDuplicate = false; // could be turned into a setting, used to be a parameter
+    assert(typeof uuid == "string" || typeof uuid == "undefined");
         
     // either an existing card or false/undefined
-    let existing = !allowDuplicate && cards.get().find(x => x.componentType.name === type.name);
-    let existingUUID = !!uuid && cards.get().find(x => x.uuid == uuid)
-    existing ||= existingUUID;
+    let existingOfType : CardInstance|null = cards.get().find(x => x.componentType.name === type.name) || null;
+    let existingByUUID : CardInstance|null = uuid? cards.get().find(x => x.uuid == uuid) || null : null;
 
-    if(existing) {
-        cards.focus(existing.uuid);
+    if(existingByUUID) {
+        // exact uuid match => focus
+        cards.focus(existingByUUID.uuid);
+    } else if(!uuid && existingOfType) {
+        // if no uuid is given and the type exists => focus
+        cards.focus(existingOfType.uuid);
     } else {
-        const isMax = data.get().editor.settings.openResourcesMaximized;
+        // otherwise => create a new card
 
-        cards.add(type, "", position, isMax, uuid, customData);
+        let replaceUUID: string|undefined = 
+        (uuid && existingOfType && !allowDuplicate) ?
+            existingOfType.uuid
+        :
+            undefined
+        ;
+
+        const isMax = data.get().editor.settings.openResourcesMaximized;
+        cards.add(type, "", position, isMax, uuid, customData, replaceUUID);
     }
 }

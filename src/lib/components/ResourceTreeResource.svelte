@@ -2,13 +2,13 @@
     export function openEditorWindow(resource: Resource) {
         // TODO not clean ?
         if(resource instanceof Sprite) {
-            openCard(SpriteEditor, true, resource.uuid);
+            openCard(SpriteEditor, resource.uuid);
         } else if (resource instanceof Room) {
-            openCard(RoomEditor, true, resource.uuid);
+            openCard(RoomEditor, resource.uuid);
         } else if (resource instanceof Behaviour) {
-            openCard(BehaviourEditor, true, resource.uuid);
+            openCard(BehaviourEditor, resource.uuid);
         } else if (resource instanceof SoundEffect) {
-            openCard(SoundEffectEditor, true, resource.uuid);
+            openCard(SoundEffectEditor, resource.uuid);
         } else {
             console.log(`no window implemented for ${resource.type}`);
         }

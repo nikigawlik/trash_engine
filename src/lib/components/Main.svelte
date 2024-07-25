@@ -6,10 +6,10 @@ import Resources from "./Resources.svelte";
     import RoomEditor from "./RoomEditor.svelte";
     import Room from "../modules/structs/room";
 
-    openCard(Resources, false);
+    openCard(Resources);
     let rooms = $resourceManager.getAllOfResourceType(Room);
     if(rooms.length > 0)
-        openCard(RoomEditor, true, rooms[0].uuid)
+        openCard(RoomEditor, rooms[0].uuid)
 
     let loadPromise = $resourceManager.loadDefaultProject();
 

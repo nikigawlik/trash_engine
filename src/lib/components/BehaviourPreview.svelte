@@ -57,7 +57,7 @@
 <!-- <svelte:component this={behaviour.svelteComponent} {behaviour}></svelte:component> -->
 
 <p class="bottom-bar">
-    <button on:click={() => { openCard(BehaviourEditor, true, uuid) }}>open</button>
+    <button on:click={() => { openCard(BehaviourEditor, uuid) }}>open</button>
     {#if behaviour.svelteComponent != BCustom}
         <button on:click={() => { transformToCode() }}>convert to code</button>
     {/if}

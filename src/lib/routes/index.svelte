@@ -261,9 +261,9 @@
             // $resourceManager.clear();
             await $resourceManager.loadDefaultProject();
             cards.reset();
-            openCard(Resources, false);
+            openCard(Resources);
             let rooms = $resourceManager.getAllOfResourceType(Room);
-            openCard(RoomEditor, true, rooms[0].uuid)
+            openCard(RoomEditor, rooms[0].uuid)
         }
     }
 </script>
@@ -300,14 +300,14 @@
             <li><WhackyButton on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </WhackyButton></li>
             <li><WhackyButton on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </WhackyButton></li>
             <li><WhackyButton on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </WhackyButton></li>
-            <li><WhackyButton on:click={() => openCard(GamePreview, false)}> <AtlasIcon id={75} /> play      </WhackyButton></li>
-            <li><WhackyButton on:click={() => openCard(Reference, false)}>   <AtlasIcon id={59} /> help      </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(GamePreview)}> <AtlasIcon id={75} /> play      </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(Reference)}>   <AtlasIcon id={59} /> help      </WhackyButton></li>
             <li><WhackyButton on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </WhackyButton></li>
             <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li>
             <li><WhackyButton on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </WhackyButton></li>
             <li><WhackyButton on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </WhackyButton></li>
             <li><WhackyButton on:click={() => importData()}>                 <AtlasIcon id={58} /> import    </WhackyButton></li>
-            <li><WhackyButton on:click={() => openCard(Settings, false)}>           <AtlasIcon id={43} /> settings  </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(Settings)}>           <AtlasIcon id={43} /> settings  </WhackyButton></li>
             <li><WhackyButton on:click={toggleFullscreen}>
                 {#if isFullscreen}
                 <AtlasIcon id={19} height={16}></AtlasIcon>
@@ -316,7 +316,7 @@
                 {/if}
                 fullscreen
             </WhackyButton></li>
-            <li><WhackyButton on:click={() => openCard(Resources, false)}>   <AtlasIcon id={11} /> resources </WhackyButton></li>
+            <li><WhackyButton on:click={() => openCard(Resources)}>   <AtlasIcon id={11} /> resources </WhackyButton></li>
             <!-- <li><WhackyButton on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</WhackyButton></li> -->
         </ul>
     </header>
