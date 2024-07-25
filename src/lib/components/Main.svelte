@@ -8,7 +8,8 @@ import Resources from "./Resources.svelte";
 
     openCard(Resources, false);
     let rooms = $resourceManager.getAllOfResourceType(Room);
-    openCard(RoomEditor, true, rooms[0].uuid)
+    if(rooms.length > 0)
+        openCard(RoomEditor, true, rooms[0].uuid)
 
     let loadPromise = $resourceManager.loadDefaultProject();
 
