@@ -1,13 +1,13 @@
 
 <script lang="ts">
 import { getContext, onMount } from "svelte";
-import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
-    import AtlasIcon from "./AtlasIcon.svelte";
-    import { bounce } from "../transitions";
+import { bringToFront, cards, type CardInstance } from "../modules/cardManager";
+import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
+import { bounce } from "../transitions";
+import AtlasIcon from "./AtlasIcon.svelte";
 
     export let card: CardInstance;
     $: uuid = card.uuid;
-    $: name = `${namePrefix}${card.name}`;
     $: windowType = card.className || "";
 
     export let autoFocus = true;
@@ -15,6 +15,8 @@ import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
     export let contentMaxWidth = 1000; // px // TODO could be smaller / can do this differently, but low prio
     export let hasCornerButtons = true;
     export let namePrefix = "";
+
+    $: resourceStore = ($resourceManager as ResourceManager).getResourceStore(uuid);
 
     function closeWindow() {
         cards.remove(card.uuid);
@@ -58,7 +60,7 @@ import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
     let elmt : HTMLElement | null = null;
 
     let focusCounter = 0; // hack
-    $: card.onFocus = () => { if(!elmt) return; elmt.focus(); focusCounter++; };
+    $: card.onFocus = () => { if(!elmt) return; elmt.focus(); elmt.scrollIntoView(); focusCounter++; };
 
     export let isMaximized: boolean = card.isMaximized;
     $: card.isMaximized = isMaximized;
@@ -181,6 +183,14 @@ import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
     }
 
 
+    let editResourceName = false;
+    let resourceNameInputElement: HTMLElement|null = null;
+    $: {
+        // auto focus
+        if(resourceNameInputElement != null) resourceNameInputElement.focus();
+    }
+
+
 </script>
 
 <svelte:body
@@ -230,7 +240,31 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     {#key focusCounter}
     <div class="inner-card" in:bounce={{duration: 300}}>
         <h3>
-            <div class="name" >{name}</div> 
+            <div class="name" >
+                {namePrefix}
+                {#if resourceStore != null}
+                    {#if editResourceName}
+                        <input 
+                            type="text"
+                            size=15
+                            bind:value={$resourceStore.name} 
+                            bind:this={resourceNameInputElement}
+                            on:focusout={() => editResourceName = false}    
+                            on:keydown={(ev) => {if(ev.key=="Enter" || ev.key=="Escape") editResourceName = false}}
+                        />
+                    {:else}
+                    <button 
+                        class="borderless"
+                        name="edit" 
+                        on:click={() => editResourceName = !editResourceName}
+                    >
+                        {$resourceStore.name} <span style:font-size="1rem">✏️</span>
+                    </button>
+                    {/if}
+                {:else}
+                    {card.name}
+                {/if}
+            </div> 
             {#if hasCornerButtons}
             <div class="buttons">
                 <button class="maxWindow borderless" on:click={maxWindow}>
@@ -366,10 +400,19 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     .name {
         padding: 5px;
         padding-bottom: 7px;
-        font-size: 90%;
         flex: 1 1;
         min-width: 0;
+        height: 2.5rem;
         overflow: hidden;
+    }
+
+    .name, .name input, .name button {
+        font-size: 1.125rem;
+    }
+
+    .name, .name input, .name button {
+        display: inline-block;
+        width: fit-content;
     }
 
     .buttons {

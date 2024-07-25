@@ -117,9 +117,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
         <button class="name borderless" on:click={ () => openMe() } title="open">
             {selfResource.name}
         </button>
-        <button class="borderless" on:click={ () => renameMe() } title="rename">
+        <!-- <button class="borderless" on:click={ () => renameMe() } title="rename">
             <AtlasIcon id={33} />
-        </button>
+        </button> -->
         <button class="borderless" on:click={ () => deleteMe() } title="delete">
             <AtlasIcon id={51} />
         </button>
