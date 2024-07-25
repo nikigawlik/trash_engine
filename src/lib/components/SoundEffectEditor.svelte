@@ -99,7 +99,7 @@
 </script>
 
 
-<Card autoFocus={true} contentMinWidth={240} {card}>
+<Card autoFocus={true} contentMinWidth={240} namePrefix="edit sound: " {card}>
     <canvas bind:this={canvas} 
         bind:clientWidth={canvasCWidth}
         bind:clientHeight={canvasCHeight}

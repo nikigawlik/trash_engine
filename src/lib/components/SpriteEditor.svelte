@@ -78,7 +78,7 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
     }
 </script>
 
-<Card autoFocus={true} contentMinWidth={240} {card}>
+<Card autoFocus={true} contentMinWidth={240} namePrefix="edit sprite: " {card}>
     <div class="modes">
         <button on:click={() => mode = "draw" } class:selected={mode == "draw"}>draw</button>
         <button on:click={() => mode = "script" } class:selected={mode == "script"}>script</button>

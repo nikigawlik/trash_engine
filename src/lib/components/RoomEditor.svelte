@@ -181,7 +181,7 @@ import { shrink } from "../transitions";
     let configOpen = true;
 </script>
 <!-- isMaximized is intentionally non-reactive, still a bit sussy, might not work as expected -->
-<Card {card} isMaximized={data.get().editor.settings.openResourcesMaximized}>
+<Card {card} namePrefix="edit room: " isMaximized={data.get().editor.settings.openResourcesMaximized}>
     <div class="horizontal">
         <div class="left-rider">
             <h4><button 

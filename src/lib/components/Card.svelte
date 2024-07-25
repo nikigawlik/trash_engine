@@ -7,13 +7,14 @@ import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
 
     export let card: CardInstance;
     $: uuid = card.uuid;
-    $: name = card.name;
+    $: name = `${namePrefix}${card.name}`;
     $: windowType = card.className || "";
 
     export let autoFocus = true;
     export let contentMinWidth = 90; // px
     export let contentMaxWidth = 1000; // px // TODO could be smaller / can do this differently, but low prio
     export let hasCornerButtons = true;
+    export let namePrefix = "";
 
     function closeWindow() {
         cards.remove(card.uuid);

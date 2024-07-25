@@ -44,7 +44,7 @@
 </script>
 
 
-<Card autoFocus={true} contentMinWidth={240} {card}>
+<Card autoFocus={true} contentMinWidth={240} {card} namePrefix="edit behaviour: ">
     {#if isIndependent}
     <p>(this behaviour/script needs to be added to a sprite to run)</p>
     {/if}
