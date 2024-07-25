@@ -380,9 +380,6 @@
     <p>
         <button class=upload on:click={uploadButtonClick}> upload image </button>
     </p>
-    <p on:mouseenter={() => showBBox = true} on:mouseleave={() => showBBox = false}>
-        bbox: {$s_sprite.bBoxX} {$s_sprite.bBoxY} {$s_sprite.bBoxWidth} {$s_sprite.bBoxHeight}
-    </p>
 </div>
 <div class="toolbar-container">
     <div class="toolbar colors">
@@ -413,13 +410,21 @@
     <div class="toolbar zoom">
         <button 
             on:click={() => zoomLevel = Math.max(zoomLevel - 1, 1)} 
+            class="borderless"
         >
-            <AtlasIcon id={21} height={16} />
+            <AtlasIcon id={23} height={24} />
+        </button>
+        <button 
+            on:click={() => zoomLevel = 1} 
+            class="borderless"
+        >
+            <AtlasIcon id={25} height={24} />
         </button>
         <button 
             on:click={() => zoomLevel += 1} 
+            class="borderless"
         >
-            <AtlasIcon id={22} height={16} />
+            <AtlasIcon id={24} height={24} />
         </button>
     </div>
 </div>
@@ -443,6 +448,10 @@
         on:mouseleave={canvasLeave}
     ></canvas>
 </div>
+
+<p on:mouseenter={() => showBBox = true} on:mouseleave={() => showBBox = false} style:font-size="small">
+    bounds: {$s_sprite.bBoxX} {$s_sprite.bBoxY} {$s_sprite.bBoxWidth} {$s_sprite.bBoxHeight}
+</p>
 
 <style>
     .toolbar {
