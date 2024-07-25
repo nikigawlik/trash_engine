@@ -26,7 +26,7 @@ $: soundEffects = $resourceManager.getSoundEffects();
 
 <!-- {@debug folders} -->
 
-<Card {card}>
+<Card {card} hasCornerButtons={false}>
     <div class="scroll-box">
         <ResourcesFolder displayName="sprites" resourceConstructor={Sprite}>
             <ul class="resources sprites">

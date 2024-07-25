@@ -13,6 +13,7 @@ import { cards, type CardInstance, bringToFront } from "../modules/cardManager";
     export let autoFocus = true;
     export let contentMinWidth = 90; // px
     export let contentMaxWidth = 1000; // px // TODO could be smaller / can do this differently, but low prio
+    export let hasCornerButtons = true;
 
     function closeWindow() {
         cards.remove(card.uuid);
@@ -229,6 +230,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     <div class="inner-card" in:bounce={{duration: 300}}>
         <h3>
             <div class="name" >{name}</div> 
+            {#if hasCornerButtons}
             <div class="buttons">
                 <button class="maxWindow borderless" on:click={maxWindow}>
                     <!-- { isMaximized? "❐" : "☐" } -->
@@ -243,6 +245,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
                     <AtlasIcon id={32} height={20}></AtlasIcon>
                 </button>
             </div>
+            {/if}
         </h3>
         <div class=content style:min-width={contentMinWidth}px style:max-width={contentMaxWidth}px>
             <slot></slot>

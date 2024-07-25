@@ -316,7 +316,7 @@
                 {/if}
                 fullscreen
             </WhackyButton></li>
-            <li><WhackyButton on:click={() => openCard(Resources)}>   <AtlasIcon id={11} /> resources </WhackyButton></li>
+            <!-- <li><WhackyButton on:click={() => openCard(Resources)}>   <AtlasIcon id={11} /> resources </WhackyButton></li> -->
             <!-- <li><WhackyButton on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</WhackyButton></li> -->
         </ul>
     </header>
