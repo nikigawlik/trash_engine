@@ -121,7 +121,7 @@ import { shrink } from "../transitions";
                 && rectIntersect(getBBRect(inst), getBBRect(placingInst))
             )
                             
-            if(isMouseDown && currentSprite && !alreadyExists) {
+            if(isMouseDown && currentSprite && (!alreadyExists || isDownEvent)) {
                 room.instances.push(placingInst);
                 placingInst = new Instance(currentSpriteUUID, x, y);
             }
