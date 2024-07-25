@@ -9,7 +9,7 @@
 
     function reroll() {
         // rotation = ~~(Math.random() * 5) * -(rotation > 0? 1 : -1);
-        rotation = Math.random() * 4 - 2
+        // rotation = Math.random() * 4 - 2
         transX = ~~(Math.random()   * 2 - 1);
         transY = ~~(Math.random()   * 2 - 1);
     }
