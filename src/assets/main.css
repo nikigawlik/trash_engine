@@ -88,6 +88,10 @@ button[data-selected="true"] {
     transition: transform .1s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
+button.emphasis {
+    border-width: 3px;
+}
+
 button:active {
     transform: translate(1px, 1px);
     box-shadow: 1px 1px;

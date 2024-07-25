@@ -12,6 +12,7 @@ import Card from "./Card.svelte";
 import ImageEditor from "./ImageEditor.svelte";
 import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
     import BehaviourEditor from "./BehaviourEditor.svelte";
+    import TabView from "./TabView.svelte";
 
     export let card: CardInstance;
 
@@ -79,10 +80,7 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
 </script>
 
 <Card autoFocus={true} contentMinWidth={240} namePrefix="edit sprite: " {card}>
-    <div class="modes">
-        <button on:click={() => mode = "draw" } class:selected={mode == "draw"}>draw</button>
-        <button on:click={() => mode = "script" } class:selected={mode == "script"}>script</button>
-    </div>
+    <TabView bind:selected={mode} tabs={["draw", "script"]} />
     {#if mode=="draw"}
         <ImageEditor spriteID={$sSprite.uuid}/>
     {:else if mode == "script"}
@@ -108,22 +106,6 @@ import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
 </Card>
 
 <style>
-    .modes {
-        margin-bottom: 8px;
-        border-bottom: 1px solid var(--main-color);
-    }
-
-    .modes button {
-        box-shadow: none;
-        border-bottom: none;
-        padding-bottom: 4px;
-    }
-
-    .modes button.selected {
-        border-bottom: none;
-        box-shadow: 0px 2px var(--bg-color);
-    }
-
     ul.behaviours {
         display: flex;
         flex-direction: column;
