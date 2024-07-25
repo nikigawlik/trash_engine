@@ -3,20 +3,18 @@ import { resourceManager } from "../modules/game/ResourceManager";
 
 import Instance from "./../modules/structs/instance";
 
+import { adjustedCanvasSize, assert, rectInside, rectIntersect } from "../modules/game/utils";
 import type Room from "./../modules/structs/room";
 import Sprite from "./../modules/structs/sprite";
-import { assert, rectInside, adjustedCanvasSize, rectIntersect } from "../modules/game/utils";
 
-import { afterUpdate, onMount } from "svelte";
+import { afterUpdate } from "svelte";
+import type { Writable } from "svelte/store";
 import { cards, type CardInstance } from "../modules/cardManager";
-import { currentTheme, data } from "../modules/globalData";
+import { data } from "../modules/globalData";
+import AtlasIcon from "./AtlasIcon.svelte";
 import Card from "./Card.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
-import type { Writable } from "svelte/store";
-import { shrink } from "../transitions";
-    import TabView from "./TabView.svelte";
-    import { text } from "svelte/internal";
-    import AtlasIcon from "./AtlasIcon.svelte";
+import TabView from "./TabView.svelte";
     
     export let card: CardInstance;
     const uuid = card.uuid;
@@ -48,23 +46,9 @@ import { shrink } from "../transitions";
     
     let roomStore = $resourceManager.getResourceStore(uuid) as Writable<Room>;
 
-    // let gridEnabled = $roomStore.grid.enabled;
-    // let gridWidth = $roomStore.grid.width;
-    // let gridHeight = $roomStore.grid.height;
-    // let snapMode = $roomStore.grid.snap;
-    // $: {
-        // $roomStore.grid.enabled = gridEnabled;
-        // $roomStore.grid.width = gridWidth;
-        // $roomStore.grid.height = gridHeight;
-        // $roomStore.grid.snap = snapMode;
-    // }
-
     $: gridWidth = Math.max($roomStore.grid.width, 1)
     $: gridHeight = Math.max($roomStore.grid.height, 1)
 
-    // let bgColor = room?.backgroundColor || "#222222";
-    // $: room && (room.backgroundColor = bgColor);
-    
     // default for when room is not loaded
     $: canvasWidth = room?.width || 100;
     $: canvasHeight = room?.height || 100;
@@ -155,17 +139,12 @@ import { shrink } from "../transitions";
             return {x, y};
         }
 
-    // let isPlacing = false;
-    // let isDeleting = false;
-
     let isMouseDown = false;
 
     let tool: "place" | "delete" = "place"
 
     function canvasMouseDown(evt: MouseEvent) {
         if(evt.button != 0) return;
-        // isPlacing = true;
-        // isDeleting = false;
         isMouseDown = true;
         canvasUpdate(evt, true);
     }
@@ -174,8 +153,6 @@ import { shrink } from "../transitions";
         canvasUpdate(evt, false);
     }
     function canvasMouseUp(evt: MouseEvent) {
-        // isPlacing = false;
-        // isDeleting = false;
         isMouseDown = false;
     }
     
@@ -185,7 +162,6 @@ import { shrink } from "../transitions";
         let ctx = canvas?.getContext("2d")!;
         if(!ctx) return;
 
-        // ctx.clearRect(0, 0, room.width, room.height);
         ctx.fillStyle = room.backgroundColor;
         ctx.fillRect(0, 0, room.width, room.height);
 
@@ -293,10 +269,6 @@ import { shrink } from "../transitions";
             </h4>
         {:else if mode=="settings"}
             <div class="room-config">
-                <!-- <label for="view_mode">view</label>
-                <label><input disabled type="radio" name="view_mode" value="2d" checked />  2D </label>
-                <label><input disabled type="radio" name="view_mode" value="3d" /> 3D </label>
-                <span class="spacer" /> -->
                 <label><input type="checkbox" name="grid_enabled" bind:checked={$roomStore.grid.enabled}/> grid </label>
                 <label for="grid_width" hidden> width </label> 
                 <input name="grid_width" type="number" bind:value={$roomStore.grid.width} />
