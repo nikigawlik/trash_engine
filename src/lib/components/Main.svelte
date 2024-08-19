@@ -11,7 +11,8 @@ import Resources from "./Resources.svelte";
     if(rooms.length > 0)
         openCard(RoomEditor, rooms[0].uuid)
 
-    let loadPromise = $resourceManager.loadDefaultProject();
+    // let loadPromise = $resourceManager.loadDefaultProject();
+    let loadPromise = $resourceManager.load();
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 
