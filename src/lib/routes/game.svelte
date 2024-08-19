@@ -51,7 +51,7 @@ import * as globalData from "./../modules/globalData";
     }
 
 
-    let startRoom: string = null;
+    export let startRoomUUID: string = null;
 
     function sendSizeUpdate() {
         let parent = window.parent;
@@ -88,7 +88,7 @@ import * as globalData from "./../modules/globalData";
             game.quitGameCallback = null;
             game.quit();
         }
-        game = new Game(resourceManager.get(), canvasWebgl, canvas2d, htmlOverlay, startRoom);
+        game = new Game(resourceManager.get(), canvasWebgl, canvas2d, htmlOverlay, startRoomUUID);
         game.registerEditorCallback(requestOpenEditor);
         game.quitGameCallback = () => reload(); // for quitting in game
         game.errorCallback = async(e: Error)=> {
@@ -125,7 +125,7 @@ import * as globalData from "./../modules/globalData";
         } else 
         if(data.type == "dataUpdate") {
             await resourceManager.get().setFromSerializedData(data.resourceData);
-            startRoom = data.startRoom;
+            startRoomUUID = data.startRoom;
             reload();
         }
     }

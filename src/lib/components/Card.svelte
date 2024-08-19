@@ -202,17 +202,6 @@ on:mouseleave={onBodyMouseUp}
 on:mouseleave={onResizeMouseUp}
 ></svelte:body>
 
-<!-- 
-style:width={isMaximized? "100%" : (clientWidth? `${(clientWidth)}px` : null)}
-style:height={isMaximized? "100%" : (clientHeight? `${(clientHeight)}px` : null)} 
-style:width={ clientWidth? `${(clientWidth)}px` : undefined }
-style:height={ clientHeight? `${(clientHeight)}px` : undefined } 
-
-
-style:resize={isMaximized? 'none' : 'both'}
-bind:clientWidth={clientWidth}
-bind:clientHeight={clientHeight}
--->
 
 <section 
 class={`card ${windowType || ''}`} 

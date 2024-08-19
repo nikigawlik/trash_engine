@@ -31,7 +31,7 @@ import { version } from "../../../package.json"
     }
 </script>
 
-<Card card={card}>
+<Card card={card} autoFocus={true}>
     <p>running tash engine version {version}</p>
     <h2>editor: </h2>
     <p>
