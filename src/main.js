@@ -5,6 +5,7 @@ import { getDocumentGameData } from "./lib/modules/database";
 import Game from "./lib/routes/game.svelte";
 // @ts-ignore
 import Index from "./lib/routes/index.svelte";
+import TestGrid from "./lib/routes/testGrid.svelte";
 // @ts-ignore
 import Testpage from "./lib/routes/testPage.svelte";
 
@@ -18,6 +19,7 @@ let customGameData = getDocumentGameData();
 let isGame = urlParams.has("game") || !!customGameData;
 let isEditor = urlParams.has("editor");
 let isTestpage = urlParams.has("testpage");
+let isGridTest = urlParams.has("testgrid");
 
 // game has precedence, but can be overridden by editor
 if(isGame && !isEditor) {
@@ -29,6 +31,12 @@ if(isGame && !isEditor) {
 // testpage
 else if(isTestpage) {
   app = new Testpage(({
+    target: document.body,
+  }))
+} 
+// grid test
+else if(isGridTest) {
+  app = new TestGrid(({
     target: document.body,
   }))
 } 
