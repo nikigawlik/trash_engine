@@ -52,15 +52,17 @@ import Card from "./Card.svelte";
         }
     }
 
-    function getIFrameURL() {
+    let selectedRoom: string;
+    
+</script>
+
+<script context="module">
+    export function getIFrameURL() {
         let url = new URL(location.href);
         url.searchParams.delete("editor");
         url.searchParams.set("game", "");
         return url.href;
     }
-
-    let selectedRoom: string;
-    
 </script>
 
 <!-- Disabling pointer events is necessary for resizing cards to work -->

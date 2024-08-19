@@ -9,12 +9,14 @@ import Sprite from "./../modules/structs/sprite";
 
 import { afterUpdate } from "svelte";
 import type { Writable } from "svelte/store";
-import { cards, type CardInstance } from "../modules/cardManager";
+import { cards, openCard, type CardInstance } from "../modules/cardManager";
 import { data } from "../modules/globalData";
 import AtlasIcon from "./AtlasIcon.svelte";
 import Card from "./Card.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
 import TabView from "./TabView.svelte";
+    import Game from "../routes/game.svelte";
+    import { getIFrameURL } from "./GamePreview.svelte";
     
     export let card: CardInstance;
     const uuid = card.uuid;
@@ -53,8 +55,8 @@ import TabView from "./TabView.svelte";
     $: canvasWidth = room?.width || 100;
     $: canvasHeight = room?.height || 100;
     
-    $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth); 
+    $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
     afterUpdate(() => {
         refresh();
@@ -141,7 +143,7 @@ import TabView from "./TabView.svelte";
 
     let isMouseDown = false;
 
-    let tool: "place" | "delete" = "place"
+    let tool: "place" | "delete" | "_" = "place"
 
     function canvasMouseDown(evt: MouseEvent) {
         if(evt.button != 0) return;
@@ -208,7 +210,10 @@ import TabView from "./TabView.svelte";
 
     let mode = "place sprites";
 
-    const tools = ["place", "delete"] as ("place"|"delete")[];
+    const tools = ["place", "delete", "play"] as ("place"|"delete"|"play")[];
+
+    let iframeElement: HTMLIFrameElement|null = null;
+    $: iframeLoadedPromise = iframeElement != null? new Promise(r => iframeElement.onload = r) : null;
 
 </script>
 <!-- isMaximized is intentionally non-reactive, still a bit sussy, might not work as expected -->
@@ -235,6 +240,8 @@ import TabView from "./TabView.svelte";
                         <div style:height="1.5rem" style:display="inline-block">
                             <SpriteIcon spriteID={currentSpriteUUID} growToFit />
                         </div>
+                    {:else if t == "play"}
+                     <AtlasIcon id={72} height={20} />
                     {/if}
                     </button>
                 {/each}
@@ -243,6 +250,7 @@ import TabView from "./TabView.svelte";
                 <span> please select a sprite from the resource list.</span>
             {/if}
             
+            {#if tool != "play"}
             <div class="room-edit">
                 
                 <div class="canvas-container">
@@ -267,6 +275,31 @@ import TabView from "./TabView.svelte";
                 <AtlasIcon id={41} height={12}/> click sprites to delete them.
                 {/if}
             </h4>
+            {:else if tool == "play"}
+
+            {#await iframeLoadedPromise}
+                <div
+                    style:width="{canvasDisplayWidth}px"    
+                    style:height="{canvasDisplayHeight}px"    
+                    style:border="1px solid var(--main-color)"
+                    style:font-size="large"
+                    style:padding="2rem"
+                >
+                    loading...
+                </div>
+            {:then _} 
+            <!--  -->
+            {/await}
+            
+            <iframe 
+            title="gametest" 
+            src={getIFrameURL()} 
+            bind:this={iframeElement}
+            style:width={canvasDisplayWidth}px
+            style:height={canvasDisplayHeight}px
+        />
+            <!-- <Game startRoomUUID={$roomStore?.uuid}></Game> -->
+            {/if}
         {:else if mode=="settings"}
             <div class="room-config">
                 <label><input type="checkbox" name="grid_enabled" bind:checked={$roomStore.grid.enabled}/> grid </label>
