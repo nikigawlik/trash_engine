@@ -16,15 +16,13 @@
     import * as database from "../modules/database";
     import { gameData } from "../modules/game/game_data";
     import { autoLoadGameData, loadDefaultProject, loadGameData } from "../modules/game/save_load";
-    import { sanitizeFileName } from "../modules/game/utils";
+    import { assert, sanitizeFileName } from "../modules/game/utils";
     import { currentTheme, data } from "../modules/globalData";
     import { serialize } from "../modules/serialize";
     import { asStore } from "../modules/store_owner";
-    import Behaviour from "../modules/structs/behaviour";
     import type Resource from "../modules/structs/resource";
     import Room from "../modules/structs/room";
     import SoundEffect from "../modules/structs/soundEffect";
-    import Sprite from "../modules/structs/sprite";
     import { blockingPopup } from "../modules/ui";
     import * as image_editor from "./../components/ImageEditor.svelte";
     import Main from "./../components/Main.svelte";
@@ -65,14 +63,13 @@
 
 
         // initialize different modules
-        console.log("load app...");
+        console.log("--- loading start (engine) ---");
         await database.init();
         await globalData.load();
         await autoLoadGameData();
+        assert(!!$gameData, "Critical error: save data did not load")
         await image_editor.init();
-        console.log("--- --- ---- --- ---")
         console.log("--- loading done ---") 
-        console.log("--- --- ---- --- ---")
     };
 
     let initPromise = makeTimedPromise(init());
@@ -312,14 +309,14 @@
         </div>
         <ul class="topbar">
             <li><WhackyButton on:click={clearProject}>   <AtlasIcon id={33} /> new project </WhackyButton></li>
-            <li><WhackyButton on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </WhackyButton></li>
+            <!-- <li><WhackyButton on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </WhackyButton></li>
             <li><WhackyButton on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </WhackyButton></li>
             <li><WhackyButton on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </WhackyButton></li>
-            <li><WhackyButton on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </WhackyButton></li>
+            <li><WhackyButton on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </WhackyButton></li> -->
             <li><WhackyButton on:click={() => openCard(GamePreview)}> <AtlasIcon id={75} /> play      </WhackyButton></li>
             <li><WhackyButton on:click={() => openCard(Reference)}>   <AtlasIcon id={59} /> help      </WhackyButton></li>
-            <li><WhackyButton on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </WhackyButton></li>
-            <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li>
+            <!-- <li><WhackyButton on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </WhackyButton></li> -->
+            <!-- <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li> -->
             <li><WhackyButton on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </WhackyButton></li>
             <li><WhackyButton on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </WhackyButton></li>
             <li><WhackyButton on:click={() => importData()}>                 <AtlasIcon id={58} /> import     </WhackyButton></li>

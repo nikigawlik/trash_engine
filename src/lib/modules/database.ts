@@ -1,3 +1,4 @@
+import { serialize } from "./serialize";
 
 console.log("database.ts loading")
 
@@ -11,6 +12,7 @@ export const STORE_NAME_RESOURCES = `resources`
 
 // database object
 export let db: IDBDatabase | null;
+let _inGame: boolean;
 
 export class NoDatabaseError extends Error {
     constructor() {
@@ -18,7 +20,8 @@ export class NoDatabaseError extends Error {
     }
 }
 
-export async function init() {
+export async function init(inGame = false) {
+    _inGame = inGame;
     try {
         console.log("opening database...");
         if (!window.indexedDB) {
@@ -117,4 +120,36 @@ export async function deleteDatabase() {
     } catch (e) {
         console.error(e);
     }
+}
+
+export async function saveToDB(key: string, obj: Object) {
+    if(_inGame) return;
+    if(!db) { console.error("database access before initialization."); return; }
+
+    let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
+    let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
+    
+    let request = objectStore.put(await serialize(obj), key)
+    
+    request.onsuccess = event => {
+        console.log(`saved to db ${key.substring(0, 5)}... / ${(obj as any).name || ""} (${obj.constructor.name})`);
+    };
+
+    await new Promise((resolve, reject) => {trans.oncomplete = resolve; trans.onerror = reject})
+}
+
+export async function clearDBGameData() {
+    if(_inGame) return;
+    if(!db) { console.error("database access before initialization."); return; }
+    
+    let trans = db.transaction([STORE_NAME_RESOURCES], "readwrite");
+    let objectStore = trans.objectStore(STORE_NAME_RESOURCES);
+    
+    let request = objectStore.clear();
+    
+    request.onsuccess = event => {
+        console.log(`Cleared database.`);
+    };
+
+    await new Promise((resolve, reject) => {trans.oncomplete = resolve; trans.onerror = reject})
 }

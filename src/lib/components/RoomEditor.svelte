@@ -25,9 +25,12 @@
     export let card: CardInstance;
     const uuid = card.uuid;
 
-    $: room = $gameData.getResource(uuid, Room) as Room | null;
+    $: room = asStore($gameData.getResource(uuid, Room));
+    $: {
+        if(room == null) cards.remove(uuid, true)
+    }
     $: card.className = "room-editor";
-    $: card.name = room?.name || "room not loaded";
+    $: card.name = $room?.name || "room not loaded";
 
     let canvas: HTMLCanvasElement;
 
@@ -62,8 +65,8 @@
     $: gridHeight = Math.max($roomStore.grid.height, 1);
 
     // default for when room is not loaded
-    $: canvasWidth = room?.width || 100;
-    $: canvasHeight = room?.height || 100;
+    $: canvasWidth = $room?.width || 100;
+    $: canvasHeight = $room?.height || 100;
 
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth);
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
@@ -95,23 +98,23 @@
         };
         // update the weakset of the instances under the cursor (candidates for deletion)
         instancesUnderCursor = new WeakSet();
-        for (let inst of room.instances) {
+        for (let inst of $room.instances) {
             const rect = getBBRect(inst);
             if (rect && rectInside(mousepos, rect))
                 instancesUnderCursor.add(inst);
         }
 
-        let filteredInstances = room.instances.filter(
+        let filteredInstances = $room.instances.filter(
             (inst) => !instancesUnderCursor.has(inst),
         );
 
-        // let deleteSomething = isDeleting && filteredInstances.length != room.instances.length;
+        // let deleteSomething = isDeleting && filteredInstances.length != $room.instances.length;
         let canDeleteSomething =
             tool == "delete" &&
             isMouseDown &&
-            filteredInstances.length != room.instances.length;
+            filteredInstances.length != $room.instances.length;
         if (canDeleteSomething) {
-            room.instances = filteredInstances;
+            $room.instances = filteredInstances;
             $roomStore = $roomStore;
         }
 
@@ -121,7 +124,7 @@
             placingInst.x = x;
             placingInst.y = y;
 
-            let alreadyExists = room.instances.find(
+            let alreadyExists = $room.instances.find(
                 (inst) =>
                     inst.spriteID == currentSprite.uuid &&
                     rectIntersect(getBBRect(inst), getBBRect(placingInst)),
@@ -132,7 +135,7 @@
                 currentSprite &&
                 (!alreadyExists || isDownEvent)
             ) {
-                room.instances.push(placingInst);
+                $room.instances.push(placingInst);
                 $roomStore = $roomStore;
                 placingInst = new Instance(currentSpriteUUID, x, y);
             }
@@ -188,12 +191,13 @@
         let ctx = canvas?.getContext("2d")!;
         if (!ctx) return;
 
-        ctx.fillStyle = room.backgroundColor;
-        ctx.fillRect(0, 0, room.width, room.height);
+        ctx.fillStyle = $room.backgroundColor;
+        ctx.fillRect(0, 0, $room.width, $room.height);
 
-        room.instances = room.instances.filter(inst => instanceIsValid(inst));
+        // TODO not like this, causes a ton of updates 
+        $room.instances = $room.instances.filter(inst => instanceIsValid(inst));
 
-        for (let inst of room.instances) {
+        for (let inst of $room.instances) {
             drawInstance(inst, ctx);
             if (tool == "delete" && instancesUnderCursor.has(inst)) {
                 ctx.strokeStyle = "white";
@@ -230,13 +234,13 @@
             ctx.globalCompositeOperation = "difference";
             ctx.beginPath();
             assert(gridWidth >= 1 && gridHeight >= 1);
-            for (let x = 0; x < room.width; x += gridWidth) {
+            for (let x = 0; x < $room.width; x += gridWidth) {
                 ctx.moveTo(x + 0.5, 0);
-                ctx.lineTo(x + 0.5, room.height);
+                ctx.lineTo(x + 0.5, $room.height);
             }
-            for (let y = 0; y < room.height; y += gridHeight) {
+            for (let y = 0; y < $room.height; y += gridHeight) {
                 ctx.moveTo(0, y + 0.5);
-                ctx.lineTo(room.width, y + 0.5);
+                ctx.lineTo($room.width, y + 0.5);
             }
             ctx.stroke();
             ctx.closePath();

@@ -160,11 +160,15 @@ export default class Game {
 
         for (const resource of this.gameData.resources.values()) {
             // accessing a sprite by name, will try to return an instance of that sprite 
-            Object.defineProperty(window, resource.name, {
-                configurable: true,
-                writable: false,
-                value: resource.uuid,
-            })
+            try {
+                Object.defineProperty(window, resource.name, {
+                    configurable: true,
+                    writable: false,
+                    value: resource.uuid,
+                })
+            } catch(e) {
+                console.warn(`failed to define: ${resource.name}`)
+            }
         }
 
         defineLibProperty("roomWidth", () => this.currentRoom?.width);

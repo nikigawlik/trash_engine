@@ -1,5 +1,5 @@
-export function assert(bool: boolean) {
-    if(!bool) throw Error("Assertion failed.");
+export function assert(bool: boolean, message?: string) {
+    if(!bool) throw Error(message || "Assertion failed.");
 }
 
 export function adjustedCanvasSize(size: number): number {

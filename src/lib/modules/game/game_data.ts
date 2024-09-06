@@ -1,8 +1,9 @@
 import { Readable } from "svelte/motion";
 import { derived, Writable, writable } from "svelte/store";
 import { version } from "../../../../package.json";
+import { clearDBGameData, db, saveToDB } from "../database";
 import { serialize } from "../serialize";
-import { asStore } from "../store_owner";
+import { asStore, storeRegistered } from "../store_owner";
 import Resource from "../structs/resource";
 
 
@@ -14,6 +15,29 @@ const defaultGameSettings = {
 export type GameSettings = typeof defaultGameSettings
 
 export const gameData: Writable<GameData|null> = writable(null);
+gameData.subscribe(gd => {
+    if(gd == null) return
+
+    clearDBGameData()
+
+    asStore(gd.resources).subscribe((value) => gd.resources = value); // keep synced with the store
+    asStore(gd.settings).subscribe((value) => gd.settings = value);
+
+    if(db) {
+        asStore(gd.settings).subscribe(value => saveToDB(".settings", value) ) // async!!
+        saveToDB(".engineVersion", gd.engineVersion ) // async!!
+        asStore(gd.resources).subscribe(value => {
+            if(db) {
+                // slighlty wasteful to do it for all of them, but ok
+                // also just seems sketchy tbh...
+                for(let [uuid, resource] of gd.resources) {
+                    if(!storeRegistered(resource))
+                        asStore(resource).subscribe(value => saveToDB(uuid, value)) // async!
+                }
+            }
+        })
+    }
+})
 
 /**
  * this class essentially stores data in the way they are exported to json.
@@ -28,9 +52,6 @@ export default class GameData implements GameData{
         this.resources = new Map();
         this.engineVersion = version;
         this.settings = { ...defaultGameSettings }
-
-        asStore(this.resources).subscribe((value) => this.resources = value); // keep synced with the store
-        asStore(this.settings).subscribe((value) => this.settings = value);
     }
 
     hasResource(uuid: string) {

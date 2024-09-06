@@ -75,7 +75,7 @@ export async function serialize(obj: any | null, allowBlob = false)
         else if (obj.constructor != Object) {
             throw makeUnrecognizedTypeError(obj.constructor.name);
         }
-        
+
         for (var attr in obj) {
             if (obj.hasOwnProperty(attr) && attr[0] != "_")
                 copy[attr] = await serialize(obj[attr], allowBlob);
@@ -145,7 +145,7 @@ export async function deserialize(obj: any | null, additionalProperties: WeakMap
                 let copy = new Map();
                 for(let key in obj) {
                     if(key[0] != "_")
-                        copy.set(key, await deserialize(obj[i], additionalProperties));
+                        copy.set(key, await deserialize(obj[key], additionalProperties));
                 }
                 return copy;
             } 

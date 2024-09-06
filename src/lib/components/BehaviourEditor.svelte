@@ -24,7 +24,7 @@
             behaviour = asStore($gameData.getResource(uuid, Behaviour))
         } else {
             let [spriteUUID, behaviourUUID] = uuid.split("/");
-            sprite = asStore($gameData.getResource(uuid, Sprite))
+            sprite = asStore($gameData.getResource(spriteUUID, Sprite))
             behaviour = derived(sprite, $sprite => $sprite.behaviours.find(x => x.uuid == behaviourUUID))
         }
     }

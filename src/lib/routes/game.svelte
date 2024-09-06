@@ -16,10 +16,10 @@ import * as globalData from "./../modules/globalData";
     
     let init = async () => {
         if(!browser) return;
-        console.log("--- loading start ---")
+        console.log("--- loading start (game) ---")
         
         // initialize different modules
-        await database.init();
+        await database.init(true);
         
         console.log("load app...");
         await globalData.load();
@@ -140,13 +140,13 @@ import * as globalData from "./../modules/globalData";
         //     reload()
     }
     
-    $: settings = asStore($gameData.settings);
+    $: settings = asStore($gameData?.settings);
 </script>
 
 <!-- <svelte:window on:message={onMessage} /> -->
 <svelte:window on:keydown={windowOnKeyDown} />
 <svelte:head>
-    <title>{$settings.title}</title>
+    <title>{$settings?.title || "loading..."}</title>
     {@html `<!-- ${licenseText} -->`}
 </svelte:head>
 

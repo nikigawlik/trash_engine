@@ -50,7 +50,7 @@
     <span class=name>{displayName}</span>
     <button class="new" on:click={ () => newResource() }>
         <AtlasIcon id={22} />
-        new
+        {resourceName}
     </button>
 
 </div>
