@@ -3,10 +3,11 @@ import { onMount } from "svelte";
 import licenseText from "../../../LICENSE?raw";
 import "../../assets/reset.css";
 import * as database from "../modules/database";
-import { resourceManager } from "../modules/game/ResourceManager";
 import Game from "../modules/game/game";
+import { gameData } from "../modules/game/game_data";
+import { autoLoadGameData, loadGameData } from "../modules/game/save_load";
 import { adjustedCanvasSize } from "../modules/game/utils";
-import { nameConstructorMap } from "../modules/structs/savenames";
+import { asStore } from "../modules/store_owner";
 import * as globalData from "./../modules/globalData";
 
     // TODO lot's of code overlap with index.svelte
@@ -16,18 +17,15 @@ import * as globalData from "./../modules/globalData";
     let init = async () => {
         if(!browser) return;
         console.log("--- loading start ---")
+        
         // initialize different modules
-        await database.init(nameConstructorMap);
-        // await ResourceManager.init();
-        {
-            console.log("load app...");
-            await globalData.load();
-            await resourceManager.get().load();
-        }
-        // await SaveSystem.init();
-        console.log("--- --- ---- --- ---")
+        await database.init();
+        
+        console.log("load app...");
+        await globalData.load();
+        await autoLoadGameData();
+        
         console.log("--- loading done ---")
-        console.log("--- --- ---- --- ---")
     };
 
     let initPromise = init();
@@ -88,7 +86,7 @@ import * as globalData from "./../modules/globalData";
             game.quitGameCallback = null;
             game.quit();
         }
-        game = new Game(resourceManager.get(), canvasWebgl, canvas2d, htmlOverlay, startRoomUUID);
+        game = new Game($gameData, canvasWebgl, canvas2d, htmlOverlay, startRoomUUID);
         game.registerEditorCallback(requestOpenEditor);
         game.quitGameCallback = () => reload(); // for quitting in game
         game.errorCallback = async(e: Error)=> {
@@ -124,7 +122,7 @@ import * as globalData from "./../modules/globalData";
             reload();
         } else 
         if(data.type == "dataUpdate") {
-            await resourceManager.get().setFromSerializedData(data.resourceData);
+            await loadGameData(data.resourceData);
             startRoomUUID = data.startRoom;
             reload();
         }
@@ -141,12 +139,14 @@ import * as globalData from "./../modules/globalData";
         // if(event.code == "KeyR")
         //     reload()
     }
+    
+    $: settings = asStore($gameData.settings);
 </script>
 
 <!-- <svelte:window on:message={onMessage} /> -->
 <svelte:window on:keydown={windowOnKeyDown} />
 <svelte:head>
-    <title>{$resourceManager.settings.title}</title>
+    <title>{$settings.title}</title>
     {@html `<!-- ${licenseText} -->`}
 </svelte:head>
 

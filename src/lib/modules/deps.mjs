@@ -43,5 +43,5 @@ let html = htm.bind(createElement);
 // let html = () => null;
 
 export {
-    html 
-}
+    html
+};

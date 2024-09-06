@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { resourceManager } from "../modules/game/ResourceManager";
+    import { gameData } from "../modules/game/game_data";
     import Behaviour from "../modules/structs/behaviour";
     import type Resource from "../modules/structs/resource";
     import Room from "../modules/structs/room";
@@ -27,7 +27,7 @@
         let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
         if(name) {    
             let newResource = new resourceConstructor(name);
-            $resourceManager.addResource(newResource);
+            $gameData.addResource(newResource);
             openEditorWindow(newResource);
             contentsHidden = false;
         }

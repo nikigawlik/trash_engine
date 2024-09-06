@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { cards, openCard } from "../modules/cardManager";
-    import { resourceManager } from "../modules/game/ResourceManager";
+    import { asStore } from "../modules/store_owner";
     import type Behaviour from "../modules/structs/behaviour";
     import BehaviourLink from "../modules/structs/behaviourLink";
     import type Sprite from "../modules/structs/sprite";
@@ -21,9 +21,9 @@
     ;
 
     let bStore = behaviour instanceof BehaviourLink?
-        $resourceManager.getResourceStore(behaviour.linkedBehaviourUUID)
+        asStore(behaviour.behaviour)
     :
-        $resourceManager.getResourceStore(behaviour)
+        asStore(behaviour)
     ;
 
     const dispatch = createEventDispatcher();

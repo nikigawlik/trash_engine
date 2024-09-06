@@ -1,10 +1,10 @@
 <script lang="ts">
+    import { tick } from "svelte";
     import type { CardInstance } from "../modules/cardManager";
-    import { resourceManager } from "../modules/game/ResourceManager";
-    import type SoundEffect from "../modules/structs/soundEffect";
+    import { gameData } from "../modules/game/game_data";
+    import { asStore } from "../modules/store_owner";
+    import SoundEffect from "../modules/structs/soundEffect";
     import Card from "./Card.svelte";
-    import type { Writable } from "svelte/store";
-    import { afterUpdate, onMount, tick } from "svelte";
 
     export let card: CardInstance;
 
@@ -13,7 +13,7 @@
     $: card.className = "sound-effect-editor"
     $: card.position.width = 350;
 
-    $: soundEffect = $resourceManager.getResourceStore(uuid) as Writable<SoundEffect>;
+    $: soundEffect = asStore($gameData.getResource(uuid, SoundEffect))
     $: { card.name = $soundEffect.name }
     
     let canvas: HTMLCanvasElement;

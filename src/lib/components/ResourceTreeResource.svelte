@@ -1,25 +1,32 @@
 <script context="module" lang="ts">
+    
+    const resourceToEditorMap = [
+        [Sprite, SpriteEditor],
+        [Room, RoomEditor],
+        [Behaviour, BehaviourEditor],
+        [SoundEffect, SoundEffectEditor]
+    ]
+    
     export function openEditorWindow(resource: Resource) {
-        // TODO not clean ?
-        if(resource instanceof Sprite) {
-            openCard(SpriteEditor, resource.uuid);
-        } else if (resource instanceof Room) {
-            openCard(RoomEditor, resource.uuid);
-        } else if (resource instanceof Behaviour) {
-            openCard(BehaviourEditor, resource.uuid);
-        } else if (resource instanceof SoundEffect) {
-            openCard(SoundEffectEditor, resource.uuid);
-        } else {
-            console.log(`no window implemented for ${resource.type}`);
+        for(let x of resourceToEditorMap) {
+            let [resourceType, editorComponent] = x;
+
+            if(resource instanceof resourceType) {
+                openCard(editorComponent, resource.uuid);
+                return;
+            }
         }
+
+        console.log(`no window implemented for ${resource.type}`);
     }
 </script>
 
 <script lang="ts">
 import { cards, openCard } from "../modules/cardManager";
-import { resourceManager } from "../modules/game/ResourceManager";
+import { gameData } from "../modules/game/game_data";
+import { asStore } from "../modules/store_owner";
 import Behaviour from "../modules/structs/behaviour";
-import type Resource from "../modules/structs/resource";
+import Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
 import SoundEffect from "../modules/structs/soundEffect";
 import Sprite from "../modules/structs/sprite";
@@ -32,29 +39,29 @@ import SpriteEditor from "./SpriteEditor.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
 
 
-    export let selfResource: Room | Sprite | Behaviour | SoundEffect;
+    export let resource: Room | Sprite | Behaviour | SoundEffect;
+    let s_resource = asStore(resource);
+    $: { resource = $s_resource }
 
     let hover: boolean = false;
 
     function openMe() {
-        openEditorWindow(selfResource);
+        openEditorWindow(resource);
     }
 
     async function deleteMe() {
-        let confirmed = await asyncYesNoPopup(`Delete ${selfResource.name}?`);
+        let confirmed = await asyncYesNoPopup(`Delete ${resource.name}?`);
 
         if(confirmed) {   
-            $resourceManager.deleteResource(selfResource.uuid);
-            cards.remove(selfResource.uuid);
-            $resourceManager.refresh();   
+            $gameData.deleteResource(resource.uuid);
+            cards.remove(resource.uuid);   
         }
     }
 
     async function renameMe() {
-        let name = await asyncGetTextPopup(`Choose new name:`, selfResource.name);
+        let name = await asyncGetTextPopup(`Choose new name:`, resource.name);
         if(name) {
-            selfResource.name = name;
-            $resourceManager.refresh();
+            $s_resource.name = name
         }
     }
 
@@ -68,37 +75,38 @@ import SpriteIcon from "./SpriteIcon.svelte";
         hover = false;
     }
     function ondragstart(evt: DragEvent)  {
-        evt.dataTransfer?.setData('text/uuid', selfResource.uuid);
+        evt.dataTransfer?.setData('text/uuid', resource.uuid);
         // console.log("src: " + uuid)
     }
 
-    function ondrop(evt: DragEvent)  { 
+    function ondrop(evt: DragEvent)  {
+        
         evt.preventDefault() 
         hover = false;
 
         let otherUUID = evt.dataTransfer?.getData("text/uuid");
-        if(otherUUID) {
-            // console.log(otherUUID);
-            const _resourceManager = $resourceManager;
-            let other = _resourceManager.getResource(otherUUID);
+        console.log(`dropped: ${otherUUID} on ${$s_resource.uuid}`)
+        
+        // if(otherUUID) {
+        //     // console.log(otherUUID);
+        //     let other = $gameData.getResource(otherUUID);
 
-            if(!other) {
-                console.log(`could not find ${otherUUID}`); // shouldn't happen
-            } else if(other == selfResource) {
-                console.log(`can't move something into itself`)
-            } if(other.type != selfResource.type) {
-                console.log(`can only swap with resources of same type`)
-            } else {
-                // selfResource._parent?.insert(other, selfResource);
-                _resourceManager.moveResource(otherUUID, selfResource.uuid);
-                _resourceManager.refresh();
-            }
-        }
+        //     if(!other) {
+        //         console.log(`could not find ${otherUUID}`); // shouldn't happen
+        //     } else if(other == resource) {
+        //         console.log(`can't move something into itself`)
+        //     } if(other.type != resource.type) {
+        //         console.log(`can only swap with resources of same type`)
+        //     } else {
+        //         // selfResource._parent?.insert(other, selfResource);
+        //         $gameData.moveResource(otherUUID, resource.uuid); // not implemented, re-ordering currently not supported
+        //     }
+        // }
     }
 </script>
 
 
-<div draggable="true" class={`resource-link  resource-${selfResource.type}`}
+<div draggable="true" class={`resource-link  resource-${resource.type}`}
     on:dragover={ondragover}
     on:dragenter={ondragenter}
     on:dragleave={ondragleave}
@@ -108,14 +116,14 @@ import SpriteIcon from "./SpriteIcon.svelte";
     <span class="grabbable container" class:drag-hover={hover}
     >
         <span class=icon>
-            {#if selfResource instanceof Sprite}
-                <SpriteIcon spriteID={selfResource.uuid}></SpriteIcon>
+            {#if resource instanceof Sprite}
+                <SpriteIcon spriteID={resource.uuid}></SpriteIcon>
             {:else}
-                {selfResource.getIconElement()}
+                {resource.getIconElement()}
             {/if}
         </span>
         <button class="name borderless" on:click={ () => openMe() } title="open">
-            {selfResource.name}
+            {resource.name}
         </button>
         <!-- <button class="borderless" on:click={ () => renameMe() } title="rename">
             <AtlasIcon id={33} />

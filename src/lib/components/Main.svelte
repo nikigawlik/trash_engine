@@ -1,18 +1,18 @@
 <script lang="ts">
 import { setContext } from "svelte";
+import { gameData } from "../modules/game/game_data";
+import Room from "../modules/structs/room";
 import { cards, openCard } from "./../modules/cardManager";
 import Resources from "./Resources.svelte";
-    import { resourceManager } from "../modules/game/ResourceManager";
-    import RoomEditor from "./RoomEditor.svelte";
-    import Room from "../modules/structs/room";
+import RoomEditor from "./RoomEditor.svelte";
 
     openCard(Resources);
-    let rooms = $resourceManager.getAllOfResourceType(Room);
+    let rooms = $gameData.getAllOfResourceType(Room);
     if(rooms.length > 0)
         openCard(RoomEditor, rooms[0].uuid)
 
-    // let loadPromise = $resourceManager.loadDefaultProject();
-    let loadPromise = $resourceManager.load();
+    // TODO load default project here?
+    let loadPromise = null;
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 

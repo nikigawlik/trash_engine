@@ -1,10 +1,10 @@
 <script lang="ts">
     import AtlasIcon from "../components/AtlasIcon.svelte";
     import * as database from "../modules/database";
+    import { gameData } from "../modules/game/game_data";
     import { makeSpriteMap } from "../modules/game/renderer";
-    import { resourceManager } from "../modules/game/ResourceManager";
-    import { nameConstructorMap } from "../modules/structs/savenames";
-    import type Sprite from "../modules/structs/sprite";
+    import { autoLoadGameData } from "../modules/game/save_load";
+    import Sprite from "../modules/structs/sprite";
 
     let canvas: HTMLCanvasElement = null;
     let spriteMap = null;
@@ -21,17 +21,15 @@
     let init = async () => {
         console.log("--- window.onload ---")
         // initialize different modules
-        await database.init(nameConstructorMap);
         console.log("load app...");
+        await database.init();
         // await globalData.load();
-        await resourceManager.get().load();
+        await autoLoadGameData();
         // await image_editor.init();
         console.log("--- loading done ---") 
-        spriteMap = makeSpriteMap($resourceManager.getSprites());
+        spriteMap = makeSpriteMap($gameData.getAllOfResourceType(Sprite));
     }
 
-    // let dbPromise = database.init();
-    // let setupPromise = Promise.all([dbPromise, resourceManager.waitForLoad()])
     let setupPromise = init();
 
 </script>

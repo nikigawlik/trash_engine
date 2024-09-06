@@ -1,12 +1,13 @@
 
 <script lang="ts">
+import { version } from "../../../package.json";
 import type { CardInstance } from "../modules/cardManager";
 import { deleteDatabase } from "../modules/database";
+import { gameData } from "../modules/game/game_data";
+import { asStore } from "../modules/store_owner";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
 import { data } from "./../modules/globalData";
 import Card from "./Card.svelte";
-import { resourceManager } from "../modules/game/ResourceManager";
-import { version } from "../../../package.json"
 
     export let card: CardInstance;
     $: card.name = "settings";
@@ -29,6 +30,8 @@ import { version } from "../../../package.json"
         }
       }
     }
+
+    $: gameSettings = asStore($gameData.settings);
 </script>
 
 <Card card={card} autoFocus={true}>
@@ -48,8 +51,9 @@ import { version } from "../../../package.json"
     <p><button on:click={deleteData}>DELETE ALL SAVE DATA</button></p>
     <h2>game:</h2>
     <p><label for="licenseText">license info included in the build: </label></p>
-<textarea name="licenseText" bind:value={$resourceManager.settings.LICENSE}></textarea>
-    
+    {#if $gameSettings}
+    <textarea name="licenseText" bind:value={$gameSettings.LICENSE}></textarea>
+    {/if} 
 </Card>
 
 <style>

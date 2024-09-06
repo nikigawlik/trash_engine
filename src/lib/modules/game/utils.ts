@@ -132,3 +132,40 @@ export function getColorHSVA(h: number, s: number, v: number, a: number = 1): Co
     };
 }
 
+/**
+ * helper function to use with Array.sort()
+ * @param func maps the object to the value to compare by
+ * @returns a comparison function to be used in Array.sort()
+ */
+export function compareBy(func: (any) => any) {
+    return (a:any, b:any) => comp(func(a), func(b));
+}
+
+function comp(a:any,b:any): number {
+    if(a>b) return 1;
+    if(a<b) return -1;
+    return 0;
+}
+
+/**
+ * helper function to use with Array.reduce()
+ * @param func maps the object to the value to compare by
+ * @returns a reduction function to be used in Array.reduce()
+ */
+export function reduceBy(func: (any) => any) {
+    return (a, b) => func(a) > func(b)? a : b;
+}
+
+/**
+ * Best attempt at making a file name out of a string
+ * @param input file name
+ * @returns sanitized file name
+ */
+export function sanitizeFileName(input: string) {
+    return input
+        .replace(/[\/\\:*?"<>|]/g, '_')       // Replace illegal Windows characters
+        .replace(/[\x00-\x1f\x80-\x9f]/g, '') // Remove control characters
+        .replace(/^\.+$/, '')                 // Remove strings that are just dots (like "." or "..")
+        .replace(/^\s+|\s+$/g, '')            // Trim leading and trailing whitespace
+        .substring(0, 255);                   // Limit to 255 characters (common max length)
+}

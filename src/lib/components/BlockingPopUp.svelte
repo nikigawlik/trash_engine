@@ -1,7 +1,6 @@
 
 <script lang="ts">
 import { onMount } from "svelte";
-    import { text } from "svelte/internal";
 
 import type { AbstractButton, AbstractPrompt } from "../modules/ui";
 

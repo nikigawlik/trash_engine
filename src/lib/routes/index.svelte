@@ -6,7 +6,6 @@
     import AtlasIcon from "../components/AtlasIcon.svelte";
     import GamePreview from "../components/GamePreview.svelte";
     import Icon from "../components/Icon.svelte";
-    import LoadProjectPopUp from "../components/LoadProjectPopUp.svelte";
     import Reference from "../components/Reference.svelte";
     import { openEditorWindow } from "../components/ResourceTreeResource.svelte";
     import Resources from "../components/Resources.svelte";
@@ -14,8 +13,13 @@
     import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
     import WhackyButton from "../components/WhackyButton.svelte";
     import { cards, openCard } from "../modules/cardManager";
-    import { resourceManager } from "../modules/game/ResourceManager";
+    import * as database from "../modules/database";
+    import { gameData } from "../modules/game/game_data";
+    import { autoLoadGameData, loadDefaultProject, loadGameData } from "../modules/game/save_load";
+    import { sanitizeFileName } from "../modules/game/utils";
     import { currentTheme, data } from "../modules/globalData";
+    import { serialize } from "../modules/serialize";
+    import { asStore } from "../modules/store_owner";
     import Behaviour from "../modules/structs/behaviour";
     import type Resource from "../modules/structs/resource";
     import Room from "../modules/structs/room";
@@ -25,9 +29,7 @@
     import * as image_editor from "./../components/ImageEditor.svelte";
     import Main from "./../components/Main.svelte";
     import Settings from "./../components/Settings.svelte";
-    import * as database from "./../modules/database";
     import * as globalData from "./../modules/globalData";
-    import { nameConstructorMap } from "./../modules/structs/savenames";
     import * as ui from "./../modules/ui";
 
     let main: Main|null;
@@ -63,10 +65,10 @@
 
 
         // initialize different modules
-        await database.init(nameConstructorMap);
         console.log("load app...");
+        await database.init();
         await globalData.load();
-        await resourceManager.get().load();
+        await autoLoadGameData();
         await image_editor.init();
         console.log("--- --- ---- --- ---")
         console.log("--- loading done ---") 
@@ -99,10 +101,12 @@
     // })
 
     async function save(id?: number) {
-        let p1 = resourceManager.get().save(id); // id can be undefined -> thats ok
-        let p2 = data.save();
+        // TODO remove this
+        throw Error("not implemented")
+        // let p1 = resourceManager .get().save(id); // id can be undefined -> thats ok
+        // let p2 = data.save();
 
-        savingPromise = makeNonCrashingPromise(makeTimedPromise(Promise.all([p1, p2])));
+        // savingPromise = makeNonCrashingPromise(makeTimedPromise(Promise.all([p1, p2])));
     }
 
     async function promptSave() {
@@ -123,34 +127,36 @@
     }
 
     async function asyncLoad() {
-        let result: {id:number, name:string} = await new Promise(resolve => {
-            // this is a AbstractGetTextPrompt
-            ui.blockingPopup.set({
-                componentType: LoadProjectPopUp as any,
-                data: {},
-                resolve,
-            });
-        });
-        if(result) {
-            let p1 = resourceManager.get().load(undefined, result.id);
-            let p2 = globalData.load();
-            savingPromise = makeTimedPromise(Promise.all([p1, p2]));
-            cards.reset();
-        }
+        // TODO remove this
+        throw new Error("not implemented")
+        // let result: {id:number, name:string} = await new Promise(resolve => {
+        //     // this is a AbstractGetTextPrompt
+        //     ui.blockingPopup.set({
+        //         componentType: LoadProjectPopUp as any,
+        //         data: {},
+        //         resolve,
+        //     });
+        // });
+        // if(result) {
+        //     let p1 = resourceManager .get().load(undefined, result.id);
+        //     let p2 = globalData.load();
+        //     savingPromise = makeTimedPromise(Promise.all([p1, p2]));
+        //     cards.reset();
+        // }
     }
 
     async function exportData() {
-        let obj = await resourceManager.get().getSerializedData();
+        let obj = await serialize($gameData);
         
         const textData = JSON.stringify(obj);
-        const filename = `${resourceManager.get().settings.title}.json`;
+        const filename = sanitizeFileName(`${$gameData.settings.title}.json`);
 
         _downloadTextFile(filename, textData, "text/plain");
 
     }
 
     async function exportGame() {
-        let obj = await resourceManager.get().getSerializedData();
+        let obj = await serialize($gameData);
         let textData = JSON.stringify(obj);
 
         let htmltext: string;
@@ -166,14 +172,14 @@
         let gameDataElmt = htmlDoc.querySelector("script[type=gamedata]");
         gameDataElmt.textContent = textData;
         
-        let licenseComment = htmlDoc.createComment(`LICENSE (game data): \n${resourceManager.get().settings.LICENSE}\n`);
+        let licenseComment = htmlDoc.createComment(`LICENSE (game data): \n${$gameData.settings.LICENSE}\n`);
 
         gameDataElmt.parentElement.insertBefore(licenseComment, gameDataElmt);
         
 
         let text = htmlDoc.documentElement.innerHTML;
 
-        const filename = `${resourceManager.get().settings.title}.html`;
+        const filename = sanitizeFileName(`${$gameData.settings.title}.html`);
 
         _downloadTextFile(filename, text, "text/html");
     }
@@ -206,17 +212,18 @@
 
         if(result) {
             let fileTextContent = await result.text();
-            let gameData = "";
+            let gameDataJSON = "";
 
             if(result.type == "text/html") {
                 let parser = new DOMParser();
                 let htmlDoc = parser.parseFromString(fileTextContent, "text/html");
-                gameData = htmlDoc.querySelector("script[type=gamedata]").textContent;
+                gameDataJSON = htmlDoc.querySelector("script[type=gamedata]").textContent;
             } else {
-                gameData = fileTextContent;
+                gameDataJSON = fileTextContent;
             }
+            let gd = JSON.parse(gameDataJSON);
 
-            await resourceManager.get().load(gameData);
+            await loadGameData(gd);
         }
     }
 
@@ -250,7 +257,7 @@
         let name = await ui.asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
         if(name) {    
             let newResource = new resourceConstructor(name);
-            $resourceManager.addResource(newResource);
+            $gameData.addResource(newResource);
             openEditorWindow(newResource);
         }
     }
@@ -258,18 +265,27 @@
     async function clearProject() {
         let res = await ui.asyncYesNoPopup("Do you really want to start over?", true);
         if(res) {
-            // $resourceManager.clear();
-            await $resourceManager.loadDefaultProject();
+            await loadDefaultProject();
             cards.reset();
             openCard(Resources);
-            let rooms = $resourceManager.getAllOfResourceType(Room);
+            let rooms = $gameData.getAllOfResourceType(Room);
             openCard(RoomEditor, rooms[0].uuid)
         }
     }
+    
+    $: gameSettings = $gameData? asStore($gameData.settings) : null
+    
+    let title = "loading...";
+    $: {
+        if($gameData) {
+            title = $gameData.settings.title
+        }
+    }
+
 </script>
 
 <svelte:head>
-    <title>{$resourceManager.settings.title} | trash engine</title>
+    <title>{title} | trash engine</title>
     {@html `<!-- ${licenseText} -->`}
 </svelte:head>
 
@@ -292,7 +308,7 @@
             <Icon />
             <!-- <h2>trash engine</h2> -->
             <span class=spacer></span>
-            <input type="text" bind:value={$resourceManager.settings.title}>
+            <input type="text" bind:value={$gameSettings.title}>
         </div>
         <ul class="topbar">
             <li><WhackyButton on:click={clearProject}>   <AtlasIcon id={33} /> new project </WhackyButton></li>
@@ -306,7 +322,7 @@
             <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li>
             <li><WhackyButton on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </WhackyButton></li>
             <li><WhackyButton on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </WhackyButton></li>
-            <li><WhackyButton on:click={() => importData()}>                 <AtlasIcon id={58} /> import    </WhackyButton></li>
+            <li><WhackyButton on:click={() => importData()}>                 <AtlasIcon id={58} /> import     </WhackyButton></li>
             <li><WhackyButton on:click={() => openCard(Settings)}>           <AtlasIcon id={43} /> settings  </WhackyButton></li>
             <li><WhackyButton on:click={toggleFullscreen}>
                 {#if isFullscreen}

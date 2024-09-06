@@ -1,5 +1,5 @@
-// import './app.css'
-// import Main from './components/Main.svelte'
+// import  './app.css'
+// import  Main from './components/Main.svelte'
 import { getDocumentGameData } from "./lib/modules/database";
 // @ts-ignore
 import Game from "./lib/routes/game.svelte";

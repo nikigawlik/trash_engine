@@ -1,8 +1,8 @@
-import type Sprite from "../structs/sprite";
-import type { SpriteInstance } from "./game";
-import type ResourceManager from "./ResourceManager";
-import spriteVertexShader from "../../../assets/game/spriteVertex.glsl?raw";
 import spriteFragmentShader from "../../../assets/game/spriteFragment.glsl?raw";
+import spriteVertexShader from "../../../assets/game/spriteVertex.glsl?raw";
+import Sprite from "../structs/sprite";
+import type { SpriteInstance } from "./game";
+import GameData from "./game_data";
 
 function getShaderSource() {
     return { vertex: spriteVertexShader, fragment: spriteFragmentShader };
@@ -10,13 +10,13 @@ function getShaderSource() {
 
 export default class Renderer {
     renderFunc: (instances: SpriteInstance[]) => void
-    resourceManager: ResourceManager
+    gameData: GameData
 
     cameraX: number;
     cameraY: number;
 
-    constructor(canvas: HTMLCanvasElement, resourceManager: ResourceManager) {
-        this.resourceManager = resourceManager;
+    constructor(canvas: HTMLCanvasElement, gameData: GameData) {
+        this.gameData = gameData;
         this.cameraX = 0;
         this.cameraY = 0;
 
@@ -24,7 +24,7 @@ export default class Renderer {
         if (!gl) throw Error("No webgl!");
 
         // prep work
-        let {canvas: spriteMap, coords} = makeSpriteMap(resourceManager.getSprites());
+        let {canvas: spriteMap, coords} = makeSpriteMap(gameData.getAllOfResourceType(Sprite));
 
         // program setup
         let {fragment, vertex} = getShaderSource();
@@ -190,7 +190,7 @@ export default class Renderer {
 
         for(let i = 0; i < instances.length && i * 4 < dataArray.length; i++) {
             let inst = instances[i];
-            let sprite = this.resourceManager.getResource(inst.spriteID) as Sprite;
+            let sprite = this.gameData.getResource(inst.spriteID) as Sprite;
             
             dataArray.set(func(inst, sprite), i * 4);
         }

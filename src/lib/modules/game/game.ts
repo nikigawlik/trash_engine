@@ -2,8 +2,8 @@ import type Instance from "../structs/instance";
 import Room from "../structs/room";
 import SoundEffect from "../structs/soundEffect";
 import Sprite from "../structs/sprite";
+import GameData from "./game_data";
 import Renderer from "./renderer";
-import type ResourceManager from "./ResourceManager";
 import { Color, getColorHSVA, getColorRGBA, mod, xorshiftGetRandom01, xorshiftSetSeed } from "./utils";
 
 let animFrameHandle: number|undefined = undefined;
@@ -33,7 +33,7 @@ const NOONE_UUID = "a33e372b-c773-4a10-9106-83bae17c9626";
 
 export default class Game {
     tickRate: number;
-    resourceManager: ResourceManager;
+    gameData: GameData;
     canvasWebgl: HTMLCanvasElement;
     canvas2d: HTMLCanvasElement;
     htmlOverlay: HTMLElement
@@ -70,9 +70,9 @@ export default class Game {
     errorCallback: ((e: Error) => Promise<boolean>) | null
 
 
-    constructor(resourceManager: ResourceManager, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, htmlOverlay: HTMLDivElement, startRoomID?: string) {
+    constructor(gameData: GameData, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, htmlOverlay: HTMLDivElement, startRoomID?: string) {
         this.tickRate = 60;
-        this.resourceManager = resourceManager;
+        this.gameData = gameData;
         this.editorCallback = null;
 
         this.canvasWebgl = canvasWebGL;
@@ -94,10 +94,10 @@ export default class Game {
         
         this.currentRoom = null;
         this.queuedRoom = null;
-        this.startRoom = startRoomID && this.resourceManager.getResourceOfType(startRoomID, Room) as Room;
+        this.startRoom = startRoomID && this.gameData.getResource(startRoomID, Room);
 
         if(!this.startRoom) {
-            let rooms = this.resourceManager.getRooms();
+            let rooms = this.gameData.getAllOfResourceType(Room);
             
             if(rooms.length == 0) {
                 console.warn("no rooms found. Possibly a side effect of invalid/missing game data.")
@@ -115,7 +115,7 @@ export default class Game {
         // extra instance info
         this.instanceDepth = new WeakMap<SpriteInstance, number>()
 
-        this.renderer = new Renderer(canvasWebGL, resourceManager);
+        this.renderer = new Renderer(canvasWebGL, gameData);
 
         // safety to combat problems with hot-reloading in development
         if(window["_game"]) window["_game"].quit()
@@ -126,7 +126,7 @@ export default class Game {
 
     async init() {
         // compile custom code
-        for(let sprite of this.resourceManager.getSprites()) {
+        for(let sprite of this.gameData.getAllOfResourceType(Sprite)) {
             // always true
             if(sprite instanceof Sprite) {
                 // sprite._initFunction = new Function(sprite.initCode);
@@ -147,7 +147,7 @@ export default class Game {
 
             SoundEffect.init();
 
-            for(let soundEffect of this.resourceManager.getSoundEffects()) {
+            for(let soundEffect of this.gameData.getAllOfResourceType(SoundEffect)) {
                 soundEffect.createBuffer();
             }
         })();
@@ -158,7 +158,7 @@ export default class Game {
 
         // make resource accesors
 
-        for (const resource of this.resourceManager.resources.values()) {
+        for (const resource of this.gameData.resources.values()) {
             // accessing a sprite by name, will try to return an instance of that sprite 
             Object.defineProperty(window, resource.name, {
                 configurable: true,
@@ -220,7 +220,7 @@ export default class Game {
         defineLibFunction("goToRoom", (roomID: string) => this.setRoom(roomID) )
         defineLibFunction("moveRooms", (difference: number) => this.moveRoom(difference) )
         
-        defineLibFunction("nameOf", (uuid: string) => this.resourceManager.getResource(uuid).name )
+        defineLibFunction("nameOf", (uuid: string) => this.gameData.getResource(uuid).name )
         
         defineLibFunction("keyIsDown", (...codes: string[]) => this.checkKeys("down", ...codes) )
         defineLibFunction("keyIsPressed", (...codes: string[]) => this.checkKeys("pressed", ...codes) )
@@ -264,7 +264,7 @@ export default class Game {
         defineLibFunction("endGame", () => this.quit());
 
         defineLibFunction("playSound", (soundID: string, gain: number = 1.0, detune = 0) => {
-            let sfx = this.resourceManager.getResourceOfType(soundID, SoundEffect) as SoundEffect;
+            let sfx = this.gameData.getResource(soundID, SoundEffect) as SoundEffect;
             if(sfx) {
                 sfx.play(gain, detune);
             }
@@ -347,7 +347,7 @@ export default class Game {
 
     createInstance(spriteUUID: string, x: number, y: number) {
         // const inst = new Instance(spriteUUID, x, y);
-        const sprite = this.resourceManager.getResource(spriteUUID) as Sprite;
+        const sprite = this.gameData.getResource(spriteUUID, Sprite);
         if(!sprite._instanceConstructor) throw Error(`Compiler error in ${sprite.name}`);
         const inst = sprite._instanceConstructor(x, y);
         if(!inst) return;
@@ -396,8 +396,8 @@ export default class Game {
     }
 
     spriteIntersect(sprID1: string, x1: number, y1: number, sprID2: string, x2: number, y2: number): boolean {
-        const spr1 = this.resourceManager.getResource(sprID1) as Sprite;
-        const spr2 = this.resourceManager.getResource(sprID2) as Sprite;
+        const spr1 = this.gameData.getResource(sprID1) as Sprite;
+        const spr2 = this.gameData.getResource(sprID2) as Sprite;
     
         const inst1Left = x1 - spr1.originX + spr1.bBoxX;
         const inst1Right = inst1Left + spr1.bBoxWidth;
@@ -414,13 +414,13 @@ export default class Game {
     }
 
     // instanceIntersect(inst1: SpriteInstance, inst2: SpriteInstance): boolean {
-    //     const spr1 = this.resourceManager.getResource(inst1.spriteID) as Sprite;
-    //     const spr2 = this.resourceManager.getResource(inst2.spriteID) as Sprite;
+    //     const spr1 = this.gameData.getResource(inst1.spriteID) as Sprite;
+    //     const spr2 = this.gameData.getResource(inst2.spriteID) as Sprite;
     //     ...
     // }
 
     moveRoom(delta: number) {
-        let rooms = this.resourceManager.getRooms();
+        let rooms = this.gameData.getAllOfResourceType(Room);
         let currentID = rooms.indexOf(this.currentRoom);
         if(currentID < 0) return;
         let newID = mod(currentID + delta, rooms.length);
@@ -429,7 +429,7 @@ export default class Game {
     }
 
     setRoom(roomUUID: string) {
-        let room = this.resourceManager.getResourceOfType(roomUUID, Room) as Room;
+        let room = this.gameData.getResource(roomUUID, Room);
         if(!room) return;
         this.queuedRoom = room;
     }
@@ -479,7 +479,7 @@ export default class Game {
     }
 
     _registerInstance(inst: SpriteInstance) {
-        let sprite = this.resourceManager.getResource(inst.spriteID) as Sprite;
+        let sprite = this.gameData.getResource(inst.spriteID) as Sprite;
         // if(!sprite || !sprite.canvas) return;
     }
 

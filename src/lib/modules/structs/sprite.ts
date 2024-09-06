@@ -1,8 +1,9 @@
-import type Behaviour from "./behaviour";
-import { resourceManager } from "../game/ResourceManager";
-import Resource from "./resource";
-import BehaviourLink from "./behaviourLink";
+import { get } from "svelte/store";
 import { cards } from "../cardManager";
+import { gameData } from "../game/game_data";
+import type Behaviour from "./behaviour";
+import BehaviourLink from "./behaviourLink";
+import Resource from "./resource";
 
 export default class Sprite extends Resource {
     canvas: HTMLCanvasElement | null;
@@ -42,9 +43,10 @@ export default class Sprite extends Resource {
     }
 
     resolveBehaviours(): Behaviour[] {
+        let gd = get(gameData);
         this.behaviours = this.behaviours.filter(x => 
             !(x instanceof BehaviourLink) || 
-            resourceManager.get().resources.has(x.linkedBehaviourUUID)
+            gd.hasResource(x.linkedBehaviourUUID)
         );
         
         return this.behaviours;

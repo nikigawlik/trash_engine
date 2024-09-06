@@ -1,5 +1,3 @@
-import type ResourceManager from "../game/ResourceManager";
-import type Folder from "./folder";
 
 console.log("resources.ts loading")
 
@@ -17,12 +15,10 @@ export default class Resource {
     name: string;
     type: string;
     uuid: string;
-    _priority: number
-    constructor(name = "") {
+    constructor(name = "", uuid?: string) {
         this.name = name;
         this.type = this.constructor.name.toLowerCase();
-        this.uuid = crypto.randomUUID(),
-        this._priority = 0;
+        this.uuid = uuid || crypto.randomUUID()
     }
     
     getIconElement(): string {

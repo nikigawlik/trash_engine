@@ -1,27 +1,27 @@
 <script lang="ts">
+    import { asStore } from "../../modules/store_owner";
     import type Behaviour from "../../modules/structs/behaviour";
-    import { resourceManager } from "../../modules/game/ResourceManager";
     import AtlasIcon from "../AtlasIcon.svelte";
 
     // export let sprite: Sprite;
     export let behaviour: Behaviour;
     $: behaviour.iconID = 42;
 
-    let props: string[] = behaviour.props;
-    let code: string = behaviour.code;
+    // let props: string[] = behaviour.props;
+    // let code: string = behaviour.code;
 
-    let behaviourStore = $resourceManager.getResourceStore(behaviour);
+    let behaviourStore = asStore(behaviour);
     
-    $: behaviour.props = props;
-    $: behaviour.code = code
+    // $: behaviour.props = props;
+    // $: behaviour.code = code
 
     let focus = false;
     
     function propInputKeyDown(keyEvt: KeyboardEvent, index: number) {
         if(keyEvt.key == "Enter") {
-            props.splice(index + 1, 0, "");
+            $behaviourStore.props.splice(index + 1, 0, "");
             focus = true;
-            props = props;
+            $behaviourStore = $behaviourStore;
         }
     }
     
@@ -34,13 +34,13 @@
     let syntaxError = "";
 
     $: {
-        code;
+        $behaviourStore.code;
         syntaxCheck();
     }
 
     function syntaxCheck() {
         // change the stack trace to custom format (only Chrome / V8)
-        Error.prepareStackTrace = function(error, structuredStackTrace) {
+        Error["prepareStackTrace"] = function(error, structuredStackTrace) {
             let cs = structuredStackTrace[0];
             return {
                 lineNumber: cs.getLineNumber(),
@@ -52,7 +52,7 @@
         //     ${props.map(p => `let ${p} = 0;`).join("\n")}
         //     ${code}
         // `
-        let scriptText = code;
+        let scriptText = $behaviourStore.code;
         syntaxError = "";
 
         try {
@@ -78,26 +78,26 @@
 <!-- <label><input type="text" bind:value={$behaviourStore.name} /></label> -->
 <p>public properties: </p>
 <ul>
-    {#each props as prop, i}
+    {#each $behaviourStore.props as prop, i}
         <li>
             <input 
                 type="text" 
-                bind:value={props[i]} 
+                bind:value={$behaviourStore.props[i]} 
                 on:keydown={(evt) => propInputKeyDown(evt, i)}
                 use:propCreate
             />
-            <button class="borderless" on:click={() => { props = props.filter(x => x != prop) }}><AtlasIcon id={21} /></button>
+            <button class="borderless" on:click={() => { $behaviourStore.props = $behaviourStore.props.filter(x => x != prop) }}><AtlasIcon id={21} /></button>
         </li>
     {/each}
     <li>
-        <button class="" on:click={() => { props.push(`prop_${props.length}`); props = props; }}>
+        <button class="" on:click={() => { $behaviourStore.props.push(`prop_${$behaviourStore.props.length}`); $behaviourStore = $behaviourStore; }}>
             <AtlasIcon id={22} /> 
             add property 
         </button> 
     </li>
 </ul>
 <p>code: </p>
-<textarea bind:value={code}></textarea>
+<textarea bind:value={$behaviourStore.code}></textarea>
 <p class="syntax-error">
     {syntaxError}
 </p>

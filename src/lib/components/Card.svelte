@@ -2,7 +2,8 @@
 <script lang="ts">
 import { getContext, onMount } from "svelte";
 import { bringToFront, cards, type CardInstance } from "../modules/cardManager";
-import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
+import { gameData } from "../modules/game/game_data";
+import { asStore } from "../modules/store_owner";
 import { bounce } from "../transitions";
 import AtlasIcon from "./AtlasIcon.svelte";
 
@@ -16,7 +17,7 @@ import AtlasIcon from "./AtlasIcon.svelte";
     export let hasCornerButtons = true;
     export let namePrefix = "";
 
-    $: resourceStore = ($resourceManager as ResourceManager).getResourceStore(uuid);
+    $: resourceStore = asStore($gameData.getResource(uuid))
 
     function closeWindow() {
         cards.remove(card.uuid);

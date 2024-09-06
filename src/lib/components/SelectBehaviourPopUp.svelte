@@ -1,6 +1,7 @@
 <script lang="ts">
-    import type { ComponentType, SvelteComponentTyped } from "svelte/internal";
-    import { resourceManager } from "../modules/game/ResourceManager";
+    import { SvelteComponent } from "svelte";
+    import type { ComponentType } from "svelte/internal";
+    import { gameData } from "../modules/game/game_data";
     import Behaviour from "../modules/structs/behaviour";
     import BehaviourLink from "../modules/structs/behaviourLink";
     import type { AbstractPrompt } from "../modules/ui";
@@ -12,7 +13,7 @@
 
     interface BehOpt {
         text: string,
-        behaviourComp?:  ComponentType<SvelteComponentTyped<{behaviour: Behaviour}>>,
+        behaviourComp?:  ComponentType<SvelteComponent<{behaviour: Behaviour}>>,
         linkedBehaviour?: Behaviour
     }
     
@@ -21,7 +22,7 @@
         { text: "custom code", behaviourComp: BCustom },
     ];
 
-    let additionalOptions: BehOpt[] = resourceManager.get().getBehaviours().map(x => ({
+    let additionalOptions: BehOpt[] = $gameData.getAllOfResourceType(Behaviour).map(x => ({
         text: `s: ${x.name}`,
         linkedBehaviour: x,
     }));

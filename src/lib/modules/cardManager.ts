@@ -1,7 +1,7 @@
 import type { SvelteComponent } from "svelte";
 import { writable, type Writable } from "svelte/store";
-import { data } from "./globalData";
 import { assert } from "./game/utils";
+import { data } from "./globalData";
 
 export interface CardInstance {
     componentType: (typeof SvelteComponent)

@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { Readable, Writable, derived } from "svelte/store";
+    import { Readable, derived } from "svelte/store";
     import type { CardInstance } from "../modules/cardManager";
-    import { resourceManager } from "../modules/game/ResourceManager";
-    import type Behaviour from "../modules/structs/behaviour";
-    import type Sprite from "../modules/structs/sprite";
+    import { gameData } from "../modules/game/game_data";
+    import { asStore } from "../modules/store_owner";
+    import Behaviour from "../modules/structs/behaviour";
+    import Sprite from "../modules/structs/sprite";
     import Card from "./Card.svelte";
 
     export let card: CardInstance;
@@ -18,11 +19,12 @@
     const isIndependent = !card.uuid.includes("/");
 
     $: {
+        if($gameData)
         if(isIndependent) {
-            behaviour = $resourceManager.getResourceStore(uuid) as Writable<Behaviour>;
+            behaviour = asStore($gameData.getResource(uuid, Behaviour))
         } else {
             let [spriteUUID, behaviourUUID] = uuid.split("/");
-            sprite = $resourceManager.getResourceStore(spriteUUID) as Writable<Sprite>;
+            sprite = asStore($gameData.getResource(uuid, Sprite))
             behaviour = derived(sprite, $sprite => $sprite.behaviours.find(x => x.uuid == behaviourUUID))
         }
     }

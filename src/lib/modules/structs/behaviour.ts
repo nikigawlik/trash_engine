@@ -1,8 +1,8 @@
-import type { ComponentType, SvelteComponentTyped } from "svelte"
+import type { ComponentType } from "svelte"
+import { SvelteComponent } from "svelte"
 import BCustomSvelte from "../../components/behaviours/BCustom.svelte"
 import Resource from "./resource"
 
-// TODO do this in BCustom (or change the way behaviours work generally)
 const defaultCode = `
 // for available methods and variables check the help
 // initalisation code here
@@ -19,7 +19,7 @@ export default class Behaviour extends Resource {
     code: string
     iconID: number
     data: any
-    svelteComponent: ComponentType<SvelteComponentTyped<{behaviour: Behaviour}>>
+    svelteComponent: ComponentType<SvelteComponent<{behaviour: Behaviour}>>
     // drawCode: string
     constructor(name = "UnnamedBehaviour") {
         super(name)

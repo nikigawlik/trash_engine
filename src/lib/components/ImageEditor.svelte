@@ -43,22 +43,23 @@
 </script>
 
 <script lang="ts">
+    import { onMount } from "svelte";
     import type { Writable } from "svelte/store";
-    import { resourceManager } from "../modules/game/ResourceManager";
+    import { gameData } from "../modules/game/game_data";
+    import { adjustedCanvasSize } from "../modules/game/utils";
+    import { currentTheme } from "../modules/globalData";
+    import { asStore } from "../modules/store_owner";
     import type Sprite from "../modules/structs/sprite";
     import { blockingPopup } from "../modules/ui";
-    import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
-    import { adjustedCanvasSize } from "../modules/game/utils";
-    import { currentTheme, data } from "../modules/globalData";
-    import { onMount } from "svelte";
     import AtlasIcon from "./AtlasIcon.svelte";
+    import ResizeSpritePopUp from "./ResizeSpritePopUp.svelte";
 
     // silly lil hack (bec. of module hot reloading)
     if(!brushesSrcImage) init();
 
     export let spriteID: string;
 
-    let s_sprite = $resourceManager.getResourceStore(spriteID) as Writable<Sprite>;
+    let s_sprite = asStore($gameData.getResource(spriteID)) as Writable<Sprite>;
     
     let canvasWidth = $s_sprite.canvas?.width || 60;
     let canvasHeight = $s_sprite.canvas?.height || 60;
@@ -73,7 +74,7 @@
         $s_sprite.autoCalculateBBox();
         console.log("recalc bbox")
     }
-    let zoomLevel = 2
+    let zoomLevel = 4
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth) * zoomLevel;
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight) * zoomLevel;
 
@@ -107,9 +108,6 @@
     // let dummyIcon = () => `<canvas width=${~~iconDisplayWidth + "px"} height=${~~iconDisplayWidth + "px"} />`
 
 
-    $: mainColor = $currentTheme.mainColor
-    $: modeIsDark = brightnessFromColor($currentTheme.bgColor) < 128
-    $: console.log(brightnessFromColor($currentTheme.bgColor))
 
     function brightnessFromColor(color: string) {
         let canvas = document.createElement("canvas")
@@ -122,6 +120,7 @@
         return brightness;
     }
 
+    $: modeIsDark = brightnessFromColor($currentTheme.bgColor) < 128
     $: colorMode = modeIsDark? "dark" : "light";
     $: tweak = colorUIAdjust[currentColor] == colorMode;
 
@@ -159,12 +158,13 @@
     $: {
         console.log("brush redraw")
         const eraser = isEraser(currentColor);
+        let cssMainColor = getComputedStyle(document.body).getPropertyValue('--main-color');
 
         for(let brush of brushes) {
             if(!brush) break;
             let ctx = brush.getContext("2d")!;
             ctx.globalCompositeOperation = "source-in";
-            ctx.fillStyle = !eraser? currentColor : modeIsDark? '#fff' : '#000'; // TODO not white
+            ctx.fillStyle = !eraser? currentColor : $currentTheme.mainColor;
             ctx.fillRect(0, 0, brushWidth, brushWidth);
             // main canvas
             currentCanvasOP = eraser? "destination-out" : "source-over";
@@ -222,10 +222,6 @@
         resetDisplayCanvas();
         $s_sprite = $s_sprite // trigger sprite store update
     }
-
-    // TODO these events make me uncomfortable
-    // this is ok, because canvas already exists (saved in sprite)
-    // but it is not very svelte-like ?
     
     function canvasOnMouseDown(e: MouseEvent) {
         if(e.button != 0) return;
@@ -351,7 +347,7 @@
 
     function drawBBox() {
         if(!canvasCtx) return;
-        canvasCtx.strokeStyle = modeIsDark? "white" : "black";
+        canvasCtx.strokeStyle = $currentTheme.mainColor;
         canvasCtx.strokeRect(
             $s_sprite.bBoxX + .5, 
             $s_sprite.bBoxY + .5, 

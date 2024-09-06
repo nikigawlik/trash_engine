@@ -1,14 +1,14 @@
 <script lang="ts">
+    import { setContext } from "svelte";
+    import SvelteMarkdown from 'svelte-markdown';
     import type { CardInstance } from "../modules/cardManager";
     import Card from "./Card.svelte";
-    import SvelteMarkdown from 'svelte-markdown'
-    import { setContext } from "svelte";
     import MarkdownLink from "./MarkdownLink.svelte";
     
-    import reference from '../../assets/markdown/reference.md?raw';
     import collisions from '../../assets/markdown/collisions.md?raw';
-    import quickref from '../../assets/markdown/quickref.md?raw';
     import disclaimer from '../../assets/markdown/disclaimer.md?raw';
+    import quickref from '../../assets/markdown/quickref.md?raw';
+    import reference from '../../assets/markdown/reference.md?raw';
 
     export let card: CardInstance;
     $: card.name = "reference";

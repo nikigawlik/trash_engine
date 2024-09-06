@@ -1,1 +1,308 @@
-{"version":4,"resources":[{"name":"player","type":"sprite","uuid":"bc53264a-1344-4571-ac16-89efcc5710c8","canvas":{"_imageURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAADQ0lEQVRoQ+3aPY8TQQwG4ETih1BR0NNDD+IiQc9HSX2/4mpKPnqQcifooaenoOKHIAUcYTCOZ17b483ucZcy2cz62dczu5vNenXFXusr5l1dg//3xBeT8Mndk511sM8/n5fWWDpYpDtawNYYVfCjgqNIja9ATw4eRVajy8HVwMWBpwZWL2TphOeAMn5kLqfAc2IJfVTw3FjZ4hl4KOEM9sGLh/D0/OHlBdwGbeDFu8FRrAeqEdubZ/u3Nt9PV9mDgODl4AxUwhlN7904vYWCbX7egrvAnnQZ+uzRk4MiXr9/Gyqc0D3s9tP2YLzNvc3Bexa6BExYC6oriMCtlrageh8artEQjNL1YrkwKgi1fRYr99FazYfAUawXrcGeZHtJy5TT4N6cRROW266VdDVYXqx0wa12HsF6UpZglO56/Zew2/37G4Kcz5xyGCxT6S1UvUL259rfq6qVshcs98EHUqKHwbI4Kqp19FEhiwTrdtZJXIPFSnWshGmXJXMYpUs74nnmaeveYjIyh71nA7hKSzA6daBV1CpKLiYITN8f3Qc8D0fA0YL0pR86oNHxrastNzhyCehJwYuVU4YBnvHTl5accATcK8y6k6Hto+N70OiuybzwIDAqhoHZG/WR8b23h1yjq6W9BVnth1bPyNiZ8fX+y8HetKNQXTjqph9n38wfDiYDo2SrPpc/A+kxrV9KrsHyKHlX6Kq0ouP00qWxwglfdrCF7rb0ksHPHz/90xD3v9xuNodO+VKCJZalLfSsYFnoq3dvolN2v72FpfdLwXROo0ceIy+r0Ai6BZ0k4anAVCxCI+hkYBp4JGVUuIaj7WW3eRct+OSBV2lKmF9ZdAQQmTo9rD4tpcAjSVejEVaCXQ/TrISXkLQHynXSacn9uLQHniPpCDQFpi8RWs5hPb+yc7p3TtX7yEC5nXv/Amj+4kFf7qFH0tY4dEMQWdA+3vnafXzU/BClPDqv+fuV2N7c5f3Bh2ko5VF4JRilS7XC58O/5pL5P2arzaJz+9hYF5g2iqC9c3sOrBucQbfglVDah6eNZTfClpYbR5OOrK7ZbScFZ5POYtD3othQSy8t6Qw2DWb8XC2exQ6D50h9BEv1/gRxaTZb4roFkQAAAABJRU5ErkJggg=="},"originX":30,"originY":30,"bBoxX":4,"bBoxY":4,"bBoxWidth":54,"bBoxHeight":56,"behaviours":[{"name":"player controller","type":"behaviour","uuid":"ad7e0a31-8af7-4d9b-9e6b-57fea4feff5e","props":["xspd","yspd","xx","yy"],"code":"\n        xspd = 0;\n        yspd = 0;\n        \n        // should not do it like this blabla\n        xx = x;\n        yy = y;\n\n        const moveSpeed = 4;\n\n        onUpdate(() => {\n        \n            let hor = keyIsDown(\"KeyD\", \"ArrowRight\") - keyIsDown(\"KeyA\", \"ArrowLeft\");\n            let ver = keyIsDown(\"KeyS\", \"ArrowDown\") - keyIsDown(\"KeyW\", \"ArrowUp\");\n\n            xspd = hor * moveSpeed;\n            yspd = ver * moveSpeed;\n            \n        \n            // collision\n            // for(let i = 0; i < Math.abs(xspd); i++) {\n            //     if(!collisionAt(me, tree, xx + Math.sign(xspd), yy))\n            //       xx += Math.sign(xspd);\n            // }\n            // for(let i = 0; i < Math.abs(yspd); i++) {\n            //     if(!collisionAt(me, tree, xx, yy + Math.sign(yspd)))\n            //       yy += Math.sign(yspd);\n            // }\n            if(!collisionAt(me, tree, xx + xspd, yy))\n                xx += xspd;\n            if(!collisionAt(me, tree, xx, yy + yspd))\n                yy += yspd;\n            \n        \n            const l = 0.2857142857142857;\n            x = l * xx + (1-l) * x;\n            y = l * yy + (1-l) * y;\n            \n        if(xspd != 0) imgScaleX = Math.sign(xspd);\n    });\n    ","iconID":75,"data":{"moveMode":"continuous","moveSpeed":4,"smoothMode":"smooth","gridCellWidth":60,"gridCellHeight":60,"lerpSpeed":4,"collisionSpriteUUID":"4b870077-bf40-4136-9bbe-36676b93cddd","flipSprite":true},"svelteComponent":{"_func":"BPlayerControllerSvelte"},"_type":"Behaviour"}],"_type":"Sprite"},{"name":"tree","type":"sprite","uuid":"4b870077-bf40-4136-9bbe-36676b93cddd","canvas":{"_imageURL":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAACY0lEQVRoQ+2bO04DMRCGWYmzUNDTcwCKXIZTcJkUHICenoKzIME6rCNrMrbnae9aTpNI8WO++WfG9sZZTs+n37vtdf44L/HzqO/DA0LhdgP88vl4jbRadL0/fYntFnesGUX9ngMKx5SAdwXWwEZ4LnQ3YAvYVHEqeBdga1iO2s2BvWCp0CRgqpGlsKKOQS12pXYlO4rALY20AIU5jdmfBT4ybMl5KPCosMERE3hkdVGFJ7B1+ew83k0OT4U7K2I9/VQ4eHTksHZbh9f97E00ro60jlD2eBM4ukwb1tYKY+Nt6cdS2e3wYAWcA02EsQHWFi+tIjVQF2ANtAaYCmsa0tpclgBzQN0UlqrMAW4BGh1k+kwLVo8adEtQFrCHylxYq00LSWFrYNY68r/V5XbJticDS6C5KkIrLUHZIS0BDn0k0B6gImAu9N5gg/2skOaszVxYT1XTVBEBl5Tmgkp2S5oKJgbGoLmwrVQ1URgLby5wa3XFOZx6LD03Dw8MHxJM4C0UQq6WnNEyl8VFS/IIqHaY0FRfal8RsAS2tOvatcJS2EMCa2APB6yFjTnWM4/DZRdSDlvB9lQ53uypAlvC7h7YGrZyPl485tvmvArb9J7W/evDJZXXi+jYsrmEy+o/b9/UJZXUDl5Sc/upBVoTJo637zPA1729ldIQNnt4sJowqcwXx1KBsZMYSc6tEQYa+7v9XAphJcBc8BJoFthSXWgAV2GOqtS2bnc8MG+Df9CghYtquLSdC3AutIYELuXRBMbjsrr7k4az+bJUq5IEhbM2aSDTvmbLUg0WMTj3xyxXhf8AZN9gTMqiuP4AAAAASUVORK5CYII="},"originX":30,"originY":30,"bBoxX":0,"bBoxY":0,"bBoxWidth":60,"bBoxHeight":60,"behaviours":[],"_type":"Sprite"},{"name":"garden","type":"room","uuid":"37ab593a-0a85-41ad-9fed-a9e30b0e2a59","width":540,"height":540,"instances":[{"spriteID":"bc53264a-1344-4571-ac16-89efcc5710c8","x":150,"y":210,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":90,"y":390,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":270,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":330,"y":90,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":90,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":150,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":210,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":270,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":330,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":390,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":450,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":30,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":90,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":150,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":210,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":270,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":330,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":390,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":450,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":510,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":450,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":390,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":330,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":210,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":150,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":90,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":510,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":450,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":390,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":330,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":210,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":90,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":150,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":270,"y":30,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":390,"y":390,"_type":"Instance"},{"spriteID":"4b870077-bf40-4136-9bbe-36676b93cddd","x":390,"y":330,"_type":"Instance"}],"backgroundColor":"#16211a","grid":{"enabled":true,"snap":"center","width":60,"height":60},"_type":"Room"}],"settings":{"title":"default_game","LICENSE":"No license specified."}}
+{
+    "version": 4,
+    "resources": [
+        {
+            "name": "player",
+            "type": "sprite",
+            "uuid": "bc53264a-1344-4571-ac16-89efcc5710c8",
+            "canvas": {
+                "_imageURL": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAADQ0lEQVRoQ+3aPY8TQQwG4ETih1BR0NNDD+IiQc9HSX2/4mpKPnqQcifooaenoOKHIAUcYTCOZ17b483ucZcy2cz62dczu5vNenXFXusr5l1dg//3xBeT8Mndk511sM8/n5fWWDpYpDtawNYYVfCjgqNIja9ATw4eRVajy8HVwMWBpwZWL2TphOeAMn5kLqfAc2IJfVTw3FjZ4hl4KOEM9sGLh/D0/OHlBdwGbeDFu8FRrAeqEdubZ/u3Nt9PV9mDgODl4AxUwhlN7904vYWCbX7egrvAnnQZ+uzRk4MiXr9/Gyqc0D3s9tP2YLzNvc3Bexa6BExYC6oriMCtlrageh8artEQjNL1YrkwKgi1fRYr99FazYfAUawXrcGeZHtJy5TT4N6cRROW266VdDVYXqx0wa12HsF6UpZglO56/Zew2/37G4Kcz5xyGCxT6S1UvUL259rfq6qVshcs98EHUqKHwbI4Kqp19FEhiwTrdtZJXIPFSnWshGmXJXMYpUs74nnmaeveYjIyh71nA7hKSzA6daBV1CpKLiYITN8f3Qc8D0fA0YL0pR86oNHxrastNzhyCehJwYuVU4YBnvHTl5accATcK8y6k6Hto+N70OiuybzwIDAqhoHZG/WR8b23h1yjq6W9BVnth1bPyNiZ8fX+y8HetKNQXTjqph9n38wfDiYDo2SrPpc/A+kxrV9KrsHyKHlX6Kq0ouP00qWxwglfdrCF7rb0ksHPHz/90xD3v9xuNodO+VKCJZalLfSsYFnoq3dvolN2v72FpfdLwXROo0ceIy+r0Ai6BZ0k4anAVCxCI+hkYBp4JGVUuIaj7WW3eRct+OSBV2lKmF9ZdAQQmTo9rD4tpcAjSVejEVaCXQ/TrISXkLQHynXSacn9uLQHniPpCDQFpi8RWs5hPb+yc7p3TtX7yEC5nXv/Amj+4kFf7qFH0tY4dEMQWdA+3vnafXzU/BClPDqv+fuV2N7c5f3Bh2ko5VF4JRilS7XC58O/5pL5P2arzaJz+9hYF5g2iqC9c3sOrBucQbfglVDah6eNZTfClpYbR5OOrK7ZbScFZ5POYtD3othQSy8t6Qw2DWb8XC2exQ6D50h9BEv1/gRxaTZb4roFkQAAAABJRU5ErkJggg=="
+            },
+            "originX": 30,
+            "originY": 30,
+            "bBoxX": 4,
+            "bBoxY": 4,
+            "bBoxWidth": 54,
+            "bBoxHeight": 56,
+            "behaviours": [
+                {
+                    "name": "player controller",
+                    "type": "behaviour",
+                    "uuid": "ad7e0a31-8af7-4d9b-9e6b-57fea4feff5e",
+                    "props": [
+                        "xspd",
+                        "yspd",
+                        "xx",
+                        "yy"
+                    ],
+                    "code": "\n        xspd = 0;\n        yspd = 0;\n        \n        // should not do it like this blabla\n        xx = x;\n        yy = y;\n\n        const moveSpeed = 4;\n\n        onUpdate(() => {\n        \n            let hor = keyIsDown(\"KeyD\", \"ArrowRight\") - keyIsDown(\"KeyA\", \"ArrowLeft\");\n            let ver = keyIsDown(\"KeyS\", \"ArrowDown\") - keyIsDown(\"KeyW\", \"ArrowUp\");\n\n            xspd = hor * moveSpeed;\n            yspd = ver * moveSpeed;\n            \n        \n            // collision\n            // for(let i = 0; i < Math.abs(xspd); i++) {\n            //     if(!collisionAt(me, tree, xx + Math.sign(xspd), yy))\n            //       xx += Math.sign(xspd);\n            // }\n            // for(let i = 0; i < Math.abs(yspd); i++) {\n            //     if(!collisionAt(me, tree, xx, yy + Math.sign(yspd)))\n            //       yy += Math.sign(yspd);\n            // }\n            if(!collisionAt(me, tree, xx + xspd, yy))\n                xx += xspd;\n            if(!collisionAt(me, tree, xx, yy + yspd))\n                yy += yspd;\n            \n        \n            const l = 0.2857142857142857;\n            x = l * xx + (1-l) * x;\n            y = l * yy + (1-l) * y;\n            \n        if(xspd != 0) imgScaleX = Math.sign(xspd);\n    });\n    ",
+                    "iconID": 75,
+                    "data": {
+                        "moveMode": "continuous",
+                        "moveSpeed": 4,
+                        "smoothMode": "smooth",
+                        "gridCellWidth": 60,
+                        "gridCellHeight": 60,
+                        "lerpSpeed": 4,
+                        "collisionSpriteUUID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                        "flipSprite": true
+                    },
+                    "svelteComponent": {
+                        "_func": "BPlayerControllerSvelte"
+                    },
+                    "_type": "Behaviour"
+                }
+            ],
+            "_type": "Sprite"
+        },
+        {
+            "name": "tree",
+            "type": "sprite",
+            "uuid": "4b870077-bf40-4136-9bbe-36676b93cddd",
+            "canvas": {
+                "_imageURL": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAACY0lEQVRoQ+2bO04DMRCGWYmzUNDTcwCKXIZTcJkUHICenoKzIME6rCNrMrbnae9aTpNI8WO++WfG9sZZTs+n37vtdf44L/HzqO/DA0LhdgP88vl4jbRadL0/fYntFnesGUX9ngMKx5SAdwXWwEZ4LnQ3YAvYVHEqeBdga1iO2s2BvWCp0CRgqpGlsKKOQS12pXYlO4rALY20AIU5jdmfBT4ybMl5KPCosMERE3hkdVGFJ7B1+ew83k0OT4U7K2I9/VQ4eHTksHZbh9f97E00ro60jlD2eBM4ukwb1tYKY+Nt6cdS2e3wYAWcA02EsQHWFi+tIjVQF2ANtAaYCmsa0tpclgBzQN0UlqrMAW4BGh1k+kwLVo8adEtQFrCHylxYq00LSWFrYNY68r/V5XbJticDS6C5KkIrLUHZIS0BDn0k0B6gImAu9N5gg/2skOaszVxYT1XTVBEBl5Tmgkp2S5oKJgbGoLmwrVQ1URgLby5wa3XFOZx6LD03Dw8MHxJM4C0UQq6WnNEyl8VFS/IIqHaY0FRfal8RsAS2tOvatcJS2EMCa2APB6yFjTnWM4/DZRdSDlvB9lQ53uypAlvC7h7YGrZyPl485tvmvArb9J7W/evDJZXXi+jYsrmEy+o/b9/UJZXUDl5Sc/upBVoTJo637zPA1729ldIQNnt4sJowqcwXx1KBsZMYSc6tEQYa+7v9XAphJcBc8BJoFthSXWgAV2GOqtS2bnc8MG+Df9CghYtquLSdC3AutIYELuXRBMbjsrr7k4az+bJUq5IEhbM2aSDTvmbLUg0WMTj3xyxXhf8AZN9gTMqiuP4AAAAASUVORK5CYII="
+            },
+            "originX": 30,
+            "originY": 30,
+            "bBoxX": 0,
+            "bBoxY": 0,
+            "bBoxWidth": 60,
+            "bBoxHeight": 60,
+            "behaviours": [],
+            "_type": "Sprite"
+        },
+        {
+            "name": "garden",
+            "type": "room",
+            "uuid": "37ab593a-0a85-41ad-9fed-a9e30b0e2a59",
+            "width": 540,
+            "height": 540,
+            "instances": [
+                {
+                    "spriteID": "bc53264a-1344-4571-ac16-89efcc5710c8",
+                    "x": 150,
+                    "y": 210,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 90,
+                    "y": 390,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 270,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 330,
+                    "y": 90,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 90,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 150,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 210,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 270,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 330,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 390,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 450,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 30,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 90,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 150,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 210,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 270,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 330,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 390,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 450,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 510,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 450,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 390,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 330,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 210,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 150,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 90,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 510,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 450,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 390,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 330,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 210,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 90,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 150,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 270,
+                    "y": 30,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 390,
+                    "y": 390,
+                    "_type": "Instance"
+                },
+                {
+                    "spriteID": "4b870077-bf40-4136-9bbe-36676b93cddd",
+                    "x": 390,
+                    "y": 330,
+                    "_type": "Instance"
+                }
+            ],
+            "backgroundColor": "#16211a",
+            "grid": {
+                "enabled": true,
+                "snap": "center",
+                "width": 60,
+                "height": 60
+            },
+            "_type": "Room"
+        }
+    ],
+    "settings": {
+        "title": "default_game",
+        "LICENSE": "No license specified."
+    }
+}

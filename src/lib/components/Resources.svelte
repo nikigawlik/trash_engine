@@ -1,26 +1,34 @@
 <script lang="ts">
 import type { CardInstance } from "../modules/cardManager";
-    import Behaviour from "../modules/structs/behaviour";
+import Behaviour from "../modules/structs/behaviour";
 
 
-import { resourceManager } from "../modules/game/ResourceManager";
+import { gameData } from "../modules/game/game_data";
+import { compareBy } from "../modules/game/utils";
 import Room from "../modules/structs/room";
+import SoundEffect from "../modules/structs/soundEffect";
 import Sprite from "../modules/structs/sprite";
 import Card from "./Card.svelte";
 import ResourcesFolder from "./ResourcesFolder.svelte";
 import ResourceTreeResource from "./ResourceTreeResource.svelte";
-    import SoundEffect from "../modules/structs/soundEffect";
 
 export let card: CardInstance;
 $: card.name = "resources";
 $: card.className = "resources";
 $: card.position.width = 240;
 
-// let root = resourceManager.get()?.root;
-$: sprites = $resourceManager.getSprites();
-$: rooms = $resourceManager.getRooms();
-$: behaviours = $resourceManager.getBehaviours();
-$: soundEffects = $resourceManager.getSoundEffects();
+
+$: s_sprites = $gameData.getResourceTypeStore(Sprite)
+$: sprites = $s_sprites.sort(compareBy(x => x.name));
+
+$: s_rooms = $gameData.getResourceTypeStore(Room)
+$: rooms = $s_rooms.sort(compareBy(x => x.name));
+
+$: s_behaviours = $gameData.getResourceTypeStore(Behaviour)
+$: behaviours = $s_behaviours.sort(compareBy(x => x.name));
+
+$: s_soundEffects = $gameData.getResourceTypeStore(SoundEffect)
+$: soundEffects = $s_soundEffects.sort(compareBy(x => x.name));
 
 </script>
 
@@ -32,7 +40,7 @@ $: soundEffects = $resourceManager.getSoundEffects();
             <ul class="resources sprites">
                 {#each sprites as sprite (sprite.uuid)}
                     <li>
-                        <ResourceTreeResource selfResource={sprite}></ResourceTreeResource>
+                        <ResourceTreeResource resource={sprite}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>
@@ -41,7 +49,7 @@ $: soundEffects = $resourceManager.getSoundEffects();
             <ul class="resources sprites">
                 {#each rooms as room (room.uuid)}
                     <li>
-                        <ResourceTreeResource selfResource={room}></ResourceTreeResource>
+                        <ResourceTreeResource resource={room}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>
@@ -50,7 +58,7 @@ $: soundEffects = $resourceManager.getSoundEffects();
             <ul class="resources behaviours">
                 {#each behaviours as behaviour (behaviour.uuid)}
                     <li>
-                        <ResourceTreeResource selfResource={behaviour}></ResourceTreeResource>
+                        <ResourceTreeResource resource={behaviour}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>
@@ -59,7 +67,7 @@ $: soundEffects = $resourceManager.getSoundEffects();
             <ul class="resources sounds">
                 {#each soundEffects as soundEffect (soundEffect.uuid)}
                     <li>
-                        <ResourceTreeResource selfResource={soundEffect}></ResourceTreeResource>
+                        <ResourceTreeResource resource={soundEffect}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>

@@ -1,7 +1,6 @@
 <script lang="ts">
-    import Settings from "../components/Settings.svelte";
     import { CardInstance } from "../modules/cardManager";
-import { resourceManager } from "../modules/game/ResourceManager";
+    import { autoLoadGameData } from "../modules/game/save_load";
     import { currentTheme, data } from "../modules/globalData";
 
 
@@ -18,7 +17,7 @@ import { resourceManager } from "../modules/game/ResourceManager";
 
     let curFont = "";
 
-    $resourceManager.load();
+    autoLoadGameData(); // async
 
     $: {
         // let root = document.querySelector(":root")
@@ -38,7 +37,7 @@ import { resourceManager } from "../modules/game/ResourceManager";
 
 <svelte:head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <!-- fonts -->
 <link bind:this={fontsLink} href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Days+One&family=Fugaz+One&family=Hi+Melody&family=Jua&family=Mansalva&family=Margarine&family=Rammetto+One&display=swap" rel="stylesheet">
 </svelte:head>

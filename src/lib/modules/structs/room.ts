@@ -1,4 +1,3 @@
-import type ResourceManager from "../game/ResourceManager";
 import type Instance from "./instance";
 import Resource from "./resource";
 
@@ -31,10 +30,6 @@ export default class Room extends Resource {
     
     getIconElement() {
         return `🌳`;
-    }
-
-    filterInstances() {
-        this.instances = this.instances.filter(inst => inst.isValid());
     }
 }
 

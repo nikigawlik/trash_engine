@@ -20,6 +20,7 @@
         border-bottom: none;
         border-left-style: hidden;
         padding-bottom: 4px;
+        background-color: var(--off-bg-color);
     }
 
     .options button:first-child {
@@ -29,5 +30,6 @@
     .options button.selected {
         border-bottom: none;
         box-shadow: 0px 2px var(--bg-color);
+        background-color: var(--bg-color);
     }
 </style>

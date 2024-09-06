@@ -1,22 +1,24 @@
 
 <script lang="ts">
-    import { onMount } from "svelte";
-
+    
 
 import type { CardInstance } from "../modules/cardManager";
-import { resourceManager } from "../modules/game/ResourceManager";
+import { gameData } from "../modules/game/game_data";
 import { adjustedCanvasSize } from "../modules/game/utils";
-import type Room from "../modules/structs/room";
+import { serialize } from "../modules/serialize";
+import Room from "../modules/structs/room";
 import Card from "./Card.svelte";
 
     export let card: CardInstance;
     $: card.name = "game preview";
 
     let iframe: HTMLIFrameElement|null;
+    let selectedRoom: string;
 
     async function reload() {
-        if(!iframe) return;
-        let resourceData = await $resourceManager.getSerializedData();
+        if(!iframe || !$gameData) return;
+        let resourceData = await serialize($gameData);
+        
         const messageData = {
             type: "dataUpdate",
             resourceData,
@@ -36,11 +38,11 @@ import Card from "./Card.svelte";
         iframe.style.removeProperty("pointer-events");
     }
 
-    let rooms = resourceManager?.get()?.getRooms()
-    let room: Room|null = rooms.length > 0? rooms[0] : null;
+    $: rooms = $gameData.getResourceTypeStore(Room);
 
-    let iframeDisplayWidth = adjustedCanvasSize(room?.width);
-    let iframeDisplayHeight = adjustedCanvasSize(room?.height);
+    $: firstRoom = $rooms.length > 0? rooms[0] : null;
+    $: iframeDisplayWidth = adjustedCanvasSize(firstRoom?.width);
+    $: iframeDisplayHeight = adjustedCanvasSize(firstRoom?.height);
 
     function onMessage(msg: any) {
         if(msg.data.type == "canvasSizeUpdate") {
@@ -51,9 +53,6 @@ import Card from "./Card.svelte";
             reload();
         }
     }
-
-    let selectedRoom: string;
-    
 </script>
 
 <script context="module">
@@ -79,7 +78,7 @@ import Card from "./Card.svelte";
     <p>
         <label for="room">custom start room: </label>
         <select name="room" bind:value={selectedRoom}>
-            {#each $resourceManager.getRooms() as room}
+            {#each $rooms as room}
                 <option value={room.uuid}>{room.name}</option>
             {/each}
         </select>

@@ -1,18 +1,17 @@
 
 <script lang="ts">
 import { onMount } from "svelte";
-    import type { Writable } from "svelte/store";
-import { resourceManager } from "../modules/game/ResourceManager";
+import { gameData } from "../modules/game/game_data";
 import { adjustedCanvasSize } from "../modules/game/utils";
-import type Sprite from "../modules/structs/sprite";
+import { asStore } from "../modules/store_owner";
+import Sprite from "../modules/structs/sprite";
     
     export let spriteID: string;
     export let growToFit: boolean = true;
     let myCanvas: HTMLCanvasElement;
 
-    $: s_sprite = $resourceManager.getResourceStore(spriteID) as Writable<Sprite>;
+    $: s_sprite = asStore($gameData.getResource(spriteID, Sprite))
 
-    // $: {$resourceManager; sprite = sprite;} // small reactivity hack, resource manager change triggers sprite change
     $: width = $s_sprite.canvas?.width || 1
     $: height = $s_sprite.canvas?.height || 1
     $: {$s_sprite; redraw();}

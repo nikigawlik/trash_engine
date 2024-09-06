@@ -1,10 +1,10 @@
-<script lang="ts">
-    import { onMount } from "svelte";
-    import ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
+<!-- <script lang="ts">
+    import  { onMount } from "svelte";
+    import  ResourceManager, { resourceManager } from "../modules/game/ResourceManager";
     
-    import type { AbstractPrompt } from "../modules/ui";
-    import BlockingPopUp from "./BlockingPopUp.svelte";
-    import SelectMenu from "./SelectMenu.svelte";
+    import  type { AbstractPrompt } from "../modules/ui";
+    import  BlockingPopUp from "./BlockingPopUp.svelte";
+    import  SelectMenu from "./SelectMenu.svelte";
     
         export let prompt: AbstractPrompt|null;
         
@@ -63,4 +63,4 @@
         .container {
             width: 15rem;
         }
-    </style>
+    </style> -->

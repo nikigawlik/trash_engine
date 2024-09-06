@@ -13,7 +13,6 @@
 </script>
 
 <script lang="ts">
-    import { onMount } from "svelte";
     import AtlasIcon from "./AtlasIcon.svelte";
 
     export let data: ContextMenuData|null;

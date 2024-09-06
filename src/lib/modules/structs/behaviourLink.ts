@@ -1,5 +1,5 @@
-import { SvelteComponent } from "svelte";
-import { resourceManager } from "../game/ResourceManager";
+import { get } from "svelte/store";
+import { gameData } from "../game/game_data";
 import Behaviour from "./behaviour";
 
 
@@ -10,7 +10,7 @@ export default class BehaviourLink implements Behaviour {
         this.linkedBehaviourUUID = linkedBehaviourUUID;
     }
 
-    get behaviour() { return resourceManager.get().getResourceOfType(this.linkedBehaviourUUID, Behaviour) as Behaviour; } 
+    get behaviour() { return get(gameData).getResource(this.linkedBehaviourUUID, Behaviour) } 
 
     get props() { return this.behaviour.props; }
     get code() { return this.behaviour.code; }
@@ -20,7 +20,6 @@ export default class BehaviourLink implements Behaviour {
     get name() { return this.behaviour.name; }
     get type() { return this.behaviour.type; }
     get uuid() { return this.behaviour.uuid; }
-    get _priority() { return this.behaviour._priority; }
     
     getIconElement(): string {
         return `❔`;

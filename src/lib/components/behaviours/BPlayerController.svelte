@@ -1,7 +1,9 @@
 
 <script lang="ts">
-    import { resourceManager } from "../../modules/game/ResourceManager";
-import type Behaviour from "../../modules/structs/behaviour";
+    import { gameData } from "../../modules/game/game_data";
+    import { asStore } from "../../modules/store_owner";
+    import type Behaviour from "../../modules/structs/behaviour";
+    import Sprite from "../../modules/structs/sprite";
     
     // export let sprite: Sprite;
     export let behaviour: Behaviour;
@@ -20,7 +22,7 @@ import type Behaviour from "../../modules/structs/behaviour";
 
     let flipSprite: boolean = behaviour.data.flipSprite != undefined? behaviour.data.flipSprite : true;
 
-    $: selectedCollisionSpriteStore = $resourceManager.getResourceStore(collisionSpriteUUID);
+    $: selectedCollisionSpriteStore = asStore($gameData.getResource(collisionSpriteUUID, Sprite))
 
     $: behaviour.data = {
         moveMode,
@@ -105,6 +107,7 @@ import type Behaviour from "../../modules/structs/behaviour";
     });
     `
 
+    let sprites = $gameData.getResourceTypeStore(Sprite);
 
 </script>
 <table>
@@ -163,7 +166,7 @@ import type Behaviour from "../../modules/structs/behaviour";
         <td>
             <select bind:value={collisionSpriteUUID}>
                 <option value="">(no collision)</option>
-                {#each $resourceManager.getSprites() as sprite}
+                {#each $sprites as sprite}
                     <option value={sprite.uuid}>{sprite.name}</option>
                 {/each}
             </select>

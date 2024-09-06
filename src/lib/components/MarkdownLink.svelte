@@ -2,7 +2,7 @@
     export let href = ''
     export let title = undefined
 
-    import { createEventDispatcher, getContext } from "svelte";
+    import { getContext } from "svelte";
 
     let changePage = getContext<{changePage: (string) => boolean}>("markdownManager").changePage;
 

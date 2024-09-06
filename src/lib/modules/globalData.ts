@@ -1,5 +1,6 @@
 import { derived, writable } from "svelte/store";
-import { db, NoDatabaseError, requestAsync, STORE_NAME_GLOBAL_DATA } from "./database";
+import { db, NoDatabaseError, STORE_NAME_GLOBAL_DATA } from "./database";
+import { requestAsync } from "./serialize";
 
 // ---- save data ----
 

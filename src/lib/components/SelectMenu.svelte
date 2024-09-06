@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-
+    
     export let options: {name:string, id:number}[] = [];
     export let currentSelected = null;
 </script>

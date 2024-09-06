@@ -1,23 +1,23 @@
 <script lang="ts">
-import type { Writable } from "svelte/store";
 import { CardInstance, openCard } from "../modules/cardManager";
-import { resourceManager } from "../modules/game/ResourceManager";
+import { gameData } from "../modules/game/game_data";
+import { asStore } from "../modules/store_owner";
 import Behaviour from "../modules/structs/behaviour";
 import BehaviourLink from "../modules/structs/behaviourLink";
-import type Sprite from "../modules/structs/sprite";
+import Sprite from "../modules/structs/sprite";
 import { blockingPopup } from "../modules/ui";
 import AtlasIcon from "./AtlasIcon.svelte";
+import BehaviourEditor from "./BehaviourEditor.svelte";
 import BehaviourPreview from "./BehaviourPreview.svelte";
 import Card from "./Card.svelte";
 import ImageEditor from "./ImageEditor.svelte";
 import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
-    import BehaviourEditor from "./BehaviourEditor.svelte";
-    import TabView from "./TabView.svelte";
+import TabView from "./TabView.svelte";
 
     export let card: CardInstance;
 
     console.log(`open sprite ${card.uuid}`);
-    let sSprite = resourceManager.get().getResourceStore(card.uuid) as Writable<Sprite>;
+    let sSprite = asStore($gameData.getResource(card.uuid, Sprite))
 
     $: { card.name = $sSprite?.name; card = card; }
     card.className = "sprite-editor"
