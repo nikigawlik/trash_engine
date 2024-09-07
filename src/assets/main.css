@@ -31,8 +31,8 @@ body {
     flex-direction: column;
 }
 
-body, button {
-    font-family: "Comic Sans MS", sans-serif;
+body, button, input {
+    font-family: var(--font-family), sans-serif;
 }
 
 h3 {

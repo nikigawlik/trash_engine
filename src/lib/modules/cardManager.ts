@@ -24,27 +24,31 @@ subscribe(v => _value = v);
 
 export let cards = {
     subscribe,
-    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), isMaximized = false, uuid?: string, data: any = {}, replaceUUID?: string) => update(cardsArray => {
-        console.log(`add/replace ${content.name} / ${uuid}`)
-        let replacePos = replaceUUID? cardsArray.findIndex(x => x.uuid === replaceUUID) : -1;
-        
-        if(!cardsArray.find(x => x.uuid === uuid)) {
-            let cardObj = {
-                uuid: uuid || crypto.randomUUID(),
-                componentType: content,
-                zIndex: ++maxZ,
-                name,
-                position,
-                isMaximized,
-                data,
-            };
-            if(replacePos >= 0) 
-                cardsArray[replacePos] = cardObj
-            else
-                cardsArray.push(cardObj);
-        }
-        return cardsArray;
-    }),
+    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), isMaximized = false, uuid?: string, data: any = {}, replaceUUID?: string) => {
+        let cardObj: CardInstance = null;
+        update(cardsArray => {
+            console.log(`add/replace ${content.name} / ${uuid}`)
+            let replacePos = replaceUUID? cardsArray.findIndex(x => x.uuid === replaceUUID) : -1;
+            
+            if(!cardsArray.find(x => x.uuid === uuid)) {
+                cardObj = {
+                    uuid: uuid || crypto.randomUUID(),
+                    componentType: content,
+                    zIndex: ++maxZ,
+                    name,
+                    position,
+                    isMaximized,
+                    data,
+                };
+                if(replacePos >= 0) 
+                    cardsArray[replacePos] = cardObj
+                else
+                    cardsArray.push(cardObj);
+            }
+            return cardsArray;
+        })
+        return cardObj;
+    },
     remove: (uuid: string, removeDependents = false) => 
         update(store => store.filter(removeDependents? 
             (x => !x.uuid.startsWith(uuid))

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import licenseText from "../../../LICENSE?raw";
     import "../../assets/main.css";
     import "../../assets/reset.css";
@@ -15,7 +16,11 @@
     import { cards, openCard } from "../modules/cardManager";
     import * as database from "../modules/database";
     import { gameData } from "../modules/game/game_data";
-    import { autoLoadGameData, loadDefaultProject, loadGameData } from "../modules/game/save_load";
+    import {
+        autoLoadGameData,
+        loadDefaultProject,
+        loadGameData,
+    } from "../modules/game/save_load";
     import { assert, sanitizeFileName } from "../modules/game/utils";
     import { currentTheme, data } from "../modules/globalData";
     import { serialize } from "../modules/serialize";
@@ -30,30 +35,35 @@
     import * as globalData from "./../modules/globalData";
     import * as ui from "./../modules/ui";
 
-    let main: Main|null;
+    let main: Main | null;
 
     $: {
         // let root = document.querySelector(":root")
         let root = document.body;
 
-        root.style.setProperty("--bg-color", $currentTheme.bgColor)
-        root.style.setProperty("--main-color", $currentTheme.mainColor)
-        root.style.setProperty("--neutral-color", $currentTheme.neutralColor)
-        root.style.setProperty("--off-main-color", $currentTheme.offMainColor)
-        root.style.setProperty("--off-bg-color", $currentTheme.offBgColor)
+        root.style.setProperty("--bg-color", $currentTheme.bgColor);
+        root.style.setProperty("--main-color", $currentTheme.mainColor);
+        root.style.setProperty("--neutral-color", $currentTheme.neutralColor);
+        root.style.setProperty("--off-main-color", $currentTheme.offMainColor);
+        root.style.setProperty("--off-bg-color", $currentTheme.offBgColor);
+        // root.style.setProperty("--font-family", `"${$data.editor.settings.currentFont}"`)
+        root.style.setProperty("--font-family", $data.editor.settings.currentFont)
     }
 
     $: {
-        window.onbeforeunload = $data.editor.settings.showWarningBeforeClosingApp && !import.meta.env.DEV?
-          () => true : null;
+        window.onbeforeunload =
+            $data.editor.settings.showWarningBeforeClosingApp &&
+            !import.meta.env.DEV
+                ? () => true
+                : null;
     }
 
     let init = async () => {
         console.log("--- window.onload ---");
-        
+
         // sfx (out of the timeline)
         (async () => {
-            await new Promise( resolve => {
+            await new Promise((resolve) => {
                 window.addEventListener("mousedown", resolve);
                 window.addEventListener("touchstart", resolve);
                 window.addEventListener("keydown", resolve);
@@ -61,36 +71,38 @@
             SoundEffect.init();
         })();
 
-
         // initialize different modules
         console.log("--- loading start (engine) ---");
         await database.init();
         await globalData.load();
         await autoLoadGameData();
-        assert(!!$gameData, "Critical error: save data did not load")
+        assert(!!$gameData, "Critical error: save data did not load");
         await image_editor.init();
-        console.log("--- loading done ---") 
+        console.log("--- loading done ---");
     };
 
     let initPromise = makeTimedPromise(init());
-    let savingPromise = new Promise<any>(resolve => resolve(null)); // default resolved promise
+    let savingPromise = new Promise<any>((resolve) => resolve(null)); // default resolved promise
 
     $: combinedPromise = Promise.all([initPromise, savingPromise]);
 
-    function makeTimedPromise<T>(promise: Promise<T>, milliseconds = 5000): Promise<T> {
+    function makeTimedPromise<T>(
+        promise: Promise<T>,
+        milliseconds = 5000,
+    ): Promise<T> {
         return new Promise((resolve, reject) => {
             promise.then(resolve).catch(reject);
             setTimeout(() => reject("timeout"), milliseconds);
-        })
+        });
     }
 
-    function makeNonCrashingPromise<T>(promise: Promise<T>): Promise<T|null> {
+    function makeNonCrashingPromise<T>(promise: Promise<T>): Promise<T | null> {
         return new Promise((resolve, reject) => {
             promise.then(resolve).catch(async (error: Error) => {
                 await ui.asyncInfoPopup(`${error.name}: ${error.message}`);
                 resolve(null);
             });
-        })
+        });
     }
 
     // onMount(() => {
@@ -99,7 +111,7 @@
 
     async function save(id?: number) {
         // TODO remove this
-        throw Error("not implemented")
+        throw Error("not implemented");
         // let p1 = resourceManager .get().save(id); // id can be undefined -> thats ok
         // let p2 = data.save();
 
@@ -107,25 +119,25 @@
     }
 
     async function promptSave() {
-        let result: {id:number, name:string} = await new Promise(resolve => {
-            // this is a AbstractGetTextPrompt
-            ui.blockingPopup.set({
-                componentType: SaveProjectPopUp as any,
-                data: {},
-                resolve,
-            });
-        });
-        if(result) {
-            if(result.id < 0) 
-                await save();
-            else
-                await save(result.id);
+        let result: { id: number; name: string } = await new Promise(
+            (resolve) => {
+                // this is a AbstractGetTextPrompt
+                ui.blockingPopup.set({
+                    componentType: SaveProjectPopUp as any,
+                    data: {},
+                    resolve,
+                });
+            },
+        );
+        if (result) {
+            if (result.id < 0) await save();
+            else await save(result.id);
         }
     }
 
     async function asyncLoad() {
         // TODO remove this
-        throw new Error("not implemented")
+        throw new Error("not implemented");
         // let result: {id:number, name:string} = await new Promise(resolve => {
         //     // this is a AbstractGetTextPrompt
         //     ui.blockingPopup.set({
@@ -144,12 +156,11 @@
 
     async function exportData() {
         let obj = await serialize($gameData);
-        
+
         const textData = JSON.stringify(obj);
         const filename = sanitizeFileName(`${$gameData.settings.title}.json`);
 
         _downloadTextFile(filename, textData, "text/plain");
-
     }
 
     async function exportGame() {
@@ -160,19 +171,22 @@
         try {
             let gameFileResponse = await fetch(location.href); // just fetches itself, works in a single-file build
             htmltext = await gameFileResponse.text();
-        } catch(e) {
-            throw new Error("There is no way to get the original source for exporting, therefore we can not export the game. Consider running the game in a server environment, or try a different browser.")
+        } catch (e) {
+            throw new Error(
+                "There is no way to get the original source for exporting, therefore we can not export the game. Consider running the game in a server environment, or try a different browser.",
+            );
         }
 
         let parser = new DOMParser();
         let htmlDoc = parser.parseFromString(htmltext, "text/html");
         let gameDataElmt = htmlDoc.querySelector("script[type=gamedata]");
         gameDataElmt.textContent = textData;
-        
-        let licenseComment = htmlDoc.createComment(`LICENSE (game data): \n${$gameData.settings.LICENSE}\n`);
+
+        let licenseComment = htmlDoc.createComment(
+            `LICENSE (game data): \n${$gameData.settings.LICENSE}\n`,
+        );
 
         gameDataElmt.parentElement.insertBefore(licenseComment, gameDataElmt);
-        
 
         let text = htmlDoc.documentElement.innerHTML;
 
@@ -181,40 +195,54 @@
         _downloadTextFile(filename, text, "text/html");
     }
 
-    function _downloadTextFile(filename: string, textContent: string, mimeType: string = "text/plain") {
+    function _downloadTextFile(
+        filename: string,
+        textContent: string,
+        mimeType: string = "text/plain",
+    ) {
         var element = document.createElement("a");
-        element.setAttribute("href", `data:${mimeType};charset=utf-8,` + encodeURIComponent(textContent));
+        element.setAttribute(
+            "href",
+            `data:${mimeType};charset=utf-8,` + encodeURIComponent(textContent),
+        );
         element.setAttribute("download", filename);
         element.style.display = "none";
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
     }
-    
+
     async function importData() {
         let element = document.createElement("input");
         element.setAttribute("type", "file");
         element.style.display = "none";
         document.body.appendChild(element);
         element.click();
-        let result: File = await new Promise((resolve) => element.addEventListener("change", () => {
-            if (element.files && element.files[0]) {
-                element.innerHTML = element.files[0].name;
-                resolve(element.files[0]);
-            } else {
-                resolve(null);
-            }
-        }));
+        let result: File = await new Promise((resolve) =>
+            element.addEventListener("change", () => {
+                if (element.files && element.files[0]) {
+                    element.innerHTML = element.files[0].name;
+                    resolve(element.files[0]);
+                } else {
+                    resolve(null);
+                }
+            }),
+        );
         document.body.removeChild(element);
 
-        if(result) {
+        if (result) {
             let fileTextContent = await result.text();
             let gameDataJSON = "";
 
-            if(result.type == "text/html") {
+            if (result.type == "text/html") {
                 let parser = new DOMParser();
-                let htmlDoc = parser.parseFromString(fileTextContent, "text/html");
-                gameDataJSON = htmlDoc.querySelector("script[type=gamedata]").textContent;
+                let htmlDoc = parser.parseFromString(
+                    fileTextContent,
+                    "text/html",
+                );
+                gameDataJSON = htmlDoc.querySelector(
+                    "script[type=gamedata]",
+                ).textContent;
             } else {
                 gameDataJSON = fileTextContent;
             }
@@ -225,24 +253,24 @@
     }
 
     function keyPress(event: KeyboardEvent) {
-        if(event.ctrlKey && event.key == "s") {
+        if (event.ctrlKey && event.key == "s") {
             event.preventDefault();
             save();
         }
     }
 
     document.onkeydown = keyPress;
-    
+
     function windowResize() {
-        document.body.style.height = `${innerHeight}px`
+        document.body.style.height = `${innerHeight}px`;
     }
     windowResize();
 
     let isFullscreen = false;
 
     function toggleFullscreen() {
-        if(document.fullscreenElement) {
-            document.exitFullscreen()
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
             isFullscreen = false;
         } else {
             document.body.parentElement.requestFullscreen();
@@ -250,9 +278,15 @@
         }
     }
 
-    async function newResource(resourceName: string, resourceConstructor: typeof Resource) {
-        let name = await ui.asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
-        if(name) {    
+    async function newResource(
+        resourceName: string,
+        resourceConstructor: typeof Resource,
+    ) {
+        let name = await ui.asyncGetTextPopup(
+            `Name of the ${resourceName}:`,
+            `unnamed ${resourceName}`,
+        );
+        if (name) {
             let newResource = new resourceConstructor(name);
             $gameData.addResource(newResource);
             openEditorWindow(newResource);
@@ -260,95 +294,175 @@
     }
 
     async function clearProject() {
-        let res = await ui.asyncYesNoPopup("Do you really want to start over?", true);
-        if(res) {
+        let res = await ui.asyncYesNoPopup(
+            "Do you really want to start over?",
+            true,
+        );
+        if (res) {
             await loadDefaultProject();
             cards.reset();
             openCard(Resources);
             let rooms = $gameData.getAllOfResourceType(Room);
-            openCard(RoomEditor, rooms[0].uuid)
+            openCard(RoomEditor, rooms[0].uuid);
         }
     }
-    
-    $: gameSettings = $gameData? asStore($gameData.settings) : null
-    
+
+    $: gameSettings = $gameData ? asStore($gameData.settings) : null;
+
     let title = "loading...";
     $: {
-        if($gameData) {
-            title = $gameData.settings.title
+        if ($gameData) {
+            title = $gameData.settings.title;
         }
     }
+
+    onMount(() => {
+        // general emergency error handling, so app doesn't just freeze
+        const report_error = (msg: string = "unknown error") => {
+            let el = document.createElement("div");
+            el.innerText = `error - ${msg}`
+            let but = document.createElement("button");
+            but.onclick = () => location.reload();
+            if(!import.meta.env.DEV) 
+                setTimeout(() => location.reload(), 200)
+            but.innerText = "reload"
+            but.style.display = "block"
+            el.append(but);
+            document.body.innerHTML = "";
+            document.body.append(el);
+        };
+
+        const handle_rejection = (e: PromiseRejectionEvent) => {
+            e.preventDefault();
+            report_error(e?.reason);
+        };
+
+        const handle_error = (e: ErrorEvent) => {
+            e.preventDefault();
+            report_error(e?.message);
+        };
+
+        window.addEventListener("unhandledrejection", handle_rejection);
+        window.addEventListener("error", handle_error);
+
+        return () => {
+            window.removeEventListener("unhandledrejection", handle_rejection);
+            window.removeEventListener("error", handle_error);
+        };
+    });
 
 </script>
 
 <svelte:head>
     <title>{title} | trash engine</title>
     {@html `<!-- ${licenseText} -->`}
+
+    //TODO remove
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Days+One&family=Fugaz+One&family=Hi+Melody&family=Jua&family=Mansalva&family=Margarine&family=Rammetto+One&family=Source+Sans+3&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet"> -->
+
 </svelte:head>
 
-<svelte:window on:resize={windowResize}></svelte:window>
+<svelte:window on:resize={windowResize} />
+
 
 {#await initPromise}
-    <div class=loading>
+    <div class="loading">
         <Icon />
         loading...
     </div>
-{:then} 
-{#await savingPromise}
-    <div class=saving>
-        <Icon />
-        saving...
-    </div>
-{:then} 
-    <header>
-        <div>
+{:then}
+    {#await savingPromise}
+        <div class="saving">
             <Icon />
-            <!-- <h2>trash engine</h2> -->
-            <span class=spacer></span>
-            <input type="text" bind:value={$gameSettings.title}>
+            saving...
         </div>
-        <ul class="topbar">
-            <li><WhackyButton on:click={clearProject}>   <AtlasIcon id={33} /> new project </WhackyButton></li>
-            <!-- <li><WhackyButton on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </WhackyButton></li>
+    {:then}
+        <header>
+            <div>
+                <Icon />
+                <!-- <h2>trash engine</h2> -->
+                <span class="spacer"></span>
+                <input type="text" bind:value={$gameSettings.title} />
+            </div>
+            <ul class="topbar">
+                <li>
+                    <WhackyButton on:click={clearProject}>
+                        <AtlasIcon id={33} /> new project
+                    </WhackyButton>
+                </li>
+                <!-- <li><WhackyButton on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </WhackyButton></li>
             <li><WhackyButton on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </WhackyButton></li>
             <li><WhackyButton on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </WhackyButton></li>
             <li><WhackyButton on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </WhackyButton></li> -->
-            <li><WhackyButton on:click={() => openCard(GamePreview)}> <AtlasIcon id={75} /> play      </WhackyButton></li>
-            <li><WhackyButton on:click={() => openCard(Reference)}>   <AtlasIcon id={59} /> help      </WhackyButton></li>
-            <!-- <li><WhackyButton on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </WhackyButton></li> -->
-            <!-- <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li> -->
-            <li><WhackyButton on:click={() => exportGame()}>                 <AtlasIcon id={57} /> export (game)    </WhackyButton></li>
-            <li><WhackyButton on:click={() => exportData()}>                 <AtlasIcon id={57} /> export (data)    </WhackyButton></li>
-            <li><WhackyButton on:click={() => importData()}>                 <AtlasIcon id={58} /> import     </WhackyButton></li>
-            <li><WhackyButton on:click={() => openCard(Settings)}>           <AtlasIcon id={43} /> settings  </WhackyButton></li>
-            <li><WhackyButton on:click={toggleFullscreen}>
-                {#if isFullscreen}
-                <AtlasIcon id={19} height={16}></AtlasIcon>
-                {:else}
-                <AtlasIcon id={20} height={16}></AtlasIcon>
-                {/if}
-                fullscreen
-            </WhackyButton></li>
-            <!-- <li><WhackyButton on:click={() => openCard(Resources)}>   <AtlasIcon id={11} /> resources </WhackyButton></li> -->
-            <!-- <li><WhackyButton on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</WhackyButton></li> -->
-        </ul>
-    </header>
-    <Main bind:this={main}></Main>
-
+                <li>
+                    <WhackyButton on:click={() => openCard(GamePreview)}>
+                        <AtlasIcon id={75} /> play
+                    </WhackyButton>
+                </li>
+                <li>
+                    <WhackyButton on:click={() => openCard(Reference)}>
+                        <AtlasIcon id={59} /> help
+                    </WhackyButton>
+                </li>
+                <!-- <li><WhackyButton on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </WhackyButton></li> -->
+                <!-- <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li> -->
+                <li>
+                    <WhackyButton on:click={() => exportGame()}>
+                        <AtlasIcon id={57} /> export (game)
+                    </WhackyButton>
+                </li>
+                <li>
+                    <WhackyButton on:click={() => exportData()}>
+                        <AtlasIcon id={57} /> export (data)
+                    </WhackyButton>
+                </li>
+                <li>
+                    <WhackyButton on:click={() => importData()}>
+                        <AtlasIcon id={58} /> import
+                    </WhackyButton>
+                </li>
+                <li>
+                    <WhackyButton on:click={() => openCard(Settings)}>
+                        <AtlasIcon id={43} /> settings
+                    </WhackyButton>
+                </li>
+                <li>
+                    <WhackyButton on:click={toggleFullscreen}>
+                        {#if isFullscreen}
+                            <AtlasIcon id={19} height={16}></AtlasIcon>
+                        {:else}
+                            <AtlasIcon id={20} height={16}></AtlasIcon>
+                        {/if}
+                        fullscreen
+                    </WhackyButton>
+                </li>
+                <!-- <li><WhackyButton on:click={() => openCard(Resources)}>   <AtlasIcon id={11} /> resources </WhackyButton></li> -->
+                <!-- <li><WhackyButton on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</WhackyButton></li> -->
+            </ul>
+        </header>
+        <Main bind:this={main}></Main>
+    {:catch err}
+        <!-- init promise fail -->
+        <p>saving failed</p>
+        <pre>{err.name}</pre>
+        <pre>{err.message}</pre>
+    {/await}
 {:catch err}
- <!-- init promise fail -->
- <p>saving failed</p>
- <pre>{err.name}</pre>
- <pre>{err.message}</pre>
- {/await}
- {:catch err}
- <!-- save promise fail -->
- <p>loading the app failed: </p>
- <pre>{err.name}</pre>
- <pre>{err.message}</pre>
+    <!-- save promise fail -->
+    <p>loading the app failed:</p>
+    <pre>{err.name}</pre>
+    <pre>{err.message}</pre>
 {/await}
 {#if $blockingPopup}
-    <svelte:component this={$blockingPopup.componentType} bind:prompt={$blockingPopup} />
+    <svelte:component
+        this={$blockingPopup.componentType}
+        bind:prompt={$blockingPopup}
+    />
 {/if}
 
 <style>
@@ -367,7 +481,7 @@
     /* header img {
         margin-right: 8px;
     } */
-    
+
     header div {
         display: flex;
         flex-direction: row;
@@ -385,12 +499,11 @@
         background-color: var(--bg-color);
         /* padding: 8px; */
 
-        margin-bottom: 4px;;
+        margin-bottom: 4px;
     }
 
     ul.topbar > li {
         /* border-right: 1px solid var(--main-color); */
         padding: 4px;
-
     }
 </style>

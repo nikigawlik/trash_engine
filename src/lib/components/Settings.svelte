@@ -46,6 +46,7 @@ import Card from "./Card.svelte";
       </select>
     </p>
     <p><button on:click={editThemes}>edit themes</button></p>
+    <!-- <p><input type="text" bind:value={$data.editor.settings.currentFont}></p> -->
     <p><label>open resources maximized &nbsp <input type="checkbox" bind:checked={$data.editor.settings.openResourcesMaximized} /></label></p>
     <p><label>show warning before leaving app &nbsp <input type="checkbox" bind:checked={$data.editor.settings.showWarningBeforeClosingApp} /></label></p>
     <p><button on:click={deleteData}>DELETE ALL SAVE DATA</button></p>

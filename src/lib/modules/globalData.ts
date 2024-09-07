@@ -4,6 +4,9 @@ import { requestAsync } from "./serialize";
 
 // ---- save data ----
 
+const preferedScheme = ["light", "dark"].find(theme => window.matchMedia(`(prefers-color-scheme: ${theme})`).matches);
+
+
 let defaultSettings = {
     version: 1,
     editor: {
@@ -42,10 +45,11 @@ let defaultSettings = {
                   "offBgColor": "red"
                 }
             ],
-            currentTheme: "trash",
+            currentTheme: preferedScheme || "dark",
             subFolders: false,
             openResourcesMaximized: true,
             showWarningBeforeClosingApp: true,
+            currentFont: "sans-serif",
         }
     }
 }

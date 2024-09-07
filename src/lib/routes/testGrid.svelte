@@ -16,6 +16,7 @@
         : [];
 
     let curFont = "";
+    $: {console.log(curFont)}
 
     autoLoadGameData(); // async
 
@@ -39,7 +40,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <!-- fonts -->
-<link bind:this={fontsLink} href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Days+One&family=Fugaz+One&family=Hi+Melody&family=Jua&family=Mansalva&family=Margarine&family=Rammetto+One&display=swap" rel="stylesheet">
+<link bind:this={fontsLink} href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Days+One&family=Fugaz+One&family=Hi+Melody&family=Jua&family=Mansalva&family=Margarine&family=Rammetto+One&family=Source+Sans+3&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
 </svelte:head>
 
 <main>
@@ -55,7 +57,7 @@
     <header style:grid-area={"1 / 2 / span 1 / span 12"}>
         {#each fams as fam}
             <button 
-                on:click={() => curFont=fam}
+                on:click={() => curFont=`"${fam}"`}
                 class:selected={curFont==fam}
             >{fam}</button>
         {/each}
