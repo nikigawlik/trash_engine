@@ -15,10 +15,12 @@ export default class Resource {
     name: string;
     type: string;
     uuid: string;
-    constructor(name = "", uuid?: string) {
+    ownerUUID?: string;
+    constructor(name = "", uuid?: string, ownerUUID?: string) {
         this.name = name;
         this.type = this.constructor.name.toLowerCase();
         this.uuid = uuid || crypto.randomUUID()
+        this.ownerUUID = ownerUUID;
     }
     
     getIconElement(): string {

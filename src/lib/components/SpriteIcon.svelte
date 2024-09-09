@@ -8,24 +8,27 @@ import Sprite from "../modules/structs/sprite";
     
     export let spriteID: string;
     export let growToFit: boolean = true;
+    export let maxWidth: number = 9999;
+    export let maxHeight: number = 9999;
+
     let myCanvas: HTMLCanvasElement;
 
-    $: s_sprite = asStore($gameData.getResource(spriteID, Sprite))
+    $: sprite = asStore($gameData.getResource(spriteID, Sprite))
 
-    $: width = $s_sprite.canvas?.width || 1
-    $: height = $s_sprite.canvas?.height || 1
-    $: {$s_sprite; redraw();}
+    $: width = $sprite.canvas?.width || 1
+    $: height = $sprite.canvas?.height || 1
+    $: {$sprite; redraw();}
 
-    $: adjWidth = adjustedCanvasSize(width);
-    $: adjHeight = adjustedCanvasSize(height);
+    $: adjWidth = adjustedCanvasSize(Math.min(maxWidth, width));
+    $: adjHeight = adjustedCanvasSize(Math.min(maxHeight, height));
     
     function redraw() {
-        if(myCanvas && $s_sprite.canvas) {
-            myCanvas.width = $s_sprite.canvas.width;
-            myCanvas.height = $s_sprite.canvas.height;
+        if(myCanvas && $sprite.canvas) {
+            myCanvas.width = $sprite.canvas.width;
+            myCanvas.height = $sprite.canvas.height;
             let ctx = myCanvas.getContext("2d")!;
             ctx.clearRect(0, 0, width, height);
-            ctx.drawImage($s_sprite.canvas, 0, 0);
+            ctx.drawImage($sprite.canvas, 0, 0);
         }
     }
 
@@ -37,6 +40,6 @@ import Sprite from "../modules/structs/sprite";
     {width} 
     {height} 
     bind:this={myCanvas}
-    style:width={growToFit? (width > height? '100%' : null) : adjWidth}
-    style:height={growToFit? (height >= width? '100%' : null) : adjHeight}
+    style:width={growToFit? (width > height? '100%' : null) : `${adjWidth}px`}
+    style:height={growToFit? (height >= width? '100%' : null) : `${adjHeight}px`}
 ></canvas>

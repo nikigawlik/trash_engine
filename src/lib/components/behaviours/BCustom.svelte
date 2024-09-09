@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { gameData } from "../../modules/game/game_data";
     import { asStore } from "../../modules/store_owner";
     import type Behaviour from "../../modules/structs/behaviour";
     import AtlasIcon from "../AtlasIcon.svelte";
@@ -11,6 +12,11 @@
     // let code: string = behaviour.code;
 
     let behaviourStore = asStore(behaviour);
+
+    $: {    
+        if($behaviourStore.ownerUUID) 
+            asStore($gameData?.getResource($behaviourStore.ownerUUID))?.update(x => x);
+    }
     
     // $: behaviour.props = props;
     // $: behaviour.code = code

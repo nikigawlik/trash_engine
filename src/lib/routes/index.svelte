@@ -482,6 +482,12 @@
         margin-right: 8px;
     } */
 
+    header {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: var(--size-2);
+    }
+
     header div {
         display: flex;
         flex-direction: row;
@@ -494,8 +500,9 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+        align-items: stretch;
 
-        border-bottom: 1px solid var(--main-color);
+        /* border-bottom: 1px solid var(--main-color); */
         background-color: var(--bg-color);
         /* padding: 8px; */
 

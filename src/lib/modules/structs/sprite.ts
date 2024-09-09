@@ -30,6 +30,7 @@ export default class Sprite extends Resource {
     }
 
     addBehaviour(behaviour: Behaviour) {
+        behaviour.ownerUUID = this.uuid;
         this.behaviours.push(behaviour);
     }
 

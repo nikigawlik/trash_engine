@@ -132,6 +132,7 @@ export default class Game {
                 // sprite._initFunction = new Function(sprite.initCode);
                 // sprite._updateFunction = new Function(sprite.updateCode);
                 sprite.generateCode();
+                console.log()
             }
             this.instanceSets.set(sprite.uuid, new WeakSet());
         }

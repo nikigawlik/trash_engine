@@ -1,5 +1,4 @@
 <script lang="ts">
-    
     import Instance from "./../modules/structs/instance";
 
     import {
@@ -19,15 +18,15 @@
     import AtlasIcon from "./AtlasIcon.svelte";
     import Card from "./Card.svelte";
     import { getIFrameURL } from "./GamePreview.svelte";
+    import MultiSelect from "./MultiSelect.svelte";
     import SpriteIcon from "./SpriteIcon.svelte";
-    import TabView from "./TabView.svelte";
 
     export let card: CardInstance;
     const uuid = card.uuid;
 
     $: room = asStore($gameData.getResource(uuid, Room));
     $: {
-        if(room == null) cards.remove(uuid, true)
+        if (room == null) cards.remove(uuid, true);
     }
     $: card.className = "room-editor";
     $: card.name = $room?.name || "room not loaded";
@@ -35,29 +34,16 @@
     let canvas: HTMLCanvasElement;
 
     let sprites = [] as Sprite[];
-    $gameData.getResourceTypeStore(Sprite).subscribe(value => sprites = value)
+    $gameData
+        .getResourceTypeStore(Sprite)
+        .subscribe((value) => (sprites = value));
 
-    let currentSpriteUUID: string | null = null;
-    $: {
-        // find a card that is a sprite
-        let spriteCard = $cards.find((card) =>
-            $gameData.getResource(card.uuid, Sprite),
-        );
-        if (spriteCard) {
-            currentSpriteUUID = spriteCard.uuid;
-        } else {
-            // if none exists, use the first sprite, if possible
-            let sprites = $gameData.getAllOfResourceType(Sprite);
-            if (sprites.length > 0) currentSpriteUUID = sprites[0].uuid;
-        }
-    }
+    let currentSpriteUUID: string | null =
+        sprites.length > 0 ? sprites[0].uuid : null;
 
     $: currentSprite =
         currentSpriteUUID &&
-        ($gameData.getResource(
-            currentSpriteUUID,
-            Sprite,
-        ) as Sprite | null);
+        ($gameData.getResource(currentSpriteUUID, Sprite) as Sprite | null);
 
     let roomStore = asStore($gameData.getResource(uuid, Room));
 
@@ -72,11 +58,13 @@
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
     afterUpdate(() => {
-        refresh();
+        refresh(false);
     });
 
     let instancesUnderCursor = new WeakSet<Instance>();
 
+    let prevX = 0;
+    let prevY = 0;
     // placing / deleting etc.
     function canvasUpdate(evt: MouseEvent, isDownEvent: boolean) {
         if (!room) return;
@@ -85,19 +73,10 @@
         const inputY = evt.offsetY * (canvas.height / canvasDisplayHeight);
 
         let mousepos = new DOMRect(inputX, inputY, 0, 0);
-        let getBBRect = (inst: Instance) => {
-            let sprite = $gameData.getResource(inst.spriteID, Sprite);
-            return sprite
-                ? new DOMRect(
-                      inst.x - sprite.originX + sprite.bBoxX,
-                      inst.y - sprite.originY + sprite.bBoxY,
-                      sprite.bBoxWidth,
-                      sprite.bBoxHeight,
-                  )
-                : null;
-        };
+        
         // update the weakset of the instances under the cursor (candidates for deletion)
         instancesUnderCursor = new WeakSet();
+
         for (let inst of $room.instances) {
             const rect = getBBRect(inst);
             if (rect && rectInside(mousepos, rect))
@@ -108,19 +87,31 @@
             (inst) => !instancesUnderCursor.has(inst),
         );
 
-        // let deleteSomething = isDeleting && filteredInstances.length != $room.instances.length;
+        let { x, y } = getPlacementPos(inputX, inputY);
+        let moved = !!(prevX - x) || !!(prevY - y);
+
+        if(moved)
+        if(placingInst == null) 
+            placingInst = new Instance(currentSpriteUUID, x, y);
+
         let canDeleteSomething =
-            tool == "delete" &&
-            isMouseDown &&
+            tool == "edit" &&
             filteredInstances.length != $room.instances.length;
-        if (canDeleteSomething) {
+
+        let deleteSomething =
+            canDeleteSomething &&
+            (isDownEvent || moved) && 
+            isMouseDown
+
+        
+        if (deleteSomething) {
             $room.instances = filteredInstances;
             $roomStore = $roomStore;
+            placingInst = null; // cant place directly after delete (bad UX)
         }
 
         // place something
-        if (tool == "place" && placingInst) {
-            let { x, y } = getPlacementPos(inputX, inputY);
+        if (tool == "edit" && placingInst) {
             placingInst.x = x;
             placingInst.y = y;
 
@@ -143,11 +134,25 @@
             placingInst = null;
         }
 
-        refresh();
+        prevX = x;
+        prevY = y;
+
+        refresh(canDeleteSomething);
     }
+    function getBBRect(inst: Instance) {
+        let sprite = $gameData.getResource(inst.spriteID, Sprite);
+        return sprite
+            ? new DOMRect(
+                    inst.x - sprite.originX + sprite.bBoxX,
+                    inst.y - sprite.originY + sprite.bBoxY,
+                    sprite.bBoxWidth,
+                    sprite.bBoxHeight,
+                )
+            : null;
+    };
 
     $: placingInst =
-        tool == "place" ? new Instance(currentSpriteUUID, -10000, 0) : null;
+        tool == "edit" ? new Instance(currentSpriteUUID, -10000, 0) : null;
 
     function getPlacementPos(inputX: number, inputY: number) {
         let x: number, y: number;
@@ -170,7 +175,17 @@
 
     let isMouseDown = false;
 
-    let tool: "place" | "delete" | "play" | "_" = "place";
+    type RETool = "edit" | "delete" | "play";
+
+    const tools = ["edit", "play"] as RETool[];
+
+    let tool: RETool = "edit";
+
+    function onSelectTool(tool: string) {
+        if (tool == "play") {
+            reload();
+        }
+    }
 
     function canvasMouseDown(evt: MouseEvent) {
         if (evt.button != 0) return;
@@ -185,7 +200,13 @@
         isMouseDown = false;
     }
 
-    function refresh() {
+    function canvasMouseLeave(evt: MouseEvent) {
+        placingInst = null;
+        isMouseDown = false;
+        refresh(false);
+    }
+
+    function refresh(canDeleteSomething: boolean) {
         /** @type {CanvasRenderingContext2D} */
         if (!room) return;
         let ctx = canvas?.getContext("2d")!;
@@ -194,73 +215,83 @@
         ctx.fillStyle = $room.backgroundColor;
         ctx.fillRect(0, 0, $room.width, $room.height);
 
-        // TODO not like this, causes a ton of updates 
-        $room.instances = $room.instances.filter(inst => instanceIsValid(inst));
-
-        for (let inst of $room.instances) {
-            drawInstance(inst, ctx);
-            if (tool == "delete" && instancesUnderCursor.has(inst)) {
-                ctx.strokeStyle = "white";
-                ctx.globalCompositeOperation = "difference";
-                ctx.lineWidth = 8;
-                ctx.beginPath();
-                ctx.moveTo(
-                    inst.x - 25 + Math.random() * 10,
-                    inst.y - 25 + Math.random() * 10,
-                );
-                ctx.lineTo(
-                    inst.x + 25 + Math.random() * 10,
-                    inst.y + 25 + Math.random() * 10,
-                );
-                ctx.moveTo(
-                    inst.x - 25 + Math.random() * 10,
-                    inst.y + 25 + Math.random() * 10,
-                );
-                ctx.lineTo(
-                    inst.x + 25 + Math.random() * 10,
-                    inst.y - 25 + Math.random() * 10,
-                );
-                ctx.stroke();
-                ctx.closePath();
-                ctx.globalCompositeOperation = "source-over";
+        for (let i = $room.instances.length - 1; i >= 0; i--) {
+            const inst = $room.instances[i];
+            if (!instanceIsValid(inst)) {
+                $room.instances.splice(i, 1);
+                $room.instances = $room.instances; // for reactivity
             }
         }
-        if (placingInst) drawInstance(placingInst, ctx);
+
+        let isDeleting = false;
+        for (let inst of $room.instances) {
+            drawInstance(inst, ctx);
+            if (instancesUnderCursor.has(inst) && canDeleteSomething) {
+                drawCross(ctx, inst);
+                isDeleting = true;
+            }
+        }
+        if (placingInst && !isDeleting) 
+            drawInstance(placingInst, ctx);
 
         // draw grid
         if ($roomStore.grid.enabled) {
-            ctx.strokeStyle = "gray";
-            ctx.lineWidth = 1;
-            ctx.globalCompositeOperation = "difference";
-            ctx.beginPath();
-            assert(gridWidth >= 1 && gridHeight >= 1);
-            for (let x = 0; x < $room.width; x += gridWidth) {
-                ctx.moveTo(x + 0.5, 0);
-                ctx.lineTo(x + 0.5, $room.height);
-            }
-            for (let y = 0; y < $room.height; y += gridHeight) {
-                ctx.moveTo(0, y + 0.5);
-                ctx.lineTo($room.width, y + 0.5);
-            }
-            ctx.stroke();
-            ctx.closePath();
-            ctx.globalCompositeOperation = "source-over";
+            drawGrid(ctx);
         }
     }
 
     let mode = "place sprites";
-
-    const tools = ["place", "delete", "play"] as (
-        | "place"
-        | "delete"
-        | "play"
-    )[];
 
     let iframeElement: HTMLIFrameElement | null = null;
     $: iframeLoadedPromise =
         iframeElement != null
             ? new Promise((r) => (iframeElement.onload = r))
             : null;
+
+    function drawCross(ctx: CanvasRenderingContext2D, inst: Instance) {
+        ctx.strokeStyle = "white";
+        ctx.globalCompositeOperation = "difference";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(
+            inst.x - 25 + Math.random() * 10,
+            inst.y - 25 + Math.random() * 10,
+        );
+        ctx.lineTo(
+            inst.x + 25 + Math.random() * 10,
+            inst.y + 25 + Math.random() * 10,
+        );
+        ctx.moveTo(
+            inst.x - 25 + Math.random() * 10,
+            inst.y + 25 + Math.random() * 10,
+        );
+        ctx.lineTo(
+            inst.x + 25 + Math.random() * 10,
+            inst.y - 25 + Math.random() * 10,
+        );
+        ctx.stroke();
+        ctx.closePath();
+        ctx.globalCompositeOperation = "source-over";
+    }
+
+    function drawGrid(ctx: CanvasRenderingContext2D) {
+        ctx.strokeStyle = "gray";
+        ctx.lineWidth = 1;
+        ctx.globalCompositeOperation = "difference";
+        ctx.beginPath();
+        assert(gridWidth >= 1 && gridHeight >= 1);
+        for (let x = 0; x < $room.width; x += gridWidth) {
+            ctx.moveTo(x + 0.5, 0);
+            ctx.lineTo(x + 0.5, $room.height);
+        }
+        for (let y = 0; y < $room.height; y += gridHeight) {
+            ctx.moveTo(0, y + 0.5);
+            ctx.lineTo($room.width, y + 0.5);
+        }
+        ctx.stroke();
+        ctx.closePath();
+        ctx.globalCompositeOperation = "source-over";
+    }
 
     async function reload() {
         if (!iframeElement) return;
@@ -273,23 +304,19 @@
         iframeElement.contentWindow?.postMessage(messageData);
     }
 
-    function selectTool(t: typeof tool) {
-        tool = t;
-        if(tool == "play") 
-            reload();
-    }
-
-    
-
     // used in room editor
     function drawInstance(inst: Instance, ctx: CanvasRenderingContext2D) {
         // draw at x y sprite
         let sprite = $gameData.getResource(inst.spriteID, Sprite);
-        
-        if(sprite && sprite instanceof Sprite && sprite.canvas) {
-            ctx.drawImage(sprite.canvas, inst.x - sprite.originX, inst.y - sprite.originY);
+
+        if (sprite && sprite instanceof Sprite && sprite.canvas) {
+            ctx.drawImage(
+                sprite.canvas,
+                inst.x - sprite.originX,
+                inst.y - sprite.originY,
+            );
         } else {
-            console.log(`sprite ${inst.spriteID} does not exist.`)
+            console.log(`sprite ${inst.spriteID} does not exist.`);
         }
     }
 
@@ -306,92 +333,91 @@
     isMaximized={data.get().editor.settings.openResourcesMaximized}
     {card}
 >
-    <TabView tabs={["place sprites", "settings"]} bind:selected={mode} />
-    {#if mode == "place sprites"}
-        <h4 style:height="0">tools:</h4>
-        <div class="toolbar" style:height="2.5rem">
-            <!-- <span>tools: </span> -->
-            {#each tools as t}
-                <button
-                    class:selected={tool == t}
-                    class:emphasis={tool == t}
-                    on:click={() => selectTool(t)}
-                    style:vertical-align="middle"
-                >
-                    {t}
-                    {#if t == "place"}
-                        <div style:height="1.5rem" style:display="inline-block">
-                            <SpriteIcon
-                                spriteID={currentSpriteUUID}
-                                growToFit
-                            />
-                        </div>
-                    {:else if t == "play"}
-                        <AtlasIcon id={72} height={20} />
-                    {/if}
-                </button>
-            {/each}
-        </div>
-        {#if !currentSprite}
-            <span> please select a sprite from the resource list.</span>
-        {/if}
+    <MultiSelect
+        bind:value={tool}
+        options={tools}
+        onSelect={onSelectTool}
+        let:option
+    >
+        <AtlasIcon height={20} id={option == "play" ? 75 : 42} />
+        {option}
+    </MultiSelect>
 
-        <!-- {#if tool != "play"} -->
-        <div class="room-edit">
-            <div
-                class="canvas-container"
-                style:display={tool != "play" ? null : "none"}
-            >
-                <canvas
-                    width={canvasWidth}
-                    height={canvasHeight}
-                    style:width="{canvasDisplayWidth}px"
-                    style:height="{canvasDisplayHeight}px"
-                    class="room-canvas"
-                    bind:this={canvas}
-                    on:mousedown={canvasMouseDown}
-                    on:mousemove={canvasMouseMove}
-                    on:mouseup={canvasMouseUp}
-                    on:mouseleave={canvasMouseUp}
-                />
+    {#if tool == "edit"}
+    <div class="scroll-box">
+        <MultiSelect
+            bind:value={currentSpriteUUID}
+            options={sprites.map((s) => s.uuid)}
+            let:option
+        >
+            <div  style:height="var(--size-8)">
+
+                <SpriteIcon spriteID={option} growToFit={false} maxHeight={60} maxWidth={60}/>
             </div>
+        </MultiSelect>
+    </div>
+    {/if}
 
-            {#await iframeLoadedPromise}
-                <div
-                    style:width="{canvasDisplayWidth}px"
-                    style:height="{canvasDisplayHeight}px"
-                    style:border="1px solid var(--main-color)"
-                    style:font-size="large"
-                    style:padding="2rem"
-                    style:display={tool == "play" ? null : "none"}
-                >
-                    loading...
-                </div>
-            {:then _}
-                <!--  -->
-            {/await}
+    {#if !currentSprite}
+        <span> please select a sprite from the resource list.</span>
+    {/if}
 
-            <iframe
-                title="gametest"
-                src={getIFrameURL()}
-                bind:this={iframeElement}
+    <!-- {#if tool != "play"} -->
+    <div class="room-edit">
+        <div
+            class="canvas-container"
+            style:display={tool != "play" ? null : "none"}
+        >
+            <canvas
+                width={canvasWidth}
+                height={canvasHeight}
                 style:width="{canvasDisplayWidth}px"
                 style:height="{canvasDisplayHeight}px"
-                style:display={tool == "play" ? null : "none"}
+                class="room-canvas"
+                bind:this={canvas}
+                on:mousedown={canvasMouseDown}
+                on:mousemove={canvasMouseMove}
+                on:mouseup={canvasMouseUp}
+                on:mouseleave={canvasMouseLeave}
             />
         </div>
-        <h4>
-            {#if tool == "place"}
-                <AtlasIcon id={41} height={12} /> select the current sprite from
-                resource list. drag to place multiple.
-            {:else if tool == "delete"}
-                <AtlasIcon id={41} height={12} /> click sprites to delete them.
-            {/if}
-        </h4>
-        <!-- {:else if tool == "play"} -->
-        <!-- <Game startRoomUUID={$roomStore?.uuid}></Game> -->
-        <!-- {/if} -->
-    {:else if mode == "settings"}
+
+        {#await iframeLoadedPromise}
+            <div
+                style:width="{canvasDisplayWidth}px"
+                style:height="{canvasDisplayHeight}px"
+                style:border="1px solid var(--main-color)"
+                style:font-size="large"
+                style:padding="2rem"
+                style:display={tool == "play" ? null : "none"}
+            >
+                loading...
+            </div>
+        {:then _}
+            <!--  -->
+        {/await}
+
+        <iframe
+            title="gametest"
+            src={getIFrameURL()}
+            bind:this={iframeElement}
+            style:width="{canvasDisplayWidth}px"
+            style:height="{canvasDisplayHeight}px"
+            style:display={tool == "play" ? null : "none"}
+        />
+    </div>
+    <h4>
+        {#if tool == "edit"}
+            <AtlasIcon id={41} height={12} /> select the current sprite from resource
+            list. drag to place multiple.
+        {:else if tool == "delete"}
+            <AtlasIcon id={41} height={12} /> click sprites to delete them.
+        {/if}
+    </h4>
+    <!-- {:else if tool == "play"} -->
+    <!-- <Game startRoomUUID={$roomStore?.uuid}></Game> -->
+    <!-- {/if} -->
+    {#if mode == "settings"}
         <div class="room-config">
             <label
                 ><input
