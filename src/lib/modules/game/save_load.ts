@@ -4,7 +4,6 @@ import Resource from "../structs/resource";
 import GameData, { gameData } from "./game_data";
 import { assert } from "./utils";
 
-import { version } from "../../../../package.json";
 import { db, getDocumentGameData, STORE_NAME_RESOURCES } from "../database";
 import { asStore } from "../store_owner";
 
@@ -38,8 +37,9 @@ export async function loadGameData(data: any) {
             throw Error(`Could not load game data: Wrong structure: ${e.message}`)
         }
 
-        if (gd.engineVersion != version)
-            throw Error("Could not load game data: Unsupported version")
+        // TODO make a backup or sth?
+        // if (gd.engineVersion != version)
+        //     throw Error("Could not load game data: Unsupported version")
 
         gameData.set(gd);
         console.log("- game data loaded")
