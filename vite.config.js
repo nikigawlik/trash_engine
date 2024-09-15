@@ -11,6 +11,6 @@ export default defineConfig({
     https: true,
   },
   build: {
-    minify: false
+    minify: true
   }
 })

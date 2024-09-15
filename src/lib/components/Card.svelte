@@ -237,6 +237,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
                         <input 
                             type="text"
                             size=15
+                            class="borderless"
                             bind:value={$resourceStore.name} 
                             bind:this={resourceNameInputElement}
                             on:focusout={() => editResourceName = false}    
@@ -248,7 +249,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
                         name="edit" 
                         on:click={() => editResourceName = !editResourceName}
                     >
-                        {$resourceStore.name} <span style:font-size="1rem">✏️</span>
+                        {$resourceStore.name} <span style:font-size=".75rem">✏️</span>
                     </button>
                     {/if}
                 {:else}
@@ -357,16 +358,19 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
         /* border-color: var(--main-color); */
         /* border-image: image(url("/engineAssets/corners.png"), var(--bg-color)) 8 8 repeat; */
         padding: 0;
+        padding-right: var(--size-2);
         margin: 0;
     }
 
     .content {
-        padding: 4px;
+        /* padding: 4px; */
+        padding: 0;
         flex-grow: 1;
         flex-shrink: 1;
         min-height: 0;
         flex-direction: column;
         display: flex;
+        overflow: scroll;
     }
 
     h3 {
@@ -397,7 +401,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
     }
 
     .name, .name input, .name button {
-        font-size: 1.125rem;
+        font-size: var(--size-4);
     }
 
     .name, .name input, .name button {

@@ -1,4 +1,5 @@
 import type { SvelteComponent } from "svelte";
+import { ComponentType } from "svelte";
 import { writable, type Writable } from "svelte/store";
 import { assert } from "./game/utils";
 import { data } from "./globalData";
@@ -76,7 +77,7 @@ export function bringToFront(card: CardInstance) {
 }
 
 export function openCard(
-    type: any, 
+    type: ComponentType, 
     uuid?: string, 
     position: DOMRect = new DOMRect(),
     customData?: any,

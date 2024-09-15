@@ -485,7 +485,8 @@
     header {
         display: flex;
         flex-direction: row;
-        margin-bottom: var(--size-2);
+        /* margin-bottom: var(--size-2); */
+        margin-bottom: 0;
     }
 
     header div {

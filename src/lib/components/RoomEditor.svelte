@@ -11,7 +11,7 @@
     import Sprite from "./../modules/structs/sprite";
 
     import { afterUpdate } from "svelte";
-    import { cards, type CardInstance } from "../modules/cardManager";
+    import { cards, openCard, type CardInstance } from "../modules/cardManager";
     import { gameData } from "../modules/game/game_data";
     import { data } from "../modules/globalData";
     import { asStore } from "../modules/store_owner";
@@ -19,6 +19,8 @@
     import Card from "./Card.svelte";
     import { getIFrameURL } from "./GamePreview.svelte";
     import MultiSelect from "./MultiSelect.svelte";
+    import RoomSettings from "./RoomSettings.svelte";
+    import SpriteEditor from "./SpriteEditor.svelte";
     import SpriteIcon from "./SpriteIcon.svelte";
 
     export let card: CardInstance;
@@ -66,14 +68,14 @@
     let prevX = 0;
     let prevY = 0;
     // placing / deleting etc.
-    function canvasUpdate(evt: MouseEvent, isDownEvent: boolean) {
+    function canvasUpdate(evt: MouseEvent | DragEvent, isDownEvent: boolean) {
         if (!room) return;
 
         const inputX = evt.offsetX * (canvas.width / canvasDisplayWidth);
         const inputY = evt.offsetY * (canvas.height / canvasDisplayHeight);
 
         let mousepos = new DOMRect(inputX, inputY, 0, 0);
-        
+
         // update the weakset of the instances under the cursor (candidates for deletion)
         instancesUnderCursor = new WeakSet();
 
@@ -90,20 +92,19 @@
         let { x, y } = getPlacementPos(inputX, inputY);
         let moved = !!(prevX - x) || !!(prevY - y);
 
-        if(moved)
-        if(placingInst == null) 
-            placingInst = new Instance(currentSpriteUUID, x, y);
+        if (moved)
+            if (placingInst == null)
+                placingInst = new Instance(currentSpriteUUID, x, y);
 
         let canDeleteSomething =
             tool == "edit" &&
-            filteredInstances.length != $room.instances.length;
+            filteredInstances.length != $room.instances.length &&
+            !(evt instanceof DragEvent); // exception for when dragging
 
         let deleteSomething =
-            canDeleteSomething &&
-            (isDownEvent || moved) && 
-            isMouseDown
+            canDeleteSomething && (isDownEvent || moved) && isMouseDown;
+        // (isMouseDown || isDownEvent)
 
-        
         if (deleteSomething) {
             $room.instances = filteredInstances;
             $roomStore = $roomStore;
@@ -122,7 +123,7 @@
             );
 
             if (
-                isMouseDown &&
+                (isMouseDown || isDownEvent) &&
                 currentSprite &&
                 (!alreadyExists || isDownEvent)
             ) {
@@ -143,13 +144,13 @@
         let sprite = $gameData.getResource(inst.spriteID, Sprite);
         return sprite
             ? new DOMRect(
-                    inst.x - sprite.originX + sprite.bBoxX,
-                    inst.y - sprite.originY + sprite.bBoxY,
-                    sprite.bBoxWidth,
-                    sprite.bBoxHeight,
-                )
+                  inst.x - sprite.originX + sprite.bBoxX,
+                  inst.y - sprite.originY + sprite.bBoxY,
+                  sprite.bBoxWidth,
+                  sprite.bBoxHeight,
+              )
             : null;
-    };
+    }
 
     $: placingInst =
         tool == "edit" ? new Instance(currentSpriteUUID, -10000, 0) : null;
@@ -175,7 +176,7 @@
 
     let isMouseDown = false;
 
-    type RETool = "edit" | "delete" | "play";
+    type RETool = "edit" | "play";
 
     const tools = ["edit", "play"] as RETool[];
 
@@ -183,9 +184,12 @@
 
     function onSelectTool(tool: string) {
         if (tool == "play") {
+            iframeElement.contentWindow.focus();
             reload();
         }
     }
+
+    let showSettings = false;
 
     function canvasMouseDown(evt: MouseEvent) {
         if (evt.button != 0) return;
@@ -204,6 +208,19 @@
         placingInst = null;
         isMouseDown = false;
         refresh(false);
+    }
+
+    function canvasDrag(evt: DragEvent, isDrop: boolean) {
+        let otherUUID = evt.dataTransfer?.getData("text/uuid");
+        if (!otherUUID) return;
+
+        let resource = $gameData.getResource(otherUUID, Sprite);
+        if (resource) {
+            currentSpriteUUID = otherUUID;
+            canvasUpdate(evt, isDrop);
+            evt.preventDefault();
+            if (isDrop) console.log("sprite dropped!");
+        }
     }
 
     function refresh(canDeleteSomething: boolean) {
@@ -231,12 +248,11 @@
                 isDeleting = true;
             }
         }
-        if (placingInst && !isDeleting) 
-            drawInstance(placingInst, ctx);
+        if (placingInst && !isDeleting) drawInstance(placingInst, ctx);
 
         // draw grid
         if ($roomStore.grid.enabled) {
-            drawGrid(ctx);
+            drawGrid(ctx, $roomStore.grid.snap);
         }
     }
 
@@ -274,19 +290,33 @@
         ctx.globalCompositeOperation = "source-over";
     }
 
-    function drawGrid(ctx: CanvasRenderingContext2D) {
+    function drawGrid(
+        ctx: CanvasRenderingContext2D,
+        snapType: "corner" | "center",
+    ) {
         ctx.strokeStyle = "gray";
         ctx.lineWidth = 1;
         ctx.globalCompositeOperation = "difference";
         ctx.beginPath();
         assert(gridWidth >= 1 && gridHeight >= 1);
-        for (let x = 0; x < $room.width; x += gridWidth) {
-            ctx.moveTo(x + 0.5, 0);
-            ctx.lineTo(x + 0.5, $room.height);
-        }
-        for (let y = 0; y < $room.height; y += gridHeight) {
-            ctx.moveTo(0, y + 0.5);
-            ctx.lineTo($room.width, y + 0.5);
+        if (snapType == "center") {
+            for (let x = 0; x < $room.width; x += gridWidth) {
+                ctx.moveTo(x + 0.5, 0);
+                ctx.lineTo(x + 0.5, $room.height);
+            }
+            for (let y = 0; y < $room.height; y += gridHeight) {
+                ctx.moveTo(0, y + 0.5);
+                ctx.lineTo($room.width, y + 0.5);
+            }
+        } else {
+            const d = 8;
+            for (let x = 0; x <= $room.width; x += gridWidth)
+                for (let y = 0; y <= $room.height; y += gridHeight) {
+                    ctx.moveTo(x, y - d);
+                    ctx.lineTo(x, y + d);
+                    ctx.moveTo(x - d, y);
+                    ctx.lineTo(x + d, y);
+                }
         }
         ctx.stroke();
         ctx.closePath();
@@ -329,33 +359,70 @@
 <!-- isMaximized is intentionally non-reactive, still a bit sussy, might not work as expected -->
 <Card
     contentMinWidth={~~($roomStore.width / devicePixelRatio + 16)}
-    namePrefix="edit room: "
+    namePrefix="room - "
     isMaximized={data.get().editor.settings.openResourcesMaximized}
     {card}
 >
+    <!-- Tool / Mode Select -->
     <MultiSelect
         bind:value={tool}
         options={tools}
         onSelect={onSelectTool}
         let:option
     >
-        <AtlasIcon height={20} id={option == "play" ? 75 : 42} />
-        {option}
+        <AtlasIcon
+            height={20}
+            id={{ play: 75, edit: 42, settings: 43 }[option]}
+        />
+        <!-- <span style:font-size="var(--size-4)" style:line-height="var(--size-4)">{option}</span> -->
+        {option != "settings" ? option : ""}
     </MultiSelect>
 
     {#if tool == "edit"}
-    <div class="scroll-box">
-        <MultiSelect
-            bind:value={currentSpriteUUID}
-            options={sprites.map((s) => s.uuid)}
-            let:option
+        <!-- Sprite Select -->
+        <div
+            style:overflow-x="scroll"
+            style:width="{canvasDisplayWidth}px"
+            style:min-height="var(--size-9)"
         >
-            <div  style:height="var(--size-8)">
+            <MultiSelect
+                bind:value={currentSpriteUUID}
+                options={sprites.map((s) => s.uuid)}
+                onSelect={(v) => {
+                    if (currentSpriteUUID == v)
+                        openCard(SpriteEditor, currentSpriteUUID);
+                }}
+                let:option
+                style="align-items: end; padding-bottom:var(--size-2);"
+            >
+                <div
+                    style:height="fit-content"
+                    draggable="true"
+                    on:dragstart={(evt) =>
+                        evt.dataTransfer?.setData("text/uuid", option)}
+                >
+                    <SpriteIcon
+                        spriteID={option}
+                        growToFit={false}
+                        maxHeight={60}
+                        maxWidth={60}
+                    />
+                </div>
+            </MultiSelect>
+        </div>
+        <div style="padding: var(--size-1) 0">
+            <!-- ><AtlasIcon height={20} id={43} /></button -->
+            <button
+                class="borderless"
+                on:click={() => (showSettings = !showSettings)}
+                ><AtlasIcon height={15} id={showSettings? 7: 43} /> settings </button
+            >
+        </div>
+    {/if}
 
-                <SpriteIcon spriteID={option} growToFit={false} maxHeight={60} maxWidth={60}/>
-            </div>
-        </MultiSelect>
-    </div>
+    {#if showSettings}
+        <!-- style="width: {canvasDisplayWidth}px;" -->
+        <RoomSettings {roomStore} />
     {/if}
 
     {#if !currentSprite}
@@ -379,6 +446,8 @@
                 on:mousemove={canvasMouseMove}
                 on:mouseup={canvasMouseUp}
                 on:mouseleave={canvasMouseLeave}
+                on:dragover={(evt) => canvasDrag(evt, false)}
+                on:drop={(evt) => canvasDrag(evt, true)}
             />
         </div>
 
@@ -410,101 +479,25 @@
         {#if tool == "edit"}
             <AtlasIcon id={41} height={12} /> select the current sprite from resource
             list. drag to place multiple.
-        {:else if tool == "delete"}
-            <AtlasIcon id={41} height={12} /> click sprites to delete them.
         {/if}
     </h4>
     <!-- {:else if tool == "play"} -->
     <!-- <Game startRoomUUID={$roomStore?.uuid}></Game> -->
     <!-- {/if} -->
-    {#if mode == "settings"}
-        <div class="room-config">
-            <label
-                ><input
-                    type="checkbox"
-                    name="grid_enabled"
-                    bind:checked={$roomStore.grid.enabled}
-                /> grid
-            </label>
-            <label for="grid_width" hidden> width </label>
-            <input
-                name="grid_width"
-                type="number"
-                bind:value={$roomStore.grid.width}
-            />
-            x
-            <label for="grid_height" hidden> height </label>
-            <input
-                name="grid_height"
-                type="number"
-                bind:value={$roomStore.grid.height}
-            />
-            <span class="spacer" />
-            <label for="snap_mode">snap</label>
-            <label
-                ><input
-                    type="radio"
-                    value="center"
-                    checked
-                    bind:group={$roomStore.grid.snap}
-                /> center
-            </label>
-            <label
-                ><input
-                    type="radio"
-                    value="corner"
-                    bind:group={$roomStore.grid.snap}
-                /> corner
-            </label>
-            <!-- <span class="spacer" />
-                <label for="background_color">background: </label><input name="background_color" type="color" bind:value={bgColor}/> -->
-            <span class="spacer" />
-            <label
-                >bg color <input
-                    type="color"
-                    bind:value={$roomStore.backgroundColor}
-                /></label
-            >
-            <label
-                >width <input
-                    type="number"
-                    bind:value={$roomStore.width}
-                /></label
-            >
-            <label
-                >height <input
-                    type="number"
-                    bind:value={$roomStore.height}
-                /></label
-            >
-        </div>
-    {/if}
 </Card>
 
 <style>
-    .room-config {
-        overflow-x: hidden;
-    }
     /* 
     button:active {
         transform: none;
     } */
 
     .room-edit {
-        flex: 1 1 120px;
-        flex-shrink: 1;
+        flex: 1 0 120px;
         display: flex;
         flex-direction: row;
         align-items: stretch;
         min-width: 0;
-    }
-
-    .room-config {
-        margin-bottom: 7px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        align-items: baseline;
     }
 
     .canvas-container {
@@ -515,37 +508,5 @@
     .canvas-container canvas {
         /* display: block; */
         border: 1px dashed var(--main-color);
-    }
-
-    .room-config input[type="number"] {
-        width: 3.5em;
-    }
-
-    label {
-        vertical-align: middle;
-        /* margin: auto 0; */
-    }
-
-    label > * {
-        vertical-align: middle;
-    }
-
-    .toolbar {
-        /* margin-top: 6px; */
-        margin-bottom: 6px;
-        /* width: 100%; */
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        /* justify-content: space-between; */
-        justify-content: center;
-        gap: 4px;
-    }
-
-    .toolbar button {
-        padding: 3px;
-        display: block;
-        /* padding: 0; */
-        /* padding-bottom: 2px; */
     }
 </style>

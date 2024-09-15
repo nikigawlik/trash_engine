@@ -67,7 +67,7 @@ button {
     /* box-shadow: 2px 2px var(--main-color); */
 }
 
-button.borderless {
+.borderless {
     border: none;
     color: var(--main-color);
     background: none;
@@ -210,7 +210,7 @@ p.log {
     color: var(--main-color);
     width: 16px;
     height: 16px;
-
+    
 }
 
 /* disable 'double buttons' */

@@ -169,3 +169,10 @@ export function sanitizeFileName(input: string) {
         .replace(/^\s+|\s+$/g, '')            // Trim leading and trailing whitespace
         .substring(0, 255);                   // Limit to 255 characters (common max length)
 }
+
+export function keyHandler(callback: () => void) {
+    return (evt: KeyboardEvent) => {
+        // if (evt.key == "Space" || evt.key == "Enter")
+            callback();
+    }
+}

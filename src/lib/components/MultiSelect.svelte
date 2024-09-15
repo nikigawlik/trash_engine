@@ -3,40 +3,49 @@
 export let options = [] as string[];
 export let value = "";
 export let onSelect = (value: string) => {};
+export let style: string = "";
 
 function selectOption(option: string) {
+    onSelect(option);
     value = option;
-    onSelect(value);
 }
 
 </script>
 
-<li>
+<ul style={style}>
     {#each options as opt}
-        <ul>
+        <li>
             <button on:click={() => selectOption(opt)} class:selected={value == opt}>
 			    <slot option={opt} >{opt}</slot>
             </button>
-        </ul>
+        </li>
     {/each}
-</li>
+</ul>
 
 
 <style>
-    li {
+    ul {
         display: flex;
-        padding-top: var(--size-2);
-        padding-bottom: var(--size-2);
-        /* gap: var(--size-1) */
+        padding-top: var(--size-1);
+        padding-bottom: var(--size-1);
+        /* overflow-x: scroll; */
+        gap: var(--size-1);
     }
 
     button {
         display: block;
         font-size: var(--size-4);
-        padding: var(--size-1) var(--size-2);
+        padding: var(--size-1) var(--size-1);
         background-color: var(--off-bg-color);
-        border: none;
+        border: 1px solid transparent;
         border-radius: 0;
+        height: fit-content;
+    }
+
+    ul {
+        
+        height: fit-content;
+        align-self: baseline;
     }
 
     .selected {

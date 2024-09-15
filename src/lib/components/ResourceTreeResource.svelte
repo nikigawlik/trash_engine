@@ -65,53 +65,53 @@ import SpriteIcon from "./SpriteIcon.svelte";
         }
     }
 
-    function ondragover(evt: DragEvent) {
-        evt.preventDefault();
-    }  
-    function ondragenter(evt: DragEvent)  {
-        hover = true;
-    }
-    function ondragleave(evt: DragEvent)  {
-        hover = false;
-    }
+    // function ondragover(evt: DragEvent) {
+    //     evt.preventDefault(); // makes this a valid drop target
+    // }  
+
+    // function ondragenter(evt: DragEvent)  {
+    //     hover = true;
+    // }
+    // function ondragleave(evt: DragEvent)  {
+    //     hover = false;
+    // }
+
     function ondragstart(evt: DragEvent)  {
         evt.dataTransfer?.setData('text/uuid', resource.uuid);
-        // console.log("src: " + uuid)
     }
 
-    function ondrop(evt: DragEvent)  {
+    // function ondrop(evt: DragEvent)  {
         
-        evt.preventDefault() 
-        hover = false;
+    //     evt.preventDefault() 
+    //     hover = false;
 
-        let otherUUID = evt.dataTransfer?.getData("text/uuid");
-        console.log(`dropped: ${otherUUID} on ${$s_resource.uuid}`)
+    //     let otherUUID = evt.dataTransfer?.getData("text/uuid");
+    //     console.log(`dropped: ${otherUUID} on ${$s_resource.uuid}`)
         
-        // if(otherUUID) {
-        //     // console.log(otherUUID);
-        //     let other = $gameData.getResource(otherUUID);
+    //     // if(otherUUID) {
+    //     //     // console.log(otherUUID);
+    //     //     let other = $gameData.getResource(otherUUID);
 
-        //     if(!other) {
-        //         console.log(`could not find ${otherUUID}`); // shouldn't happen
-        //     } else if(other == resource) {
-        //         console.log(`can't move something into itself`)
-        //     } if(other.type != resource.type) {
-        //         console.log(`can only swap with resources of same type`)
-        //     } else {
-        //         // selfResource._parent?.insert(other, selfResource);
-        //         $gameData.moveResource(otherUUID, resource.uuid); // not implemented, re-ordering currently not supported
-        //     }
-        // }
-    }
+    //     //     if(!other) {
+    //     //         console.log(`could not find ${otherUUID}`); // shouldn't happen
+    //     //     } else if(other == resource) {
+    //     //         console.log(`can't move something into itself`)
+    //     //     } if(other.type != resource.type) {
+    //     //         console.log(`can only swap with resources of same type`)
+    //     //     } else {
+    //     //         // selfResource._parent?.insert(other, selfResource);
+    //     //         $gameData.moveResource(otherUUID, resource.uuid); // not implemented, re-ordering currently not supported
+    //     //     }
+    //     // }
+    // }
 </script>
 
 
+<!-- on:dragover={ondragover}
+on:dragenter={ondragenter}
+on:dragleave={ondragleave} -->
 <div draggable="true" class={`resource-link  resource-${resource.type}`}
-    on:dragover={ondragover}
-    on:dragenter={ondragenter}
-    on:dragleave={ondragleave}
     on:dragstart={ondragstart}
-    on:drop={ondrop}
 >
     <span class="grabbable container" class:drag-hover={hover}
     >
@@ -122,8 +122,10 @@ import SpriteIcon from "./SpriteIcon.svelte";
                 {resource.getIconElement()}
             {/if}
         </span>
-        <button class="name borderless" on:click={ () => openMe() } title="open">
+        <button class="name borderless" on:click={ () => openMe() } title="open" draggable>
             {resource.name}
+            <!-- this "filler" fixes glitchy button/draggable behaviour: -->
+            <span class="filler">&nbsp;</span>
         </button>
         <!-- <button class="borderless" on:click={ () => renameMe() } title="rename">
             <AtlasIcon id={33} />
@@ -151,6 +153,15 @@ import SpriteIcon from "./SpriteIcon.svelte";
         flex-shrink: 1;
         min-width: 0;
         text-align: left;
+
+        overflow: hidden; /* to hide the extra .filler */
+    }
+
+    .filler {
+        /* min-width: 0;
+        text-align: left; */
+        display: inline-block;
+        width:100%
     }
 
     .icon {
@@ -165,5 +176,9 @@ import SpriteIcon from "./SpriteIcon.svelte";
 
     .resource-link {
         width: 100%;
+    }
+
+    .drag-hover {
+        background-color: var(--off-main-color);
     }
 </style>
