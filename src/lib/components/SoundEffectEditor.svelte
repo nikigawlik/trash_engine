@@ -29,7 +29,7 @@
     }
 
     $: {
-        soundEffect; canvasHeight; canvasWidth;
+        $soundEffect; canvasHeight; canvasWidth;
         updateCanvas();
     }
 
