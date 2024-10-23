@@ -1,6 +1,6 @@
 # TRASH ENGINE
 
-Trash Engine is a small and trashy, quick and dirty game engine for making 2D games in the browser.
+[Trash Engine](https://nikigawlik.itch.io/trash-engine) is a small and trashy, quick and dirty game engine for making 2D games in the browser.
 
 This repository contains the code for trash engine! It uses Svelte as a web framework and Vite as a a dev server.
 
