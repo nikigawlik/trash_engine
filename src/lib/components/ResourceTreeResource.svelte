@@ -32,10 +32,10 @@ import SoundEffect from "../modules/structs/soundEffect";
 import Sprite from "../modules/structs/sprite";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
 import AtlasIcon from "./AtlasIcon.svelte";
-import BehaviourEditor from "./BehaviourEditor.svelte";
-import RoomEditor from "./RoomEditor.svelte";
-import SoundEffectEditor from "./SoundEffectEditor.svelte";
-import SpriteEditor from "./SpriteEditor.svelte";
+import BehaviourEditor from "./Cards/BehaviourEditor.svelte";
+import RoomEditor from "./Cards/RoomEditor.svelte";
+import SoundEffectEditor from "./Cards/SoundEffectEditor.svelte";
+import SpriteEditor from "./Cards/SpriteEditor.svelte";
 import SpriteIcon from "./SpriteIcon.svelte";
 
 

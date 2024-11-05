@@ -505,4 +505,16 @@
         display: inline-block;
         flex-grow: 1;
     }
+
+    .canvas-container canvas {
+        display: block;
+        margin: auto;
+        border: 1px solid var(--main-color);
+        background-color: var(--stripey-gradient);
+        
+        /* overflow: hidden; */
+        /* flex-grow: 1; */
+        /* object-fit:none ; */
+        background: var(--stripey-gradient);
+    }
 </style>

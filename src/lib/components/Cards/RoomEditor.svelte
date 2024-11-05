@@ -1,27 +1,27 @@
 <script lang="ts">
-    import Instance from "./../modules/structs/instance";
+    import Instance from "../../modules/structs/instance";
 
     import {
         adjustedCanvasSize,
         assert,
         rectInside,
         rectIntersect,
-    } from "../modules/game/utils";
-    import Room from "./../modules/structs/room";
-    import Sprite from "./../modules/structs/sprite";
+    } from "../../modules/game/utils";
+    import Room from "../../modules/structs/room";
+    import Sprite from "../../modules/structs/sprite";
 
     import { afterUpdate } from "svelte";
-    import { cards, openCard, type CardInstance } from "../modules/cardManager";
-    import { gameData } from "../modules/game/game_data";
-    import { data } from "../modules/globalData";
-    import { asStore } from "../modules/store_owner";
-    import AtlasIcon from "./AtlasIcon.svelte";
-    import Card from "./Card.svelte";
+    import { cards, openCard, type CardInstance } from "../../modules/cardManager";
+    import { gameData } from "../../modules/game/game_data";
+    import { data } from "../../modules/globalData";
+    import { asStore } from "../../modules/store_owner";
+    import AtlasIcon from "../AtlasIcon.svelte";
+    import Card from "../Card.svelte";
+    import SpriteEditor from "../Cards/SpriteEditor.svelte";
+    import MultiSelect from "../MultiSelect.svelte";
+    import RoomSettings from "../RoomSettings.svelte";
+    import SpriteIcon from "../SpriteIcon.svelte";
     import { getIFrameURL } from "./GamePreview.svelte";
-    import MultiSelect from "./MultiSelect.svelte";
-    import RoomSettings from "./RoomSettings.svelte";
-    import SpriteEditor from "./SpriteEditor.svelte";
-    import SpriteIcon from "./SpriteIcon.svelte";
 
     export let card: CardInstance;
     const uuid = card.uuid;
@@ -30,7 +30,6 @@
     $: {
         if (room == null) cards.remove(uuid, true);
     }
-    $: card.className = "room-editor";
     $: card.name = $room?.name || "room not loaded";
 
     let canvas: HTMLCanvasElement;

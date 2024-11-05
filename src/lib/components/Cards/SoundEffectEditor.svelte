@@ -1,16 +1,16 @@
 <script lang="ts">
     import { tick } from "svelte";
-    import type { CardInstance } from "../modules/cardManager";
-    import { gameData } from "../modules/game/game_data";
-    import { asStore } from "../modules/store_owner";
-    import SoundEffect from "../modules/structs/soundEffect";
-    import Card from "./Card.svelte";
+    import type { CardInstance } from "../../modules/cardManager";
+    import { gameData } from "../../modules/game/game_data";
+    import { asStore } from "../../modules/store_owner";
+    import SoundEffect from "../../modules/structs/soundEffect";
+    import Card from "../Card.svelte";
 
     export let card: CardInstance;
 
     let uuid = card.uuid;
 
-    $: card.className = "sound-effect-editor"
+    // $: card.className = "sound-effect-editor"
     $: card.position.width = 350;
 
     $: soundEffect = asStore($gameData.getResource(uuid, SoundEffect))

@@ -1,18 +1,18 @@
 <script lang="ts">
-import { CardInstance, openCard } from "../modules/cardManager";
-import { gameData } from "../modules/game/game_data";
-import { asStore } from "../modules/store_owner";
-import Behaviour from "../modules/structs/behaviour";
-import BehaviourLink from "../modules/structs/behaviourLink";
-import Sprite from "../modules/structs/sprite";
-import { blockingPopup } from "../modules/ui";
-import AtlasIcon from "./AtlasIcon.svelte";
+import { CardInstance, openCard } from "../../modules/cardManager";
+import { gameData } from "../../modules/game/game_data";
+import { asStore } from "../../modules/store_owner";
+import Behaviour from "../../modules/structs/behaviour";
+import BehaviourLink from "../../modules/structs/behaviourLink";
+import Sprite from "../../modules/structs/sprite";
+import { blockingPopup } from "../../modules/ui";
+import AtlasIcon from "../AtlasIcon.svelte";
+import BehaviourPreview from "../BehaviourPreview.svelte";
+import Card from "../Card.svelte";
+import ImageEditor from "../ImageEditor.svelte";
+import SelectBehaviourPopUp from "../SelectBehaviourPopUp.svelte";
+import TabView from "../TabView.svelte";
 import BehaviourEditor from "./BehaviourEditor.svelte";
-import BehaviourPreview from "./BehaviourPreview.svelte";
-import Card from "./Card.svelte";
-import ImageEditor from "./ImageEditor.svelte";
-import SelectBehaviourPopUp from "./SelectBehaviourPopUp.svelte";
-import TabView from "./TabView.svelte";
 
     export let card: CardInstance;
 
@@ -20,7 +20,6 @@ import TabView from "./TabView.svelte";
     let sSprite = asStore($gameData.getResource(card.uuid, Sprite))
 
     $: { card.name = $sSprite?.name; card = card; }
-    card.className = "sprite-editor"
     card.position.width = 350;
 
     let mode: "draw" | "script" = "draw";
@@ -133,16 +132,4 @@ import TabView from "./TabView.svelte";
         overflow-wrap: normal;
     } */
 
-    /* TODO make non-global, but will have to restructure canvas stuff  */
-    :global(.card.sprite-editor .canvas-container canvas) {
-        display: block;
-        margin: auto;
-        border: 1px solid var(--main-color);
-        background-color: var(--stripey-gradient);
-        
-        /* overflow: hidden; */
-        /* flex-grow: 1; */
-        /* object-fit:none ; */
-        background: var(--stripey-gradient);
-    }
 </style>

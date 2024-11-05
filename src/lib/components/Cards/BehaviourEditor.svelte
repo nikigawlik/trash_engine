@@ -1,11 +1,11 @@
 <script lang="ts">
     import { Readable, derived } from "svelte/store";
-    import type { CardInstance } from "../modules/cardManager";
-    import { gameData } from "../modules/game/game_data";
-    import { asStore } from "../modules/store_owner";
-    import Behaviour from "../modules/structs/behaviour";
-    import Sprite from "../modules/structs/sprite";
-    import Card from "./Card.svelte";
+    import type { CardInstance } from "../../modules/cardManager";
+    import { gameData } from "../../modules/game/game_data";
+    import { asStore } from "../../modules/store_owner";
+    import Behaviour from "../../modules/structs/behaviour";
+    import Sprite from "../../modules/structs/sprite";
+    import Card from "../Card.svelte";
 
     export let card: CardInstance;
     let uuid = card.uuid;
@@ -37,7 +37,6 @@
         ; 
     }
 
-    $: card.className = "behaviour-editor"
     $: card.position.width = 450;
 
     $: {

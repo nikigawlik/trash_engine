@@ -2,12 +2,12 @@
 <script lang="ts">
     
 
-import type { CardInstance } from "../modules/cardManager";
-import { gameData } from "../modules/game/game_data";
-import { adjustedCanvasSize } from "../modules/game/utils";
-import { serialize } from "../modules/serialize";
-import Room from "../modules/structs/room";
-import Card from "./Card.svelte";
+import type { CardInstance } from "../../modules/cardManager";
+import { gameData } from "../../modules/game/game_data";
+import { adjustedCanvasSize } from "../../modules/game/utils";
+import { serialize } from "../../modules/serialize";
+import Room from "../../modules/structs/room";
+import Card from "../Card.svelte";
 
     export let card: CardInstance;
     $: card.name = "game preview";

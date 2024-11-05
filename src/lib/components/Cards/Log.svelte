@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { CardInstance } from "../modules/cardManager";
-import Card from "./Card.svelte";
+import type { CardInstance } from "../../modules/cardManager";
+import Card from "../Card.svelte";
 
 
     export let card: CardInstance;

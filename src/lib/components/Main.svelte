@@ -3,8 +3,9 @@ import { setContext } from "svelte";
 import { gameData } from "../modules/game/game_data";
 import Room from "../modules/structs/room";
 import { cards, openCard } from "./../modules/cardManager";
-import Resources from "./Resources.svelte";
-import RoomEditor from "./RoomEditor.svelte";
+import { getDisplayName } from "./../modules/names";
+import Resources from "./Cards/Resources.svelte";
+import RoomEditor from "./Cards/RoomEditor.svelte";
 
     openCard(Resources);
     let rooms = $gameData.getAllOfResourceType(Room);
@@ -21,10 +22,21 @@ import RoomEditor from "./RoomEditor.svelte";
     setContext("getCardsBounds", () => boundsElmt);
 </script>
 
+<ul class="navmap">
+    {#each sortedCards as c (c.uuid)}
+        <li>
+            <button on:click={() => cards.focus(c.uuid)}>
+                {getDisplayName(c.componentType)}
+            </button>
+        </li>
+    {/each}
+</ul>
+
 <main>
     {#await loadPromise}
         ...loading
     {:then _} 
+    
     <div class=cards bind:this={boundsElmt}>
         {#each sortedCards as card (card.uuid)}
         <svelte:component this={card.componentType} card={card} />
@@ -34,6 +46,13 @@ import RoomEditor from "./RoomEditor.svelte";
 </main>
 
 <style>
+    .navmap {
+        display: flex;
+        flex-direction: row;
+        gap: var(--size-2);
+        padding: var(--size-2);
+    }
+
     .cards {
         width: max-content;
 

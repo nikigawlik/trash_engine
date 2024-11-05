@@ -1,13 +1,13 @@
 
 <script lang="ts">
-import { version } from "../../../package.json";
-import type { CardInstance } from "../modules/cardManager";
-import { deleteDatabase } from "../modules/database";
-import { gameData } from "../modules/game/game_data";
-import { asStore } from "../modules/store_owner";
-import { asyncGetTextPopup, asyncYesNoPopup } from "../modules/ui";
-import { data } from "./../modules/globalData";
-import Card from "./Card.svelte";
+import { version } from "../../../../package.json";
+import type { CardInstance } from "../../modules/cardManager";
+import { deleteDatabase } from "../../modules/database";
+import { gameData } from "../../modules/game/game_data";
+import { data } from "../../modules/globalData";
+import { asStore } from "../../modules/store_owner";
+import { asyncGetTextPopup, asyncYesNoPopup } from "../../modules/ui";
+import Card from "../Card.svelte";
 
     export let card: CardInstance;
     $: card.name = "settings";

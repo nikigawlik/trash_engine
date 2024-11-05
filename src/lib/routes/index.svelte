@@ -5,12 +5,13 @@
     import "../../assets/reset.css";
     import "../../assets/svg.css";
     import AtlasIcon from "../components/AtlasIcon.svelte";
-    import GamePreview from "../components/GamePreview.svelte";
+    import GamePreview from "../components/Cards/GamePreview.svelte";
+    import Reference from "../components/Cards/Reference.svelte";
+    import Resources from "../components/Cards/Resources.svelte";
+    import RoomEditor from "../components/Cards/RoomEditor.svelte";
+    import Settings from "../components/Cards/Settings.svelte";
     import Icon from "../components/Icon.svelte";
-    import Reference from "../components/Reference.svelte";
     import { openEditorWindow } from "../components/ResourceTreeResource.svelte";
-    import Resources from "../components/Resources.svelte";
-    import RoomEditor from "../components/RoomEditor.svelte";
     import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
     import WhackyButton from "../components/WhackyButton.svelte";
     import { cards, openCard } from "../modules/cardManager";
@@ -31,7 +32,6 @@
     import { blockingPopup } from "../modules/ui";
     import * as image_editor from "./../components/ImageEditor.svelte";
     import Main from "./../components/Main.svelte";
-    import Settings from "./../components/Settings.svelte";
     import * as globalData from "./../modules/globalData";
     import * as ui from "./../modules/ui";
 
@@ -382,7 +382,7 @@
             saving...
         </div>
     {:then}
-        <header>
+        <header style="display: none;">
             <div>
                 <Icon />
                 <!-- <h2>trash engine</h2> -->

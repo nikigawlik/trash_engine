@@ -9,7 +9,6 @@ import AtlasIcon from "./AtlasIcon.svelte";
 
     export let card: CardInstance;
     $: uuid = card.uuid;
-    $: windowType = card.className || "";
 
     export let autoFocus = true;
     export let contentMinWidth = 90; // px
@@ -204,8 +203,7 @@ on:mouseleave={onResizeMouseUp}
 ></svelte:body>
 
 
-<section 
-class={`card ${windowType || ''}`} 
+<section
 data-resource-uuid={uuid} 
 bind:this={elmt}
 tabindex=-1

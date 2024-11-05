@@ -11,7 +11,6 @@ export interface CardInstance {
     zIndex: number
     position: DOMRect
     isMaximized: boolean
-    className?: string
     data?: any
     onFocus?: () => void
 }
@@ -68,6 +67,7 @@ export let cards = {
     }),
     reset: () => set([]),
     get: () => _value,
+    update,
 };
 
 
