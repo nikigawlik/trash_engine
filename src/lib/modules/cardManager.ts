@@ -29,6 +29,8 @@ export let cards = {
         update(cardsArray => {
             console.log(`add/replace ${content.name} / ${uuid}`)
             let replacePos = replaceUUID? cardsArray.findIndex(x => x.uuid === replaceUUID) : -1;
+            if(replacePos >= 0)
+                position = cardsArray[replacePos].position;
             
             if(!cardsArray.find(x => x.uuid === uuid)) {
                 cardObj = {

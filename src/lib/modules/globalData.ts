@@ -59,6 +59,7 @@ const { subscribe, set, update } = writable(defaultSettings);
 let _value: typeof defaultSettings;
 subscribe(v => _value = v);
 
+
 export const data = {
     subscribe,
     update,
@@ -111,4 +112,8 @@ export async function load() {
     } else {
         console.log("!! no save data found")
     }
+
+    data.subscribe(_ => {
+        save();
+    })
 }

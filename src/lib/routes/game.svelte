@@ -140,7 +140,7 @@ import * as globalData from "./../modules/globalData";
         //     reload()
     }
     
-    $: settings = asStore($gameData?.settings);
+    $: settings = asStore($gameData?.settings, "gameData.settings");
 </script>
 
 <!-- <svelte:window on:message={onMessage} /> -->

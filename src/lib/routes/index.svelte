@@ -307,7 +307,7 @@
         }
     }
 
-    $: gameSettings = $gameData ? asStore($gameData.settings) : null;
+    $: gameSettings = $gameData ? asStore($gameData.settings, "gameData.settings") : null;
 
     let title = "loading...";
     $: {

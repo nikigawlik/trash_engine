@@ -14,7 +14,7 @@ import ResourceTreeResource from "../ResourceTreeResource.svelte";
 
 export let card: CardInstance;
 $: card.name = "resources";
-$: card.className = "resources";
+// $: card.className = "resources";
 $: card.position.width = 240;
 
 

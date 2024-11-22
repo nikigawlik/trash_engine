@@ -4,9 +4,11 @@ import { gameData } from "../modules/game/game_data";
 import Room from "../modules/structs/room";
 import { cards, openCard } from "./../modules/cardManager";
 import { getDisplayName } from "./../modules/names";
+import MainPanel from "./Cards/MainPanel.svelte";
 import Resources from "./Cards/Resources.svelte";
 import RoomEditor from "./Cards/RoomEditor.svelte";
 
+    openCard(MainPanel);
     openCard(Resources);
     let rooms = $gameData.getAllOfResourceType(Room);
     if(rooms.length > 0)

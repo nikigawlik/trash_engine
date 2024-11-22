@@ -20,8 +20,8 @@ gameData.subscribe(gd => {
 
     clearDBGameData()
 
-    asStore(gd.resources).subscribe((value) => gd.resources = value); // keep synced with the store
-    asStore(gd.settings).subscribe((value) => gd.settings = value);
+    asStore(gd.resources, "gameData.resources").subscribe((value) => gd.resources = value); // keep synced with the store
+    asStore(gd.settings, "gameData.settings").subscribe((value) => gd.settings = value);
 
     if(db) {
         asStore(gd.settings).subscribe(value => saveToDB(".settings", value) ) // async!!
@@ -72,7 +72,7 @@ export default class GameData implements GameData{
 
     deleteResource(uuid: string) {
         this.resources.delete(uuid);
-        asStore(this.resources).update(x => x) // triggers reactivity
+        asStore(this.resources, "gameData.resources").update(x => x) // triggers reactivity
     }
 
     addResource(resource: Resource) {
@@ -81,7 +81,7 @@ export default class GameData implements GameData{
         }
 
         this.resources.set(resource.uuid, resource);
-        asStore(this.resources).update(x => x) // triggers reactivity
+        asStore(this.resources, "gameData.resources").update(x => x) // triggers reactivity
     }
 
     getAllOfResourceType<T extends typeof Resource>(type: T): InstanceType<T>[] {
@@ -89,7 +89,7 @@ export default class GameData implements GameData{
     }
 
     getResourceTypeStore<T extends typeof Resource>(type: T): Readable<InstanceType<T>[]> {
-        return derived(asStore(this.resources), _ => this.getAllOfResourceType(type));
+        return derived(asStore(this.resources, "gameData.resources"), _ => this.getAllOfResourceType(type));
     }
     
     serialized() {
