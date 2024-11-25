@@ -17,14 +17,15 @@ import BehaviourEditor from "./BehaviourEditor.svelte";
     export let card: CardInstance;
 
     console.log(`open sprite ${card.uuid}`);
-    let sSprite = asStore($gameData.getResource(card.uuid, Sprite))
+    let sSprite = asStore($gameData.getResource(card.uuid, Sprite) || $gameData.getAllOfResourceType(Sprite)[0])
+    $: { if($sSprite) card.uuid = $sSprite.uuid; } 
 
     $: { card.name = $sSprite?.name; card = card; }
     card.position.width = 350;
 
     let mode: "draw" | "script" = "draw";
 
-    $: behaviours = $sSprite.resolveBehaviours();
+    $: behaviours = $sSprite?.resolveBehaviours();
 
 
     function removeBehaviour(behaviour: Behaviour) {
@@ -78,7 +79,13 @@ import BehaviourEditor from "./BehaviourEditor.svelte";
     }
 </script>
 
-<Card autoFocus={true} contentMinWidth={240} namePrefix="edit sprite: " {card}>
+<Card 
+    autoFocus={true} 
+    contentMinWidth={240} 
+    namePrefix="edit sprite: " 
+    {card}
+    resourceNeeded={$sSprite? null : {resourceConstructor: Sprite, displayName: "sprite"}}
+>
     <TabView bind:selected={mode} tabs={["draw", "script"]} />
     {#if mode=="draw"}
         <ImageEditor spriteID={$sSprite.uuid}/>

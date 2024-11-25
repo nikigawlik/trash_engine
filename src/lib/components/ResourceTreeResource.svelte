@@ -1,11 +1,13 @@
 <script context="module" lang="ts">
+    import { SvelteComponent } from "svelte";
+
     
     const resourceToEditorMap = [
         [Sprite, SpriteEditor],
         [Room, RoomEditor],
         [Behaviour, BehaviourEditor],
         [SoundEffect, SoundEffectEditor]
-    ]
+    ] as [typeof Resource, typeof SvelteComponent][]
     
     export function openEditorWindow(resource: Resource) {
         for(let x of resourceToEditorMap) {

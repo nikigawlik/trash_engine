@@ -1,3 +1,18 @@
+<script context="module" lang="ts">
+    import { get } from "svelte/store";
+
+    export async function newResource(resourceConstructor: typeof Resource, resourceName: string) {
+        let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
+        if(name) {    
+            let newResource = new resourceConstructor(name);
+            get(gameData).addResource(newResource);
+            openEditorWindow(newResource);
+            return true
+        }
+        return false
+    }
+</script>
+
 <script lang="ts">
     import { gameData } from "../modules/game/game_data";
     import Behaviour from "../modules/structs/behaviour";
@@ -22,16 +37,6 @@
         (resourceConstructor == SoundEffect)?  "sound effect":
         "null" 
     ;
-
-    async function newResource() {
-        let name = await asyncGetTextPopup(`Name of the ${resourceName}:`, `unnamed ${resourceName}`);
-        if(name) {    
-            let newResource = new resourceConstructor(name);
-            $gameData.addResource(newResource);
-            openEditorWindow(newResource);
-            contentsHidden = false;
-        }
-    }
     
     // function onclick(evt: MouseEvent)  {
     //     openContextMenu(evt, selfResource);
@@ -48,7 +53,7 @@
         📁
     </span>
     <span class=name>{displayName}</span>
-    <button class="new" on:click={ () => newResource() }>
+    <button class="new" on:click={ () => newResource(resourceConstructor, resourceName) }>
         <AtlasIcon id={22} />
         {resourceName}
     </button>

@@ -16,7 +16,7 @@
     import Settings from "./Settings.svelte";
 
     export let card: CardInstance;
-    $: card.name = "main panel";
+    $: card.name = "Trash Engine";
 
     
     $: gameSettings = $gameData ? asStore($gameData.settings, "gameData.settings") : null;
@@ -130,69 +130,37 @@
         }
     }
 
+    let buttons = [];
+    let i = 0;
+    buttons[i++] = { iconID: 33, onClick: clearProject, text: "new project" };
+    buttons[i++] = { iconID: 75, onClick: () => openCard(GamePreview), text: "play" };
+    buttons[i++] = { iconID: 59, onClick: () => openCard(Reference), text: "help" };
+    buttons[i++] = { iconID: 57, onClick: () => exportGame(), text: "export (game)" };
+    buttons[i++] = { iconID: 57, onClick: () => exportData(), text: "export (data)" };
+    buttons[i++] = { iconID: 58, onClick: () => importData(), text: "import" };
+    buttons[i++] = { iconID: 43, onClick: () => openCard(Settings), text: "settings" };
+    const fullscreenButtonIndex = i; // remember for later, doing it with the index triggers Svelte's reactivity, without updating the entire array
+    buttons[i++] = { iconID: 19, onClick: toggleFullscreen, text: "fullscreen" };
+
+    $: {
+        buttons[fullscreenButtonIndex].iconID = isFullscreen? 19 : 20;
+    }
+
+
+
 </script>
 
 <Card {card} contentMinWidth={100} hasCornerButtons={false}>
-    <div>
-        <!-- <Icon /> -->
-        <!-- <span class="spacer"></span> -->
-        <p>game title: </p>
-        <input type="text" bind:value={$gameSettings.title} />
-    </div>
-    <div>..</div>
+    
     <ul class="topbar">
+        {#each buttons as button}
         <li>
-            <button on:click={clearProject}>
-                <AtlasIcon id={33} /> new project
+            <button on:click={button.onClick} class="borderless alt">
+                <AtlasIcon id={button.iconID} height={24} /> <span >{button.text}</span>
             </button>
         </li>
-        <!-- <li><button on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </button></li>
-    <li><button on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </button></li>
-    <li><button on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </button></li>
-    <li><button on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </button></li> -->
-        <li>
-            <button on:click={() => openCard(GamePreview)}>
-                <AtlasIcon id={75} /> play
-            </button>
-        </li>
-        <li>
-            <button on:click={() => openCard(Reference)}>
-                <AtlasIcon id={59} /> help
-            </button>
-        </li>
-        <!-- <li><button on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </button></li> -->
-        <!-- <li><button on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </button></li> -->
-        <li>
-            <button on:click={() => exportGame()}>
-                <AtlasIcon id={57} /> export (game)
-            </button>
-        </li>
-        <li>
-            <button on:click={() => exportData()}>
-                <AtlasIcon id={57} /> export (data)
-            </button>
-        </li>
-        <li>
-            <button on:click={() => importData()}>
-                <AtlasIcon id={58} /> import
-            </button>
-        </li>
-        <li>
-            <button on:click={() => openCard(Settings)}>
-                <AtlasIcon id={43} /> settings
-            </button>
-        </li>
-        <li>
-            <button on:click={toggleFullscreen}>
-                {#if isFullscreen}
-                    <AtlasIcon id={19} height={16}></AtlasIcon>
-                {:else}
-                    <AtlasIcon id={20} height={16}></AtlasIcon>
-                {/if}
-                fullscreen
-            </button>
-        </li>
-        </ul>
+        {/each}
+    </ul>
 </Card>
 
 <style>
@@ -201,9 +169,13 @@
         flex-direction: column;
         align-items: stretch;
         width: 100%;
+        gap: var(--size-1)
     }
     .topbar button {
         width: 100%;
         text-align: left;
+
+        vertical-align: middle;
+        line-height: 1.5rem;
     }
 </style>

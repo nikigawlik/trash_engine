@@ -4,8 +4,10 @@ import { getContext, onMount } from "svelte";
 import { bringToFront, cards, type CardInstance } from "../modules/cardManager";
 import { gameData } from "../modules/game/game_data";
 import { asStore } from "../modules/store_owner";
+import Resource from "../modules/structs/resource";
 import { bounce } from "../transitions";
 import AtlasIcon from "./AtlasIcon.svelte";
+import { newResource } from "./ResourcesFolder.svelte";
 
     export let card: CardInstance;
     $: uuid = card.uuid;
@@ -15,6 +17,8 @@ import AtlasIcon from "./AtlasIcon.svelte";
     export let contentMaxWidth = 1000; // px // TODO could be smaller / can do this differently, but low prio
     export let hasCornerButtons = true;
     export let namePrefix = "";
+
+    export let resourceNeeded = null as {resourceConstructor: typeof Resource, displayName: string} | null;
 
     $: resourceStore = asStore($gameData.getResource(uuid))
 
@@ -272,7 +276,15 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
             {/if}
         </h3>
         <div class=content style:min-width={contentMinWidth}px style:max-width={contentMaxWidth}px>
+            {#if resourceNeeded}
+            <div>
+                <button on:click={() => newResource(resourceNeeded.resourceConstructor, resourceNeeded.displayName)}>
+                    create new {resourceNeeded.displayName}
+                </button>
+            </div>
+            {:else}
             <slot></slot>
+            {/if}
         </div>
     </div>
     {/key}
@@ -412,7 +424,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
         flex-direction: row;
     }
 
-    button {
+    .buttons button {
         width: 28px;
         height: 100%;
         display: block;

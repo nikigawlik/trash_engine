@@ -74,12 +74,22 @@ button {
     padding: 0;
     padding-bottom: 2px;
     margin: 0;
-    box-shadow: none;
+    box-shadow: none
 }
 
 button.borderless:hover {
     color: var(--main-color);
     background-color: var(--off-bg-color);
+}
+
+button.alt {
+    color: var(--main-color);
+    background-color: var(--off-bg-color);
+}
+
+button.alt:hover {
+    color: var(--bg-color);
+    background-color: var(--off-main-color);
 }
 
 .dark *[data-background-tweak="light"] button {

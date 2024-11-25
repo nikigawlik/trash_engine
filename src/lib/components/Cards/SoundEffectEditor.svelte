@@ -13,8 +13,8 @@
     // $: card.className = "sound-effect-editor"
     $: card.position.width = 350;
 
-    $: soundEffect = asStore($gameData.getResource(uuid, SoundEffect))
-    $: { card.name = $soundEffect.name }
+    $: soundEffect = asStore($gameData.getResource(uuid, SoundEffect) || $gameData.getAllOfResourceType(SoundEffect)[0]) || null;
+    $: { if($soundEffect) card.uuid = $soundEffect.uuid; } 
     
     let canvas: HTMLCanvasElement;
     let canvasCWidth: number;
@@ -70,6 +70,7 @@
     }
 
     function updateBufferAndCanvas() {
+        if(!$soundEffect) return;
         let ctx = canvas.getContext("2d");
         
         $soundEffect.createBuffer();
@@ -99,7 +100,13 @@
 </script>
 
 
-<Card autoFocus={true} contentMinWidth={240} namePrefix="edit sound: " {card}>
+<Card 
+    autoFocus={true} 
+    contentMinWidth={240} 
+    namePrefix="edit sound: " 
+    {card} 
+    resourceNeeded={$soundEffect? null : {displayName: "sound effect", resourceConstructor: SoundEffect}}
+>
     <canvas bind:this={canvas} 
         bind:clientWidth={canvasCWidth}
         bind:clientHeight={canvasCHeight}
