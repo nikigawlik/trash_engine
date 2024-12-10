@@ -59,8 +59,8 @@ function transfromFromVersion4(data: any) {
     let gd = new GameData();
     let resArr = data.resources as Resource[];
     let rmap = new Map(resArr.map(r => [r.uuid, r]))
-    asStore(gd.resources).set(rmap);
-    asStore(gd.settings).set(data.settings);
+    asStore(gd.resources, "gameData.resources").set(rmap);
+    asStore(gd.settings, "gameData.settings").set(data.settings);
 
     return gd;
 }

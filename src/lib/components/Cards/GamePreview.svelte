@@ -2,18 +2,18 @@
 <script lang="ts">
     
 
-import type { CardInstance } from "../modules/cardManager";
-import { gameData } from "../modules/game/game_data";
-import { adjustedCanvasSize } from "../modules/game/utils";
-import { serialize } from "../modules/serialize";
-import Room from "../modules/structs/room";
-import Card from "./Card.svelte";
+import type { CardInstance } from "../../modules/cardManager";
+import { gameData } from "../../modules/game/game_data";
+import { adjustedCanvasSize } from "../../modules/game/utils";
+import { serialize } from "../../modules/serialize";
+import Room from "../../modules/structs/room";
+import Card from "../Card.svelte";
 
     export let card: CardInstance;
     $: card.name = "game preview";
 
     let iframe: HTMLIFrameElement|null;
-    let selectedRoom: string;
+    let selectedRoomUUID: string;
 
     async function reload() {
         if(!iframe || !$gameData) return;
@@ -22,7 +22,7 @@ import Card from "./Card.svelte";
         const messageData = {
             type: "dataUpdate",
             resourceData,
-            startRoom: selectedRoom,
+            startRoom: selectedRoomUUID,
         };
         iframe.contentWindow?.postMessage(messageData);
         // iframe.contentWindow?.postMessage({
@@ -77,7 +77,7 @@ import Card from "./Card.svelte";
     <p><button on:click={reload}>reload ↺</button></p>
     <p>
         <label for="room">custom start room: </label>
-        <select name="room" bind:value={selectedRoom}>
+        <select name="room" bind:value={selectedRoomUUID}>
             {#each $rooms as room}
                 <option value={room.uuid}>{room.name}</option>
             {/each}

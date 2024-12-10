@@ -3,13 +3,15 @@
 import { getContext, onMount } from "svelte";
 import { bringToFront, cards, type CardInstance } from "../modules/cardManager";
 import { gameData } from "../modules/game/game_data";
+import { logger } from "../modules/logger";
 import { asStore } from "../modules/store_owner";
+import Resource from "../modules/structs/resource";
 import { bounce } from "../transitions";
 import AtlasIcon from "./AtlasIcon.svelte";
+import { newResource } from "./ResourcesFolder.svelte";
 
     export let card: CardInstance;
     $: uuid = card.uuid;
-    $: windowType = card.className || "";
 
     export let autoFocus = true;
     export let contentMinWidth = 90; // px
@@ -17,15 +19,19 @@ import AtlasIcon from "./AtlasIcon.svelte";
     export let hasCornerButtons = true;
     export let namePrefix = "";
 
+    export let resourceNeeded = null as {resourceConstructor: typeof Resource, displayName: string} | null;
+
     $: resourceStore = asStore($gameData.getResource(uuid))
 
     function closeWindow() {
         cards.remove(card.uuid);
+        logger.log(`close card ${card.name}`, card)
     };
 
     function focusWindow() {
         // cards.focus(card.uuid);
         bringToFront(card);
+        logger.log(`focus card ${card.name}`, card)
     }
 
     let getCardsBounds = getContext<() => HTMLElement|null>("getCardsBounds");
@@ -204,8 +210,7 @@ on:mouseleave={onResizeMouseUp}
 ></svelte:body>
 
 
-<section 
-class={`card ${windowType || ''}`} 
+<section
 data-resource-uuid={uuid} 
 bind:this={elmt}
 tabindex=-1
@@ -274,7 +279,15 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
             {/if}
         </h3>
         <div class=content style:min-width={contentMinWidth}px style:max-width={contentMaxWidth}px>
+            {#if resourceNeeded}
+            <div>
+                <button on:click={() => newResource(resourceNeeded.resourceConstructor, resourceNeeded.displayName)}>
+                    create new {resourceNeeded.displayName}
+                </button>
+            </div>
+            {:else}
             <slot></slot>
+            {/if}
         </div>
     </div>
     {/key}
@@ -414,7 +427,7 @@ style="--border: {7 / devicePixelRatio}px; --half-border: {3 / devicePixelRatio}
         flex-direction: row;
     }
 
-    button {
+    .buttons button {
         width: 28px;
         height: 100%;
         display: block;

@@ -86,7 +86,14 @@ import * as globalData from "./../modules/globalData";
             game.quitGameCallback = null;
             game.quit();
         }
-        game = new Game($gameData, canvasWebgl, canvas2d, htmlOverlay, startRoomUUID);
+        try {
+            game = new Game($gameData, canvasWebgl, canvas2d, htmlOverlay, startRoomUUID);
+        } catch (e) {
+            currentError = e;
+            console.error(e);
+            game = null;
+            return;
+        }
         game.registerEditorCallback(requestOpenEditor);
         game.quitGameCallback = () => reload(); // for quitting in game
         game.errorCallback = async(e: Error)=> {
@@ -139,11 +146,17 @@ import * as globalData from "./../modules/globalData";
         // if(event.code == "KeyR")
         //     reload()
     }
+
+    $: hasFocus = document.hasFocus();
+
+    function documentOnFocus() { hasFocus = true; }
+    function documentOnBlur() { hasFocus = false; }
     
-    $: settings = asStore($gameData?.settings);
+    $: settings = asStore($gameData?.settings, "gameData.settings");
 </script>
 
 <!-- <svelte:window on:message={onMessage} /> -->
+ <svelte:document on:focus={documentOnFocus} on:blur={documentOnBlur}></svelte:document>
 <svelte:window on:keydown={windowOnKeyDown} />
 <svelte:head>
     <title>{$settings?.title || "loading..."}</title>
@@ -169,6 +182,11 @@ import * as globalData from "./../modules/globalData";
             style:height={canvasDisplayHeight}px
         >
             <!-- <div class="centered"></div> -->
+            {#if !hasFocus}
+            <section class="error-msg">
+                <p>please click me to activate the game view</p>
+            </section>
+            {/if}
             {#if requestEditorOpen}
             <section class="request-editor-overlay">    
                 <p>(use mouse)</p>

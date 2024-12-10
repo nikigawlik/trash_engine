@@ -1,36 +1,32 @@
 <script lang="ts">
-    import Instance from "./../modules/structs/instance";
+    import Instance from "../../modules/structs/instance";
 
     import {
         adjustedCanvasSize,
         assert,
         rectInside,
         rectIntersect,
-    } from "../modules/game/utils";
-    import Room from "./../modules/structs/room";
-    import Sprite from "./../modules/structs/sprite";
+    } from "../../modules/game/utils";
+    import Room from "../../modules/structs/room";
+    import Sprite from "../../modules/structs/sprite";
 
-    import { afterUpdate } from "svelte";
-    import { cards, openCard, type CardInstance } from "../modules/cardManager";
-    import { gameData } from "../modules/game/game_data";
-    import { data } from "../modules/globalData";
-    import { asStore } from "../modules/store_owner";
-    import AtlasIcon from "./AtlasIcon.svelte";
-    import Card from "./Card.svelte";
+    import { afterUpdate, tick } from "svelte";
+    import { openCard, type CardInstance } from "../../modules/cardManager";
+    import { gameData } from "../../modules/game/game_data";
+    import { asStore } from "../../modules/store_owner";
+    import AtlasIcon from "../AtlasIcon.svelte";
+    import Card from "../Card.svelte";
+    import SpriteEditor from "../Cards/SpriteEditor.svelte";
+    import MultiSelect from "../MultiSelect.svelte";
+    import RoomSettings from "../RoomSettings.svelte";
+    import SpriteIcon from "../SpriteIcon.svelte";
     import { getIFrameURL } from "./GamePreview.svelte";
-    import MultiSelect from "./MultiSelect.svelte";
-    import RoomSettings from "./RoomSettings.svelte";
-    import SpriteEditor from "./SpriteEditor.svelte";
-    import SpriteIcon from "./SpriteIcon.svelte";
 
     export let card: CardInstance;
     const uuid = card.uuid;
 
-    $: room = asStore($gameData.getResource(uuid, Room));
-    $: {
-        if (room == null) cards.remove(uuid, true);
-    }
-    $: card.className = "room-editor";
+    $: room = asStore($gameData.getResource(uuid, Room) || $gameData.getAllOfResourceType(Room)[0]);
+    $: { if($room) card.uuid = $room.uuid }
     $: card.name = $room?.name || "room not loaded";
 
     let canvas: HTMLCanvasElement;
@@ -47,10 +43,8 @@
         currentSpriteUUID &&
         ($gameData.getResource(currentSpriteUUID, Sprite) as Sprite | null);
 
-    let roomStore = asStore($gameData.getResource(uuid, Room));
-
-    $: gridWidth = Math.max($roomStore.grid.width, 1);
-    $: gridHeight = Math.max($roomStore.grid.height, 1);
+    $: gridWidth = Math.max($room?.grid.width, 1);
+    $: gridHeight = Math.max($room?.grid.height, 1);
 
     // default for when room is not loaded
     $: canvasWidth = $room?.width || 100;
@@ -107,7 +101,7 @@
 
         if (deleteSomething) {
             $room.instances = filteredInstances;
-            $roomStore = $roomStore;
+            $room = $room;
             placingInst = null; // cant place directly after delete (bad UX)
         }
 
@@ -128,7 +122,7 @@
                 (!alreadyExists || isDownEvent)
             ) {
                 $room.instances.push(placingInst);
-                $roomStore = $roomStore;
+                $room = $room;
                 placingInst = new Instance(currentSpriteUUID, x, y);
             }
         } else {
@@ -157,13 +151,13 @@
 
     function getPlacementPos(inputX: number, inputY: number) {
         let x: number, y: number;
-        if (!$roomStore.grid.enabled) {
+        if (!$room?.grid.enabled) {
             x = Math.floor(inputX);
             y = Math.floor(inputY);
-        } else if ($roomStore.grid.snap == "center") {
+        } else if ($room?.grid.snap == "center") {
             x = (Math.floor(inputX / gridWidth) + 0.5) * gridWidth;
             y = (Math.floor(inputY / gridHeight) + 0.5) * gridHeight;
-        } else if ($roomStore.grid.snap == "corner") {
+        } else if ($room?.grid.snap == "corner") {
             x = Math.round(inputX / gridWidth) * gridWidth;
             y = Math.round(inputY / gridHeight) * gridHeight;
         } else {
@@ -184,7 +178,10 @@
 
     function onSelectTool(tool: string) {
         if (tool == "play") {
-            iframeElement.contentWindow.focus();
+            (async () => {
+                await tick();
+                iframeElement.contentWindow.focus();
+            })();
             reload();
         }
     }
@@ -225,7 +222,7 @@
 
     function refresh(canDeleteSomething: boolean) {
         /** @type {CanvasRenderingContext2D} */
-        if (!room) return;
+        if (!$room || !$room) return;
         let ctx = canvas?.getContext("2d")!;
         if (!ctx) return;
 
@@ -251,8 +248,8 @@
         if (placingInst && !isDeleting) drawInstance(placingInst, ctx);
 
         // draw grid
-        if ($roomStore.grid.enabled) {
-            drawGrid(ctx, $roomStore.grid.snap);
+        if ($room.grid.enabled) {
+            drawGrid(ctx, $room.grid.snap);
         }
     }
 
@@ -294,6 +291,7 @@
         ctx: CanvasRenderingContext2D,
         snapType: "corner" | "center",
     ) {
+        if (!$room || !$room) return;
         ctx.strokeStyle = "gray";
         ctx.lineWidth = 1;
         ctx.globalCompositeOperation = "difference";
@@ -329,7 +327,7 @@
         const messageData = {
             type: "dataUpdate",
             resourceData,
-            startRoom: $roomStore,
+            startRoom: $room.uuid,
         };
         iframeElement.contentWindow?.postMessage(messageData);
     }
@@ -357,11 +355,14 @@
 </script>
 
 <!-- isMaximized is intentionally non-reactive, still a bit sussy, might not work as expected -->
-<Card
-    contentMinWidth={~~($roomStore.width / devicePixelRatio + 16)}
-    namePrefix="room - "
+ <!-- 
+    contentMinWidth={($room && $room)? ~~($room.width / devicePixelRatio + 16) : 200}
     isMaximized={data.get().editor.settings.openResourcesMaximized}
+     -->
+<Card
+    namePrefix="room - "
     {card}
+    resourceNeeded={($room && $room)? null : {displayName: "room", resourceConstructor: Room}}
 >
     <!-- Tool / Mode Select -->
     <MultiSelect
@@ -422,7 +423,7 @@
 
     {#if showSettings}
         <!-- style="width: {canvasDisplayWidth}px;" -->
-        <RoomSettings {roomStore} />
+        <RoomSettings roomStore={room} />
     {/if}
 
     {#if !currentSprite}
@@ -482,7 +483,7 @@
         {/if}
     </h4>
     <!-- {:else if tool == "play"} -->
-    <!-- <Game startRoomUUID={$roomStore?.uuid}></Game> -->
+    <!-- <Game startRoomUUID={$room?.uuid}></Game> -->
     <!-- {/if} -->
 </Card>
 

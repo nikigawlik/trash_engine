@@ -42,14 +42,19 @@ function selectOption(option: string) {
         height: fit-content;
     }
 
-    ul {
-        
-        height: fit-content;
-        align-self: baseline;
+    button:hover {
+        background-color: var(--off-main-color);
+        color: var(--bg-color);
     }
 
     .selected {
         border: 1px solid var(--main-color);
         background-color: var(--bg-color);
+    }
+
+    ul {
+        
+        height: fit-content;
+        align-self: baseline;
     }
 </style>

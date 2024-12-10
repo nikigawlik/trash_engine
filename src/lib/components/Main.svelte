@@ -3,9 +3,15 @@ import { setContext } from "svelte";
 import { gameData } from "../modules/game/game_data";
 import Room from "../modules/structs/room";
 import { cards, openCard } from "./../modules/cardManager";
-import Resources from "./Resources.svelte";
-import RoomEditor from "./RoomEditor.svelte";
+import { getDisplayName } from "./../modules/names";
+import BehaviourEditor from "./Cards/BehaviourEditor.svelte";
+import MainPanel from "./Cards/MainPanel.svelte";
+import Resources from "./Cards/Resources.svelte";
+import RoomEditor from "./Cards/RoomEditor.svelte";
+import SoundEffectEditor from "./Cards/SoundEffectEditor.svelte";
+import SpriteEditor from "./Cards/SpriteEditor.svelte";
 
+    openCard(MainPanel);
     openCard(Resources);
     let rooms = $gameData.getAllOfResourceType(Room);
     if(rooms.length > 0)
@@ -16,15 +22,36 @@ import RoomEditor from "./RoomEditor.svelte";
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 
+    let comps = [MainPanel, Resources, SpriteEditor, RoomEditor, SoundEffectEditor, BehaviourEditor];
+
+    // $: navButs = comps.map(comp => {
+    //     if(sortedCards.find(x => x.componentType == comp))
+    // })
+
+
     let boundsElmt = null;
 
     setContext("getCardsBounds", () => boundsElmt);
 </script>
 
+<ul class="navmap">
+    {#each comps as c (c)}
+        <li>
+            <button 
+                class="borderless alt" 
+                on:click={() => openCard(c)}
+            >
+                {getDisplayName(c)}
+            </button>
+        </li>
+    {/each}
+</ul>
+
 <main>
     {#await loadPromise}
         ...loading
     {:then _} 
+    
     <div class=cards bind:this={boundsElmt}>
         {#each sortedCards as card (card.uuid)}
         <svelte:component this={card.componentType} card={card} />
@@ -34,6 +61,19 @@ import RoomEditor from "./RoomEditor.svelte";
 </main>
 
 <style>
+    .navmap {
+        display: flex;
+        flex-direction: row;
+        gap: var(--size-2);
+        padding: var(--size-2);
+    }
+
+    .navmap button {
+        font-size: var(--size-3);
+        line-height: var(--size-5);
+        padding: 0 var(--size-2);
+    }
+
     .cards {
         width: max-content;
 

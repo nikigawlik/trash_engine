@@ -7,7 +7,7 @@
     import type Sprite from "../modules/structs/sprite";
     import { asyncYesNoPopup } from "../modules/ui";
     import AtlasIcon from "./AtlasIcon.svelte";
-    import BehaviourEditor from "./BehaviourEditor.svelte";
+    import BehaviourEditor from "./Cards/BehaviourEditor.svelte";
     import BCustom from "./behaviours/BCustom.svelte";
 
     export let behaviour: Behaviour;

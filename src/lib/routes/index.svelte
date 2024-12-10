@@ -4,15 +4,11 @@
     import "../../assets/main.css";
     import "../../assets/reset.css";
     import "../../assets/svg.css";
-    import AtlasIcon from "../components/AtlasIcon.svelte";
-    import GamePreview from "../components/GamePreview.svelte";
+    import Resources from "../components/Cards/Resources.svelte";
+    import RoomEditor from "../components/Cards/RoomEditor.svelte";
     import Icon from "../components/Icon.svelte";
-    import Reference from "../components/Reference.svelte";
     import { openEditorWindow } from "../components/ResourceTreeResource.svelte";
-    import Resources from "../components/Resources.svelte";
-    import RoomEditor from "../components/RoomEditor.svelte";
     import SaveProjectPopUp from "../components/SaveProjectPopUp.svelte";
-    import WhackyButton from "../components/WhackyButton.svelte";
     import { cards, openCard } from "../modules/cardManager";
     import * as database from "../modules/database";
     import { gameData } from "../modules/game/game_data";
@@ -31,7 +27,6 @@
     import { blockingPopup } from "../modules/ui";
     import * as image_editor from "./../components/ImageEditor.svelte";
     import Main from "./../components/Main.svelte";
-    import Settings from "./../components/Settings.svelte";
     import * as globalData from "./../modules/globalData";
     import * as ui from "./../modules/ui";
 
@@ -307,7 +302,7 @@
         }
     }
 
-    $: gameSettings = $gameData ? asStore($gameData.settings) : null;
+    $: gameSettings = $gameData ? asStore($gameData.settings, "gameData.settings") : null;
 
     let title = "loading...";
     $: {
@@ -385,65 +380,10 @@
         <header>
             <div>
                 <Icon />
-                <!-- <h2>trash engine</h2> -->
                 <span class="spacer"></span>
+                <!-- <p>game title: </p> -->
                 <input type="text" bind:value={$gameSettings.title} />
             </div>
-            <ul class="topbar">
-                <li>
-                    <WhackyButton on:click={clearProject}>
-                        <AtlasIcon id={33} /> new project
-                    </WhackyButton>
-                </li>
-                <!-- <li><WhackyButton on:click={() => newResource("sprite", Sprite)}>   <AtlasIcon id={22} /> sprite </WhackyButton></li>
-            <li><WhackyButton on:click={() => newResource("room", Room)}>   <AtlasIcon id={22} /> room </WhackyButton></li>
-            <li><WhackyButton on:click={() => newResource("script", Behaviour)}>   <AtlasIcon id={22} /> script </WhackyButton></li>
-            <li><WhackyButton on:click={() => newResource("sound", SoundEffect)}>   <AtlasIcon id={22} /> sound </WhackyButton></li> -->
-                <li>
-                    <WhackyButton on:click={() => openCard(GamePreview)}>
-                        <AtlasIcon id={75} /> play
-                    </WhackyButton>
-                </li>
-                <li>
-                    <WhackyButton on:click={() => openCard(Reference)}>
-                        <AtlasIcon id={59} /> help
-                    </WhackyButton>
-                </li>
-                <!-- <li><WhackyButton on:click={async() => await promptSave()}>       <AtlasIcon id={7}  /> save      </WhackyButton></li> -->
-                <!-- <li><WhackyButton on:click={async() => await asyncLoad()}>       <AtlasIcon id={6}  /> load      </WhackyButton></li> -->
-                <li>
-                    <WhackyButton on:click={() => exportGame()}>
-                        <AtlasIcon id={57} /> export (game)
-                    </WhackyButton>
-                </li>
-                <li>
-                    <WhackyButton on:click={() => exportData()}>
-                        <AtlasIcon id={57} /> export (data)
-                    </WhackyButton>
-                </li>
-                <li>
-                    <WhackyButton on:click={() => importData()}>
-                        <AtlasIcon id={58} /> import
-                    </WhackyButton>
-                </li>
-                <li>
-                    <WhackyButton on:click={() => openCard(Settings)}>
-                        <AtlasIcon id={43} /> settings
-                    </WhackyButton>
-                </li>
-                <li>
-                    <WhackyButton on:click={toggleFullscreen}>
-                        {#if isFullscreen}
-                            <AtlasIcon id={19} height={16}></AtlasIcon>
-                        {:else}
-                            <AtlasIcon id={20} height={16}></AtlasIcon>
-                        {/if}
-                        fullscreen
-                    </WhackyButton>
-                </li>
-                <!-- <li><WhackyButton on:click={() => openCard(Resources)}>   <AtlasIcon id={11} /> resources </WhackyButton></li> -->
-                <!-- <li><WhackyButton on:click={async() => (await asyncYesNoPopup("REALLY?")) && database.deleteDatabase()}>DELETE DATA</WhackyButton></li> -->
-            </ul>
         </header>
         <Main bind:this={main}></Main>
     {:catch err}

@@ -1,11 +1,11 @@
 <script lang="ts">
     import { Readable, derived } from "svelte/store";
-    import type { CardInstance } from "../modules/cardManager";
-    import { gameData } from "../modules/game/game_data";
-    import { asStore } from "../modules/store_owner";
-    import Behaviour from "../modules/structs/behaviour";
-    import Sprite from "../modules/structs/sprite";
-    import Card from "./Card.svelte";
+    import type { CardInstance } from "../../modules/cardManager";
+    import { gameData } from "../../modules/game/game_data";
+    import { asStore } from "../../modules/store_owner";
+    import Behaviour from "../../modules/structs/behaviour";
+    import Sprite from "../../modules/structs/sprite";
+    import Card from "../Card.svelte";
 
     export let card: CardInstance;
     let uuid = card.uuid;
@@ -21,7 +21,7 @@
     $: {
         if($gameData)
         if(isIndependent) {
-            behaviour = asStore($gameData.getResource(uuid, Behaviour))
+            behaviour = asStore($gameData.getResource(uuid, Behaviour) || $gameData.getAllOfResourceType(Behaviour)[0])
         } else {
             let [spriteUUID, behaviourUUID] = uuid.split("/");
             sprite = asStore($gameData.getResource(spriteUUID, Sprite))
@@ -37,16 +37,21 @@
         ; 
     }
 
-    $: card.className = "behaviour-editor"
     $: card.position.width = 450;
 
-    $: {
-        console.log($behaviour);
-    }
+    // $: {
+    //     console.log($behaviour);
+    // }
 </script>
 
 
-<Card autoFocus={true} contentMinWidth={240} {card} namePrefix="edit behaviour: ">
+<Card 
+    autoFocus={true} 
+    contentMinWidth={240} 
+    {card} 
+    namePrefix="edit behaviour: "
+    resourceNeeded={$behaviour? null : {resourceConstructor: Behaviour, displayName: "behaviour"}}
+>
     {#if isIndependent}
     <p>(this behaviour/script needs to be added to a sprite to run)</p>
     {/if}

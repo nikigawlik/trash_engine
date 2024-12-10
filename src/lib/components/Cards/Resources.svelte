@@ -1,20 +1,20 @@
 <script lang="ts">
-import type { CardInstance } from "../modules/cardManager";
-import Behaviour from "../modules/structs/behaviour";
+import type { CardInstance } from "../../modules/cardManager";
+import Behaviour from "../../modules/structs/behaviour";
 
 
-import { gameData } from "../modules/game/game_data";
-import { compareBy } from "../modules/game/utils";
-import Room from "../modules/structs/room";
-import SoundEffect from "../modules/structs/soundEffect";
-import Sprite from "../modules/structs/sprite";
-import Card from "./Card.svelte";
-import ResourcesFolder from "./ResourcesFolder.svelte";
-import ResourceTreeResource from "./ResourceTreeResource.svelte";
+import { gameData } from "../../modules/game/game_data";
+import { compareBy } from "../../modules/game/utils";
+import Room from "../../modules/structs/room";
+import SoundEffect from "../../modules/structs/soundEffect";
+import Sprite from "../../modules/structs/sprite";
+import Card from "../Card.svelte";
+import ResourcesFolder from "../ResourcesFolder.svelte";
+import ResourceTreeResource from "../ResourceTreeResource.svelte";
 
 export let card: CardInstance;
 $: card.name = "resources";
-$: card.className = "resources";
+// $: card.className = "resources";
 $: card.position.width = 240;
 
 
@@ -54,20 +54,20 @@ $: soundEffects = $s_soundEffects.sort(compareBy(x => x.name));
                 {/each}
             </ul>
         </ResourcesFolder>
-        <ResourcesFolder displayName="scripts" resourceConstructor={Behaviour}>
-            <ul class="resources behaviours">
-                {#each behaviours as behaviour (behaviour.uuid)}
-                    <li>
-                        <ResourceTreeResource resource={behaviour}></ResourceTreeResource>
-                    </li>
-                {/each}
-            </ul>
-        </ResourcesFolder>
         <ResourcesFolder displayName="sounds" resourceConstructor={SoundEffect}>
             <ul class="resources sounds">
                 {#each soundEffects as soundEffect (soundEffect.uuid)}
                     <li>
                         <ResourceTreeResource resource={soundEffect}></ResourceTreeResource>
+                    </li>
+                {/each}
+            </ul>
+        </ResourcesFolder>
+        <ResourcesFolder displayName="scripts" resourceConstructor={Behaviour}>
+            <ul class="resources behaviours">
+                {#each behaviours as behaviour (behaviour.uuid)}
+                    <li>
+                        <ResourceTreeResource resource={behaviour}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>
