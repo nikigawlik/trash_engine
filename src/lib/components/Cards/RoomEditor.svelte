@@ -10,7 +10,7 @@
     import Room from "../../modules/structs/room";
     import Sprite from "../../modules/structs/sprite";
 
-    import { afterUpdate } from "svelte";
+    import { afterUpdate, tick } from "svelte";
     import { openCard, type CardInstance } from "../../modules/cardManager";
     import { gameData } from "../../modules/game/game_data";
     import { asStore } from "../../modules/store_owner";
@@ -178,7 +178,10 @@
 
     function onSelectTool(tool: string) {
         if (tool == "play") {
-            iframeElement.contentWindow.focus();
+            (async () => {
+                await tick();
+                iframeElement.contentWindow.focus();
+            })();
             reload();
         }
     }
@@ -324,7 +327,7 @@
         const messageData = {
             type: "dataUpdate",
             resourceData,
-            startRoom: $room,
+            startRoom: $room.uuid,
         };
         iframeElement.contentWindow?.postMessage(messageData);
     }

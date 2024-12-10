@@ -3,6 +3,7 @@
 import { getContext, onMount } from "svelte";
 import { bringToFront, cards, type CardInstance } from "../modules/cardManager";
 import { gameData } from "../modules/game/game_data";
+import { logger } from "../modules/logger";
 import { asStore } from "../modules/store_owner";
 import Resource from "../modules/structs/resource";
 import { bounce } from "../transitions";
@@ -24,11 +25,13 @@ import { newResource } from "./ResourcesFolder.svelte";
 
     function closeWindow() {
         cards.remove(card.uuid);
+        logger.log(`close card ${card.name}`, card)
     };
 
     function focusWindow() {
         // cards.focus(card.uuid);
         bringToFront(card);
+        logger.log(`focus card ${card.name}`, card)
     }
 
     let getCardsBounds = getContext<() => HTMLElement|null>("getCardsBounds");

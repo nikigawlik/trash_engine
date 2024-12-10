@@ -69,15 +69,20 @@ import Card from "../Card.svelte";
     {#if $gameSettings}
     <textarea name="licenseText" bind:value={$gameSettings.LICENSE}></textarea>
     {/if} 
+ 
 </Card>
 
 <style>
   h2 {
-    margin-bottom: 1rem;
+    margin-top: 1rem;
     text-decoration: underline;
   }
 
   textarea {
     resize: vertical;
+  }
+
+  p, h2 {
+    margin-bottom: var(--size-2);
   }
 </style>

@@ -25,5 +25,5 @@ export function getDisplayName(thing: any) {
     if(nameDict.has(thing))
         return nameDict.get(thing);
     else
-        return "<name-missing>";
+        return `<name-missing ${thing}>`;
 }

@@ -124,7 +124,7 @@ button:active {
 button:disabled {
     color: var(--off-bg-color);
     border-color: var(--off-bg-color);
-    box-shadow: 2px 2px var(--off-bg-color);
+    /* box-shadow: 2px 2px var(--off-bg-color); */
     background-color: var(--bg-color);
     transform: none;
 }
