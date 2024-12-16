@@ -151,13 +151,15 @@ import * as globalData from "./../modules/globalData";
 
     function documentOnFocus() { hasFocus = true; }
     function documentOnBlur() { hasFocus = false; }
+
+    $: console.log(`focus: ${hasFocus? "yes" : "no"}`)
     
     $: settings = asStore($gameData?.settings, "gameData.settings");
 </script>
 
 <!-- <svelte:window on:message={onMessage} /> -->
- <svelte:document on:focus={documentOnFocus} on:blur={documentOnBlur}></svelte:document>
-<svelte:window on:keydown={windowOnKeyDown} />
+<svelte:document on:focus={documentOnFocus} on:blur={documentOnBlur}></svelte:document>
+<svelte:window on:keydown={windowOnKeyDown} on:focus={documentOnFocus} on:blur={documentOnBlur}/>
 <svelte:head>
     <title>{$settings?.title || "loading..."}</title>
     {@html `<!-- ${licenseText} -->`}
