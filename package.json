@@ -1,7 +1,7 @@
 {
   "name": "trashengine",
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.2.0",
-    "svelte": "^3.59.1",
+    "svelte": "^4.0.5",
     "svelte-preprocess": "^5.0.3",
     "typescript": "^5.0.4",
     "vite": "^4.3.6",
@@ -19,6 +19,6 @@
     "vite-plugin-singlefile": "^0.13.5"
   },
   "dependencies": {
-    "svelte-markdown": "^0.2.3"
+    "svelte-markdown": "^0.4.1"
   }
 }
