@@ -1,5 +1,5 @@
 <script lang="ts">
-import { setContext } from "svelte";
+import { setContext, SvelteComponent } from "svelte";
 import { gameData } from "../modules/game/game_data";
 import Room from "../modules/structs/room";
 import { cards, openCard } from "./../modules/cardManager";
@@ -22,11 +22,18 @@ import SpriteEditor from "./Cards/SpriteEditor.svelte";
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 
-    let comps = [MainPanel, Resources, SpriteEditor, RoomEditor, SoundEffectEditor, BehaviourEditor];
+    let comps: (typeof SvelteComponent)[] = [MainPanel, Resources, SpriteEditor, RoomEditor, SoundEffectEditor, BehaviourEditor];
 
-    // $: navButs = comps.map(comp => {
-    //     if(sortedCards.find(x => x.componentType == comp))
-    // })
+    let compIsOpen = new WeakMap<typeof SvelteComponent, boolean>();
+    $: {
+        for(let comp of comps) {
+            const isOpen = !!sortedCards.find(x => x.componentType == comp);
+            if(!compIsOpen.has(comp) || isOpen != compIsOpen.get(comp)) {
+                compIsOpen.set(comp, isOpen);
+                compIsOpen = compIsOpen; // trigger reactivity
+            }
+        }
+    }
 
 
     let boundsElmt = null;
@@ -37,8 +44,10 @@ import SpriteEditor from "./Cards/SpriteEditor.svelte";
 <ul class="navmap">
     {#each comps as c (c)}
         <li>
+            <!-- class:borderless={compIsOpen.get(c)}  -->
             <button 
-                class="borderless alt" 
+                class="borderless"
+                class:alt={compIsOpen.get(c)}
                 on:click={() => openCard(c)}
             >
                 {getDisplayName(c)}
