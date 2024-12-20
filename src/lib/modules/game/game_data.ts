@@ -5,6 +5,7 @@ import { clearDBGameData, db, saveToDB } from "../database";
 import { serialize } from "../serialize";
 import { asStore, storeRegistered } from "../store_owner";
 import Resource from "../structs/resource";
+import Sprite from "../structs/sprite";
 import { compareBy } from "./utils";
 
 
@@ -32,8 +33,18 @@ gameData.subscribe(gd => {
                 // slighlty wasteful to do it for all of them, but ok
                 // also just seems sketchy tbh...
                 for(let [uuid, resource] of gd.resources) {
-                    if(!storeRegistered(resource))
-                        asStore(resource).subscribe(value => saveToDB(uuid, value)) // async!
+                    if(!storeRegistered(resource)) {
+                        const store = asStore(resource);
+                        store.subscribe(value => saveToDB(uuid, value)) // async!
+                        // even more sketch: do the same in a nested way for behaviours
+                        if(resource instanceof Sprite) 
+                            store.subscribe(value => {
+                              for(let b of resource.behaviours) {
+                                if(!storeRegistered(b))
+                                    asStore(b).subscribe(_ => store.update(x => x))
+                              }  
+                            })
+                    }
                 }
             }
         })
@@ -60,15 +71,25 @@ export default class GameData implements GameData{
     }
 
     getResource<T extends typeof Resource>(uuid: string, type?: T): InstanceType<T> {
+        let nestedUUID = null;
+        if(uuid.includes("/")) {
+            [uuid, nestedUUID] = uuid.split("/");
+        }
+
         if(this.resources.has(uuid)) {
             let r = this.resources.get(uuid);
+
+            if(nestedUUID && r instanceof Sprite) {
+                r = r.behaviours.find(x => x.uuid == nestedUUID);
+                if(!r) return null
+            }
+
             if(!type) 
                 return r as InstanceType<T>;
             else
                 return (r instanceof type)? (r as InstanceType<T>) : null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     deleteResource(uuid: string) {
