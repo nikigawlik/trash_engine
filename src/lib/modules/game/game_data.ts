@@ -5,6 +5,7 @@ import { clearDBGameData, db, saveToDB } from "../database";
 import { serialize } from "../serialize";
 import { asStore, storeRegistered } from "../store_owner";
 import Resource from "../structs/resource";
+import { compareBy } from "./utils";
 
 
 const defaultGameSettings = {
@@ -80,12 +81,39 @@ export default class GameData implements GameData{
             throw Error(`Resource with uuid ${resource.uuid} is already registered.`)
         }
 
+        const maxOrdinal = Math.max(...Array.from(this.resources.values()).map(obj => obj.ordinal));
+        resource.ordinal = maxOrdinal+1;
+
         this.resources.set(resource.uuid, resource);
         asStore(this.resources, "gameData.resources").update(x => x) // triggers reactivity
     }
 
+    moveResource(uuid: string, referenceUUID: string, pos: "before"|"after") {
+        let inserted = this.getResource(uuid);
+        let ref = this.getResource(referenceUUID);
+        // move the ordinals of all later resources by one to make space
+        for(let r of this.resources.values()) {
+            if(r.ordinal > ref.ordinal) {
+                r.ordinal ++;
+            }
+        }
+        if(pos == "before") {
+            // insert before -> new resource takes the place of ref, ref moves one back
+            inserted.ordinal = ref.ordinal;
+            ref.ordinal = inserted.ordinal + 1;
+        }
+        else {
+            // insert after -> new resource is after the ref
+            inserted.ordinal = ref.ordinal + 1;
+        }
+
+        asStore(this.resources, "gameData.resources").update(x => x) // triggers reactivity
+    }
+
     getAllOfResourceType<T extends typeof Resource>(type: T): InstanceType<T>[] {
-        return Array.from(this.resources.values()).filter(x => x instanceof type) as InstanceType<T>[];
+        return Array.from(this.resources.values())
+            .filter(x => x instanceof type)
+            .sort(compareBy(x => x.ordinal)) as InstanceType<T>[];
     }
 
     getResourceTypeStore<T extends typeof Resource>(type: T): Readable<InstanceType<T>[]> {

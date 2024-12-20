@@ -11,7 +11,8 @@
 
 <style>
     .options {
-        margin-bottom: 8px;
+        margin-bottom: var(--size-2);
+        margin-top:  var(--size-1);
         border-bottom: 1px solid var(--main-color);
     }
 

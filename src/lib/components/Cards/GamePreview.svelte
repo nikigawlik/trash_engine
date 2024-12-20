@@ -74,8 +74,9 @@ import Card from "../Card.svelte";
 
 <Card {card}>
     <p><a href={`${location.href}?game`} target="_blank">separate window</a></p>
-    <p><button on:click={reload}>reload ↺</button></p>
-    <p>
+    <p><button on:click={reload}>reload ↺</button>
+    <!-- </p><p> -->
+        <span class=spacer>&nbsp;</span>
         <label for="room">custom start room: </label>
         <select name="room" bind:value={selectedRoomUUID}>
             {#each $rooms as room}
@@ -100,5 +101,10 @@ import Card from "../Card.svelte";
 
     a {
         font-size: small;
+    }
+
+    p {
+        margin-top: var(--size-1);
+        margin-bottom: var(--size-1);
     }
 </style>

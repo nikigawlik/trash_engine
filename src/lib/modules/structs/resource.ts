@@ -16,11 +16,13 @@ export default class Resource {
     type: string;
     uuid: string;
     ownerUUID?: string;
+    ordinal: number
     constructor(name = "", uuid?: string, ownerUUID?: string) {
         this.name = name;
         this.type = this.constructor.name.toLowerCase();
         this.uuid = uuid || crypto.randomUUID()
         this.ownerUUID = ownerUUID;
+        this.ordinal = 0;
     }
     
     getIconElement(): string {

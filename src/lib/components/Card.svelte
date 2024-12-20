@@ -210,6 +210,7 @@ on:mouseleave={onResizeMouseUp}
 ></svelte:body>
 
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <section
 data-resource-uuid={uuid} 
 bind:this={elmt}

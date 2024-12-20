@@ -22,8 +22,9 @@
         let saveFilesPromise = getSaveFiles();
 
         async function getSaveFiles() {
+            //throw new Error("not implemented!")
+            
             // TODO delete
-            throw new Error("not implemented!")
             return [];
             // console.log(`- load resource tree from indexed db...`)
             // try {

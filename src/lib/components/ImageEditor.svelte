@@ -425,6 +425,7 @@
     </div>
 </div>
 <!-- <div class="canvas-container-container"> -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div 
     class="canvas-container" 
     bind:this={canvasContainer}
@@ -445,15 +446,20 @@
     ></canvas>
 </div>
 
-<p on:mouseenter={() => showBBox = true} on:mouseleave={() => showBBox = false} style:font-size="small">
+<p 
+    on:mouseenter={() => showBBox = true} 
+    on:mouseleave={() => showBBox = false} 
+    style:font-size="small"
+    class="bbox"
+>
     bounds: {$s_sprite.bBoxX} {$s_sprite.bBoxY} {$s_sprite.bBoxWidth} {$s_sprite.bBoxHeight}
 </p>
 
 <style>
     .toolbar {
+        /* width: 100%; */
         /* margin-top: 6px; */
         margin-bottom: 6px;
-        /* width: 100%; */
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -482,6 +488,8 @@
         flex-wrap: wrap;
         column-gap: 16px;
         justify-content: center;
+        margin-top: var(--size-1);
+        margin-bottom: var(--size-1);
     }
 
     .canvas-container {
@@ -499,6 +507,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        margin-bottom: var(--size-1);
     }
     .card-settings>p>* {
         font-size: small;
@@ -516,5 +525,9 @@
         /* flex-grow: 1; */
         /* object-fit:none ; */
         background: var(--stripey-gradient);
+    }
+
+    .bbox {
+        margin-bottom: var(--size-2);
     }
 </style>

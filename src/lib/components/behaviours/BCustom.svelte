@@ -8,18 +8,13 @@
     export let behaviour: Behaviour;
     $: behaviour.iconID = 42;
 
-    // let props: string[] = behaviour.props;
-    // let code: string = behaviour.code;
-
     let behaviourStore = asStore(behaviour);
 
+    // ensure reactivity for nested behaviours
     $: {    
         if($behaviourStore.ownerUUID) 
             asStore($gameData?.getResource($behaviourStore.ownerUUID))?.update(x => x);
     }
-    
-    // $: behaviour.props = props;
-    // $: behaviour.code = code
 
     let focus = false;
     
@@ -103,7 +98,7 @@
     </li>
 </ul>
 <p>code: </p>
-<textarea bind:value={$behaviourStore.code}></textarea>
+<textarea bind:value={$behaviourStore.code} spellcheck="false"></textarea>
 <p class="syntax-error">
     {syntaxError}
 </p>

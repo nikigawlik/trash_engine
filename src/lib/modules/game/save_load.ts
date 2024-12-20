@@ -2,7 +2,7 @@ import defaultProjectData from "../../../assets/engineAssets/default_game.json";
 import { deserialize, requestAsync } from "../serialize";
 import Resource from "../structs/resource";
 import GameData, { gameData } from "./game_data";
-import { assert } from "./utils";
+import { assert, compareBy } from "./utils";
 
 import { db, getDocumentGameData, STORE_NAME_RESOURCES } from "../database";
 import { asStore } from "../store_owner";
@@ -18,7 +18,7 @@ export async function loadGameData(data: any) {
         gd = await deserialize(data, additionalProperties);
 
         if(gd["version"] == 4) {
-            gd = transfromFromVersion4(gd);
+            gd = transformFromVersion4(gd);
         }
 
         // Do a non-comprehensive check for data validity
@@ -37,6 +37,8 @@ export async function loadGameData(data: any) {
             throw Error(`Could not load game data: Wrong structure: ${e.message}`)
         }
 
+        fixOrdinals(gd);
+
         // TODO make a backup or sth?
         // if (gd.engineVersion != version)
         //     throw Error("Could not load game data: Unsupported version")
@@ -51,18 +53,36 @@ export async function loadGameData(data: any) {
     }
 }
 
-function transfromFromVersion4(data: any) {
+function transformFromVersion4(data: any) {
     assert(data.version == 4)
     assert(data.resources instanceof Array, "v4: resources not array")
     assert(data.settings instanceof Object, "v4: settings not object")
 
     let gd = new GameData();
     let resArr = data.resources as Resource[];
+    for(let i = 0; i < resArr.length; i++) {
+        resArr[i].ordinal = i+1;
+    }
     let rmap = new Map(resArr.map(r => [r.uuid, r]))
+    gd.resources = rmap;
     asStore(gd.resources, "gameData.resources").set(rmap);
+    gd.settings = data.settings;
     asStore(gd.settings, "gameData.settings").set(data.settings);
 
     return gd;
+}
+
+// ensures all the ordinals are different from each other and in increments of 1 or bigger
+function fixOrdinals(data: GameData) {
+    let resources = Array.from(data.resources.values());
+    resources.sort(compareBy(r => r.ordinal));
+    let prevValue = 0;
+    for(let i = 0; i < resources.length; i++) {
+        let r = resources[i];
+        if(r.ordinal <= prevValue)
+            r.ordinal = prevValue + 1;
+        prevValue = r.ordinal;
+    }
 }
 
 export async function autoLoadGameData() {

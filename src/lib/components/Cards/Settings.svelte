@@ -1,7 +1,7 @@
 
 <script lang="ts">
 import { version } from "../../../../package.json";
-import type { CardInstance } from "../../modules/cardManager";
+import { CardInstance, openCard } from "../../modules/cardManager";
 import { deleteDatabase } from "../../modules/database";
 import { gameData } from "../../modules/game/game_data";
 import { downloadTextFile, sanitizeFileName } from "../../modules/game/utils";
@@ -10,6 +10,7 @@ import { logger } from "../../modules/logger";
 import { asStore } from "../../modules/store_owner";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../../modules/ui";
 import Card from "../Card.svelte";
+import Log from "./Log.svelte";
 
     export let card: CardInstance;
     $: card.name = "settings";
@@ -62,7 +63,12 @@ import Card from "../Card.svelte";
     <p><label>open resources maximized &nbsp <input type="checkbox" bind:checked={$data.editor.settings.openResourcesMaximized} /></label></p>
     <p><label>show warning before leaving app &nbsp <input type="checkbox" bind:checked={$data.editor.settings.showWarningBeforeClosingApp} /></label></p>
     <p><button on:click={deleteData}>DELETE ALL SAVE DATA</button></p>
-    <p><button on:click={saveDebugLog}>save debug log</button></p>
+    <details>
+      <summary>debug settings</summary>
+      <p><label>show ordinals &nbsp <input type="checkbox" bind:checked={$data.editor.settings.showOrdinals} /></label></p>
+      <p><button on:click={saveDebugLog}>save debug log</button></p>
+      <p><button on:click={() => openCard(Log)}>exp. remote logging</button></p>
+    </details>
 
     <h2>game settings:</h2>
     <p><label for="licenseText">license info included in the build: </label></p>

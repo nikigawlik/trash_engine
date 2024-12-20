@@ -105,8 +105,9 @@
     // })
 
     async function save(id?: number) {
+        //throw Error("not implemented");
+        
         // TODO remove this
-        throw Error("not implemented");
         // let p1 = resourceManager .get().save(id); // id can be undefined -> thats ok
         // let p2 = data.save();
 
@@ -131,8 +132,9 @@
     }
 
     async function asyncLoad() {
+        //throw new Error("not implemented");
+        
         // TODO remove this
-        throw new Error("not implemented");
         // let result: {id:number, name:string} = await new Promise(resolve => {
         //     // this is a AbstractGetTextPrompt
         //     ui.blockingPopup.set({

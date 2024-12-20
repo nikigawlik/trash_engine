@@ -1,4 +1,4 @@
-import { Writable, writable } from "svelte/store";
+import { derived, readable, Writable, writable } from "svelte/store";
 import { gameData } from "./game/game_data";
 import { data } from "./globalData";
 import { logger } from "./logger";
@@ -83,6 +83,13 @@ export function asStore<T extends Object>(obj: T, name?: string): Writable<T> | 
 export function storeRegistered(obj: Object) {
     return stores.has(obj);
 }
+
+export function asStoreNullSafe<T>(obj: T | null, fallback: T) {
+    if(!obj) return readable(fallback);
+    const store = asStore(obj);
+    return derived(store, x => (x || fallback))
+}
+
 
 // function deepClone(obj: any) {
 //     // return deserialize(serialize(obj), new WeakMap<any, any>());

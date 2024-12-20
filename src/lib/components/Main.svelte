@@ -1,3 +1,10 @@
+<script lang="ts" context="module">
+    export function openDefaultCards() {
+
+        openCard(MainPanel);
+        openCard(Resources);
+    }
+</script>
 <script lang="ts">
 import { setContext, SvelteComponent } from "svelte";
 import { gameData } from "../modules/game/game_data";
@@ -11,8 +18,7 @@ import RoomEditor from "./Cards/RoomEditor.svelte";
 import SoundEffectEditor from "./Cards/SoundEffectEditor.svelte";
 import SpriteEditor from "./Cards/SpriteEditor.svelte";
 
-    openCard(MainPanel);
-    openCard(Resources);
+    openDefaultCards();
     let rooms = $gameData.getAllOfResourceType(Room);
     if(rooms.length > 0)
         openCard(RoomEditor, rooms[0].uuid)
@@ -24,9 +30,12 @@ import SpriteEditor from "./Cards/SpriteEditor.svelte";
 
     let comps: (typeof SvelteComponent)[] = [MainPanel, Resources, SpriteEditor, RoomEditor, SoundEffectEditor, BehaviourEditor];
 
+
+    $: navBar = comps.concat(sortedCards.map(x => x.componentType).filter(x => !(comps.indexOf(x) >= 0)))
+
     let compIsOpen = new WeakMap<typeof SvelteComponent, boolean>();
     $: {
-        for(let comp of comps) {
+        for(let comp of navBar) {
             const isOpen = !!sortedCards.find(x => x.componentType == comp);
             if(!compIsOpen.has(comp) || isOpen != compIsOpen.get(comp)) {
                 compIsOpen.set(comp, isOpen);
@@ -35,14 +44,13 @@ import SpriteEditor from "./Cards/SpriteEditor.svelte";
         }
     }
 
-
     let boundsElmt = null;
 
     setContext("getCardsBounds", () => boundsElmt);
 </script>
 
 <ul class="navmap">
-    {#each comps as c (c)}
+    {#each navBar as c (c)}
         <li>
             <!-- class:borderless={compIsOpen.get(c)}  -->
             <button 

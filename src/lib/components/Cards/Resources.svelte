@@ -19,16 +19,16 @@ $: card.position.width = 240;
 
 
 $: s_sprites = $gameData.getResourceTypeStore(Sprite)
-$: sprites = $s_sprites.sort(compareBy(x => x.name));
+$: sprites = $s_sprites.sort(compareBy(x => x.ordinal));
 
 $: s_rooms = $gameData.getResourceTypeStore(Room)
-$: rooms = $s_rooms.sort(compareBy(x => x.name));
+$: rooms = $s_rooms.sort(compareBy(x => x.ordinal));
 
 $: s_behaviours = $gameData.getResourceTypeStore(Behaviour)
-$: behaviours = $s_behaviours.sort(compareBy(x => x.name));
+$: behaviours = $s_behaviours.sort(compareBy(x => x.ordinal));
 
 $: s_soundEffects = $gameData.getResourceTypeStore(SoundEffect)
-$: soundEffects = $s_soundEffects.sort(compareBy(x => x.name));
+$: soundEffects = $s_soundEffects.sort(compareBy(x => x.ordinal));
 
 </script>
 
@@ -37,37 +37,37 @@ $: soundEffects = $s_soundEffects.sort(compareBy(x => x.name));
 <Card {card} hasCornerButtons={false}>
     <div class="scroll-box">
         <ResourcesFolder displayName="sprites" resourceConstructor={Sprite}>
-            <ul class="resources sprites">
-                {#each sprites as sprite (sprite.uuid)}
+            <ul class="resources sprites" role="listbox">
+                {#each sprites as sprite, i (sprite.uuid)}
                     <li>
-                        <ResourceTreeResource resource={sprite}></ResourceTreeResource>
+                        <ResourceTreeResource listPosition={i} resource={sprite}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>
         </ResourcesFolder>
         <ResourcesFolder displayName="rooms" resourceConstructor={Room}>
-            <ul class="resources sprites">
-                {#each rooms as room (room.uuid)}
+            <ul class="resources sprites" role="listbox">
+                {#each rooms as room, i (room.uuid)}
                     <li>
-                        <ResourceTreeResource resource={room}></ResourceTreeResource>
+                        <ResourceTreeResource listPosition={i} resource={room}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>
         </ResourcesFolder>
         <ResourcesFolder displayName="sounds" resourceConstructor={SoundEffect}>
-            <ul class="resources sounds">
-                {#each soundEffects as soundEffect (soundEffect.uuid)}
+            <ul class="resources sounds" role="listbox">
+                {#each soundEffects as soundEffect, i (soundEffect.uuid)}
                     <li>
-                        <ResourceTreeResource resource={soundEffect}></ResourceTreeResource>
+                        <ResourceTreeResource listPosition={i} resource={soundEffect}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>
         </ResourcesFolder>
         <ResourcesFolder displayName="scripts" resourceConstructor={Behaviour}>
-            <ul class="resources behaviours">
-                {#each behaviours as behaviour (behaviour.uuid)}
+            <ul class="resources behaviours" role="listbox">
+                {#each behaviours as behaviour, i (behaviour.uuid)}
                     <li>
-                        <ResourceTreeResource resource={behaviour}></ResourceTreeResource>
+                        <ResourceTreeResource listPosition={i} resource={behaviour}></ResourceTreeResource>
                     </li>
                 {/each}
             </ul>

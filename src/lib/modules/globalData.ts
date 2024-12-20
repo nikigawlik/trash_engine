@@ -50,6 +50,7 @@ let defaultSettings = {
             openResourcesMaximized: true,
             showWarningBeforeClosingApp: true,
             currentFont: "sans-serif",
+            showOrdinals: false,
         }
     }
 }

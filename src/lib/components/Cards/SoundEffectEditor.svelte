@@ -114,6 +114,7 @@
         height={canvasHeight}
     />
     <div class="buttons">
+        <button class="span2" on:click={() => playSound()}>play sound</button>
         <button on:click={ () => { setRandom(); playSound(); } }>random</button>
         <button on:click={ () => { mutate(); playSound(); } }>mutate</button>
     </div>
@@ -132,7 +133,6 @@
     </div>
     <!-- <label for="srate">srate</label>
     <input type="range" bind:value={$soundEffect.settings.srate} min="0" max="1" /> -->
-    <button on:click={() => playSound()}>play sound</button>
 </Card>
 
 
@@ -149,6 +149,10 @@
         grid-template-columns: 1fr 1fr;
         /* margin: 1rem 0; */
         margin-top: 1rem;
+    }
+
+    .span2 {
+        grid-column: span 2;
     }
     
     .slider-area {

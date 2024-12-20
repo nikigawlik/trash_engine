@@ -21,11 +21,15 @@
 
         console.log(`no window implemented for ${resource.type}`);
     }
+
+    let globalIsDragging = writable(false);
 </script>
 
 <script lang="ts">
+import { writable } from "svelte/store";
 import { cards, openCard } from "../modules/cardManager";
 import { gameData } from "../modules/game/game_data";
+import { data } from "../modules/globalData";
 import { asStore } from "../modules/store_owner";
 import Behaviour from "../modules/structs/behaviour";
 import Resource from "../modules/structs/resource";
@@ -42,10 +46,11 @@ import SpriteIcon from "./SpriteIcon.svelte";
 
 
     export let resource: Room | Sprite | Behaviour | SoundEffect;
+    export let listPosition = -1;
+
     let s_resource = asStore(resource);
     $: { resource = $s_resource }
 
-    let hover: boolean = false;
 
     function openMe() {
         openEditorWindow(resource);
@@ -67,55 +72,89 @@ import SpriteIcon from "./SpriteIcon.svelte";
         }
     }
 
-    // function ondragover(evt: DragEvent) {
-    //     evt.preventDefault(); // makes this a valid drop target
-    // }  
+    // visually shows the drop target
+    let hover: string = "" as "before"|"after"|"";
 
-    // function ondragenter(evt: DragEvent)  {
-    //     hover = true;
-    // }
-    // function ondragleave(evt: DragEvent)  {
-    //     hover = false;
-    // }
+    function ondragover(evt: DragEvent) {
+        evt.preventDefault(); // makes this a valid drop target
+    }  
+
+    function ondragenter(evt: DragEvent, pos: "before"|"after")  {
+        hover = pos;
+    }
+    function ondragleave(evt: DragEvent, pos: "before"|"after")  {
+        if(hover == pos) hover = "";
+    }
 
     function ondragstart(evt: DragEvent)  {
+        $globalIsDragging = true;
+        console.log("fasdfa  " + $globalIsDragging )
         evt.dataTransfer?.setData('text/uuid', resource.uuid);
     }
 
-    // function ondrop(evt: DragEvent)  {
-        
-    //     evt.preventDefault() 
-    //     hover = false;
+    function ondragend(evt: DragEvent) {
+        $globalIsDragging = false;
+        console.log("fasdfa  " + $globalIsDragging )
+    }
 
-    //     let otherUUID = evt.dataTransfer?.getData("text/uuid");
-    //     console.log(`dropped: ${otherUUID} on ${$s_resource.uuid}`)
-        
-    //     // if(otherUUID) {
-    //     //     // console.log(otherUUID);
-    //     //     let other = $gameData.getResource(otherUUID);
 
-    //     //     if(!other) {
-    //     //         console.log(`could not find ${otherUUID}`); // shouldn't happen
-    //     //     } else if(other == resource) {
-    //     //         console.log(`can't move something into itself`)
-    //     //     } if(other.type != resource.type) {
-    //     //         console.log(`can only swap with resources of same type`)
-    //     //     } else {
-    //     //         // selfResource._parent?.insert(other, selfResource);
-    //     //         $gameData.moveResource(otherUUID, resource.uuid); // not implemented, re-ordering currently not supported
-    //     //     }
-    //     // }
-    // }
+
+    function ondrop(evt: DragEvent, pos: "before"|"after")  {
+        hover = "";
+        let otherUUID = evt.dataTransfer?.getData("text/uuid");
+        // console.log(`dropped: ${otherUUID} on ${$s_resource.uuid}`)
+        // console.log(`dropped ${$gameData.getResource(otherUUID).name} ${pos} ${$s_resource.name}`)
+        
+        if(otherUUID) {
+            // console.log(otherUUID);
+            let other = $gameData.getResource(otherUUID);
+
+            if(!other) {
+                console.log(`could not find ${otherUUID}`); // shouldn't happen
+            } else if(other == resource) {
+                console.log(`can't move something into itself`)
+            } if(other.type != resource.type) {
+                console.log(`can only swap with resources of same type`)
+            } else {
+                // selfResource._parent?.insert(other, selfResource);
+                $gameData.moveResource(otherUUID, resource.uuid, pos); // not implemented, re-ordering currently not supported
+            }
+        }
+    }
+
+    $: debugShowOrdinal = $data.editor.settings.showOrdinals;
 </script>
 
 
-<!-- on:dragover={ondragover}
-on:dragenter={ondragenter}
-on:dragleave={ondragleave} -->
-<div draggable="true" class={`resource-link  resource-${resource.type}`}
+<!-- svelte-ignore a11y-role-has-required-aria-props -->
+<div 
+    draggable="true" 
+    class={`resource-link  resource-${resource.type}`}
     on:dragstart={ondragstart}
+    on:dragend={ondragend}
+    role="option"
+    tabindex="0"
 >
-    <span class="grabbable container" class:drag-hover={hover}
+    {#if listPosition == 0}
+    <!-- class:drag-hover={hover == "before"} -->
+    <div 
+        class="dropzone" 
+        on:drop={evt => ondrop(evt, "before")} 
+        on:dragover={ondragover}
+        on:dragenter={evt => ondragenter(evt, "before")}
+        on:dragleave={evt => ondragleave(evt, "before")}
+        role="region"
+        style:pointer-events={$globalIsDragging? "" : "none"}
+        style:top="-50%"
+        >
+        <!-- --dropzone-- -->
+        <div class="h-line"></div>
+    </div>
+    {/if}
+    <div 
+        class="grabbable container"
+        class:border-top={hover == "before"}
+        class:border-bottom={hover == "after"}
     >
         <span class=icon>
             {#if resource instanceof Sprite}
@@ -125,6 +164,9 @@ on:dragleave={ondragleave} -->
             {/if}
         </span>
         <button class="name borderless" on:click={ () => openMe() } title="open" draggable>
+            {#if debugShowOrdinal}
+                {resource.ordinal}
+            {/if}
             {resource.name}
             <!-- this "filler" fixes glitchy button/draggable behaviour: -->
             <span class="filler">&nbsp;</span>
@@ -135,7 +177,21 @@ on:dragleave={ondragleave} -->
         <button class="borderless" on:click={ () => deleteMe() } title="delete">
             <AtlasIcon id={51} />
         </button>
-    </span>
+    </div>
+    <!-- class:drag-hover={hover == "after"} -->
+    <div 
+        class="dropzone" 
+        on:drop={evt => ondrop(evt, "after")} 
+        on:dragover={ondragover}
+        on:dragenter={evt => ondragenter(evt, "after")}
+        on:dragleave={evt => ondragleave(evt, "after")}
+        role="region"
+        style:pointer-events={$globalIsDragging? "" : "none"}
+        style:top="50%"
+    >
+        <!-- --dropzone-- -->
+        <div class="h-line"></div>
+    </div>
 </div>
 
 <style>
@@ -178,9 +234,43 @@ on:dragleave={ondragleave} -->
 
     .resource-link {
         width: 100%;
+
+        position: relative;
     }
 
-    .drag-hover {
+    .dropzone{
+        height: var(--size-2);
+        /* background-color: var(--off-bg-color); */
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+    }
+
+    .border-top::before {
+        content: "▶───────";
+        position: absolute;
+        transform: translate(-0.5em, -50%);
+        /* border-top: var(--size-2) solid var(--off-bg-color); */
+    }
+    .border-bottom::after {
+        content: "▶───────";
+        position: absolute;
+        transform: translate(-0.5em, 50%);
+        /* border-bottom: var(--size-2) solid var(--off-bg-color); */
+    }
+
+
+/* 
+    .dropzone.drag-hover>.h-line {
         background-color: var(--off-main-color);
     }
+    .dropzone>.h-line {
+        height: var(--size-2);
+        transform: translateY(50%);
+    } */
 </style>

@@ -9,15 +9,15 @@
     import * as ui from "../../modules/ui";
     import AtlasIcon from "../AtlasIcon.svelte";
     import Card from "../Card.svelte";
+    import { openDefaultCards } from "../Main.svelte";
     import GamePreview from "./GamePreview.svelte";
-    import Log from "./Log.svelte";
     import Reference from "./Reference.svelte";
-    import Resources from "./Resources.svelte";
     import RoomEditor from "./RoomEditor.svelte";
     import Settings from "./Settings.svelte";
 
     export let card: CardInstance;
     $: card.name = "Trash Engine";
+    $: card.position = new DOMRect(-1, 0, 0, 0);
 
     
     $: gameSettings = $gameData ? asStore($gameData.settings, "gameData.settings") : null;
@@ -44,7 +44,7 @@
         if (res) {
             await loadDefaultProject();
             cards.reset();
-            openCard(Resources);
+            openDefaultCards()
             let rooms = $gameData.getAllOfResourceType(Room);
             openCard(RoomEditor, rooms[0].uuid);
         }
@@ -142,7 +142,6 @@
     buttons[i++] = { iconID: 43, onClick: () => openCard(Settings), text: "settings" };
     const fullscreenButtonIndex = i; // remember for later, doing it with the index triggers Svelte's reactivity, without updating the entire array
     buttons[i++] = { iconID: 19, onClick: toggleFullscreen, text: "fullscreen" };
-    buttons[i++] = { iconID: 0, onClick: () => openCard(Log), text: "logging (dev)" };
 
 
     $: {

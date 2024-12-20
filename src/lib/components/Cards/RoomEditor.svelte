@@ -31,10 +31,20 @@
 
     let canvas: HTMLCanvasElement;
 
+    // neccessary hack
     let sprites = [] as Sprite[];
-    $gameData
+    let unsub = $gameData
+    .getResourceTypeStore(Sprite)
+    .subscribe((value) => (sprites = value));
+    
+    $: {
+        // evil hack -> resubscribe when game data changes
+        unsub();
+        unsub = $gameData
         .getResourceTypeStore(Sprite)
         .subscribe((value) => (sprites = value));
+    }
+
 
     let currentSpriteUUID: string | null =
         sprites.length > 0 ? sprites[0].uuid : null;
@@ -383,6 +393,7 @@
         <!-- Sprite Select -->
         <div
             style:overflow-x="scroll"
+            style:overflow-y="hidden"
             style:width="{canvasDisplayWidth}px"
             style:min-height="var(--size-9)"
         >

@@ -20,6 +20,7 @@ export default class BehaviourLink implements Behaviour {
     get name() { return this.behaviour.name; }
     get type() { return this.behaviour.type; }
     get uuid() { return this.behaviour.uuid; }
+    get ordinal() { return this.behaviour.ordinal; }
     
     getIconElement(): string {
         return `❔`;

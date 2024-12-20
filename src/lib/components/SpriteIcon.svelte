@@ -1,9 +1,12 @@
+<script lang="ts" context="module">
+    const defaultSprite = new Sprite("void");
+</script>
 
 <script lang="ts">
 import { onMount } from "svelte";
 import { gameData } from "../modules/game/game_data";
 import { adjustedCanvasSize } from "../modules/game/utils";
-import { asStore } from "../modules/store_owner";
+import { asStoreNullSafe } from "../modules/store_owner";
 import Sprite from "../modules/structs/sprite";
     
     export let spriteID: string;
@@ -13,7 +16,9 @@ import Sprite from "../modules/structs/sprite";
 
     let myCanvas: HTMLCanvasElement;
 
-    $: sprite = asStore($gameData.getResource(spriteID, Sprite))
+    // $: sprite = asStore($gameData.getResource(spriteID, Sprite))
+    
+    $: sprite = asStoreNullSafe($gameData.getResource(spriteID, Sprite), defaultSprite)
 
     $: width = $sprite.canvas?.width || 1
     $: height = $sprite.canvas?.height || 1
