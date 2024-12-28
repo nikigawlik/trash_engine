@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Readable, derived } from "svelte/store";
+    import { Readable, Writable } from "svelte/store";
     import type { CardInstance } from "../../modules/cardManager";
     import { gameData } from "../../modules/game/game_data";
     import { asStore } from "../../modules/store_owner";
@@ -13,7 +13,7 @@
     console.log(`open behaviour ${card.uuid}`);
 
     
-    let behaviour: Readable<Behaviour>;
+    let behaviour: Writable<Behaviour>;
     let sprite: Readable<Sprite> | null = null; // a bit weird, but works
     
     const isIndependent = !card.uuid.includes("/");
@@ -25,7 +25,8 @@
         } else {
             let [spriteUUID, behaviourUUID] = uuid.split("/");
             sprite = asStore($gameData.getResource(spriteUUID, Sprite))
-            behaviour = derived(sprite, $sprite => $sprite.behaviours.find(x => x.uuid == behaviourUUID))
+            // behaviour = derived(sprite, $sprite => $sprite.behaviours.find(x => x.uuid == behaviourUUID))
+            behaviour = asStore($sprite.behaviours.find(x => x.uuid == behaviourUUID));
         }
     }
     
@@ -56,7 +57,7 @@
     <p>(this behaviour/script needs to be added to a sprite to run)</p>
     {/if}
     {#if $behaviour}
-        <svelte:component this={$behaviour.svelteComponent} behaviour={$behaviour}></svelte:component>
+        <svelte:component this={$behaviour.svelteComponent} bind:behaviour={$behaviour}></svelte:component>
     {/if}
 </Card>
 

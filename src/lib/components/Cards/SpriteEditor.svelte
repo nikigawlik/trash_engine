@@ -1,5 +1,5 @@
 <script lang="ts">
-import { CardInstance, openCard } from "../../modules/cardManager";
+import { CardInstance } from "../../modules/cardManager";
 import { gameData } from "../../modules/game/game_data";
 import { asStore } from "../../modules/store_owner";
 import Behaviour from "../../modules/structs/behaviour";
@@ -10,9 +10,9 @@ import AtlasIcon from "../AtlasIcon.svelte";
 import BehaviourPreview from "../BehaviourPreview.svelte";
 import Card from "../Card.svelte";
 import ImageEditor from "../ImageEditor.svelte";
+import { openEditorWindow } from "../ResourceTreeResource.svelte";
 import SelectBehaviourPopUp from "../SelectBehaviourPopUp.svelte";
 import TabView from "../TabView.svelte";
-import BehaviourEditor from "./BehaviourEditor.svelte";
 
     export let card: CardInstance;
 
@@ -70,10 +70,12 @@ import BehaviourEditor from "./BehaviourEditor.svelte";
                 `${$sSprite.uuid}/${b.uuid}`
             ;
             
-            if(!(b instanceof BehaviourLink))
-                openCard(BehaviourEditor, uuid);
-            
             $sSprite.addBehaviour(result);
+            
+            if(!(b instanceof BehaviourLink))
+                // openCard(BehaviourEditor, uuid);
+                openEditorWindow(b)
+            
             $sSprite = $sSprite;
         }
     }

@@ -2,19 +2,27 @@
     import { SvelteComponent } from "svelte";
 
     
+    // [resourceType, editorComponent, allowMultipleCards][]
     const resourceToEditorMap = [
-        [Sprite, SpriteEditor],
-        [Room, RoomEditor],
-        [Behaviour, BehaviourEditor],
-        [SoundEffect, SoundEffectEditor]
-    ] as [typeof Resource, typeof SvelteComponent][]
+        [Sprite, SpriteEditor, false],
+        [Room, RoomEditor, false],
+        [Behaviour, BehaviourEditor, true],
+        [BehaviourLink, BehaviourEditor, true],
+        [SoundEffect, SoundEffectEditor, false]
+    ] as [typeof Resource, typeof SvelteComponent, boolean][]
     
     export function openEditorWindow(resource: Resource) {
+        const uuid = resource.ownerUUID? 
+            `${resource.ownerUUID}/${resource.uuid}`
+        : 
+            resource.uuid 
+        ;
+
         for(let x of resourceToEditorMap) {
-            let [resourceType, editorComponent] = x;
+            let [resourceType, editorComponent, allowMultipleCards] = x;
 
             if(resource instanceof resourceType) {
-                openCard(editorComponent, resource.uuid);
+                openCard(editorComponent, uuid, allowMultipleCards);
                 return;
             }
         }
@@ -32,6 +40,7 @@ import { gameData } from "../modules/game/game_data";
 import { data } from "../modules/globalData";
 import { asStore } from "../modules/store_owner";
 import Behaviour from "../modules/structs/behaviour";
+import BehaviourLink from "../modules/structs/behaviourLink";
 import Resource from "../modules/structs/resource";
 import Room from "../modules/structs/room";
 import SoundEffect from "../modules/structs/soundEffect";

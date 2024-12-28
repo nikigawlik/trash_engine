@@ -1,14 +1,14 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { cards, openCard } from "../modules/cardManager";
+    import { cards } from "../modules/cardManager";
     import { asStore } from "../modules/store_owner";
     import type Behaviour from "../modules/structs/behaviour";
     import BehaviourLink from "../modules/structs/behaviourLink";
     import type Sprite from "../modules/structs/sprite";
     import { asyncYesNoPopup } from "../modules/ui";
     import AtlasIcon from "./AtlasIcon.svelte";
-    import BehaviourEditor from "./Cards/BehaviourEditor.svelte";
     import BCustom from "./behaviours/BCustom.svelte";
+    import { openEditorWindow } from "./ResourceTreeResource.svelte";
 
     export let behaviour: Behaviour;
     export let sprite: Sprite;
@@ -57,7 +57,7 @@
 <!-- <svelte:component this={behaviour.svelteComponent} {behaviour}></svelte:component> -->
 
 <p class="bottom-bar">
-    <button on:click={() => { openCard(BehaviourEditor, uuid) }}>open</button>
+    <button on:click={() => { openEditorWindow(behaviour) }}>open</button>
     {#if behaviour.svelteComponent != BCustom}
         <button on:click={() => { transformToCode() }}>convert to code</button>
     {/if}

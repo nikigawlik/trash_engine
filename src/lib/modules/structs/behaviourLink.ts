@@ -5,9 +5,11 @@ import Behaviour from "./behaviour";
 
 export default class BehaviourLink implements Behaviour {
     linkedBehaviourUUID: string
+    ownerUUID?: string;
 
-    constructor(linkedBehaviourUUID: string) {
+    constructor(linkedBehaviourUUID: string, ownerUUID?: string) {
         this.linkedBehaviourUUID = linkedBehaviourUUID;
+        this.ownerUUID = ownerUUID;
     }
 
     get behaviour() { return get(gameData).getResource(this.linkedBehaviourUUID, Behaviour) } 

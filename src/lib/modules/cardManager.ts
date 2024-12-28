@@ -24,7 +24,11 @@ subscribe(v => _value = v);
 
 export let cards = {
     subscribe,
-    add: (content: typeof SvelteComponent, name: string, position: DOMRect = new DOMRect(), isMaximized = false, uuid?: string, data: any = {}, replaceUUID?: string) => {
+    add: (content: typeof SvelteComponent, isMaximized = false, uuid?: string, replaceUUID?: string) => {
+        let name = "";                // TODO refactor this away
+        let position = new DOMRect(); // this too
+        let data = {};                // and this
+
         let cardObj: CardInstance = null;
         update(cardsArray => {
             console.log(`add/replace ${content.name} / ${uuid}`)
@@ -81,10 +85,9 @@ export function bringToFront(card: CardInstance) {
 export function openCard(
     type: ComponentType, 
     uuid?: string, 
-    position: DOMRect = new DOMRect(),
-    customData?: any,
+    allowDuplicate = false,
 ) {
-    const allowDuplicate = false; // could be turned into a setting, used to be a parameter
+    // const allowDuplicate = false; // could be turned into a setting, used to be a parameter
     assert(typeof uuid == "string" || typeof uuid == "undefined");
         
     // either an existing card or false/undefined
@@ -108,6 +111,6 @@ export function openCard(
         ;
 
         const isMax = data.get().editor.settings.openResourcesMaximized;
-        cards.add(type, "", position, isMax, uuid, customData, replaceUUID);
+        cards.add(type, isMax, uuid, replaceUUID);
     }
 }
