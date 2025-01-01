@@ -1,3 +1,4 @@
+import { setDisplayName } from "../names";
 import Resource from "./resource";
 
 let defaultSettings = { 
@@ -109,3 +110,5 @@ export default class SoundEffect extends Resource {
         gainNode.disconnect();
     }
 }
+
+setDisplayName(SoundEffect, "Sound Effect")

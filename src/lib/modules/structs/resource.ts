@@ -1,3 +1,4 @@
+import { setDisplayName } from "../names";
 
 console.log("resources.ts loading")
 
@@ -30,4 +31,4 @@ export default class Resource {
     }
 }
 
-
+setDisplayName(Resource, "Resource")

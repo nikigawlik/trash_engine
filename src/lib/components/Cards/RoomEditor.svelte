@@ -4,13 +4,13 @@
     import {
         adjustedCanvasSize,
         assert,
-        rectInside,
-        rectIntersect,
+        rectInside
     } from "../../modules/game/utils";
     import Room from "../../modules/structs/room";
     import Sprite from "../../modules/structs/sprite";
 
-    import { afterUpdate, tick } from "svelte";
+    import { tick } from "svelte";
+    import { Writable, writable } from "svelte/store";
     import { openCard, type CardInstance } from "../../modules/cardManager";
     import { gameData } from "../../modules/game/game_data";
     import { asStore } from "../../modules/store_owner";
@@ -63,87 +63,31 @@
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth);
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
-    afterUpdate(() => {
-        refresh(false);
-    });
+    // afterUpdate(() => {
+    //     refresh(false);
+    // });
 
     let instancesUnderCursor = new WeakSet<Instance>();
 
-    let prevX = 0;
-    let prevY = 0;
     // placing / deleting etc.
-    function canvasUpdate(evt: MouseEvent | DragEvent, isDownEvent: boolean) {
+    function canvasUpdate(evt: MouseEvent) {
         if (!room) return;
 
-        const inputX = evt.offsetX * (canvas.width / canvasDisplayWidth);
-        const inputY = evt.offsetY * (canvas.height / canvasDisplayHeight);
+        let {x, y, filteredInstances} = processMousePos(evt, false);
+        const canDeleteSomething = filteredInstances.length != $room.instances.length;
 
-        let mousepos = new DOMRect(inputX, inputY, 0, 0);
-
-        // update the weakset of the instances under the cursor (candidates for deletion)
-        instancesUnderCursor = new WeakSet();
-
-        for (let inst of $room.instances) {
-            const rect = getBBRect(inst);
-            if (rect && rectInside(mousepos, rect))
-                instancesUnderCursor.add(inst);
-        }
-
-        let filteredInstances = $room.instances.filter(
-            (inst) => !instancesUnderCursor.has(inst),
-        );
-
-        let { x, y } = getPlacementPos(inputX, inputY);
-        let moved = !!(prevX - x) || !!(prevY - y);
-
-        if (moved)
-            if (placingInst == null)
-                placingInst = new Instance(currentSpriteUUID, x, y);
-
-        let canDeleteSomething =
-            tool == "edit" &&
-            filteredInstances.length != $room.instances.length &&
-            !(evt instanceof DragEvent); // exception for when dragging
-
-        let deleteSomething =
-            canDeleteSomething && (isDownEvent || moved) && isMouseDown;
-        // (isMouseDown || isDownEvent)
-
-        if (deleteSomething) {
-            $room.instances = filteredInstances;
-            $room = $room;
-            placingInst = null; // cant place directly after delete (bad UX)
-        }
-
-        // place something
-        if (tool == "edit" && placingInst) {
+        if(canDeleteSomething) 
+            placingInst = null;
+        else {
+            if(!placingInst) 
+                placingInst = new Instance(currentSpriteUUID, x, y)
             placingInst.x = x;
             placingInst.y = y;
-
-            let alreadyExists = $room.instances.find(
-                (inst) =>
-                    inst.spriteID == currentSprite.uuid &&
-                    rectIntersect(getBBRect(inst), getBBRect(placingInst)),
-            );
-
-            if (
-                (isMouseDown || isDownEvent) &&
-                currentSprite &&
-                (!alreadyExists || isDownEvent)
-            ) {
-                $room.instances.push(placingInst);
-                $room = $room;
-                placingInst = new Instance(currentSpriteUUID, x, y);
-            }
-        } else {
-            placingInst = null;
-        }
-
-        prevX = x;
-        prevY = y;
+        }    
 
         refresh(canDeleteSomething);
     }
+
     function getBBRect(inst: Instance) {
         let sprite = $gameData.getResource(inst.spriteID, Sprite);
         return sprite
@@ -198,40 +142,142 @@
 
     let showSettings = false;
 
-    function canvasMouseDown(evt: MouseEvent) {
-        if (evt.button != 0) return;
-        isMouseDown = true;
-        canvasUpdate(evt, true);
-    }
+    let currentCanvasMouseEvent = writable(null) as Writable<MouseEvent|DragEvent>; 
 
-    function canvasMouseMove(evt: MouseEvent) {
-        canvasUpdate(evt, false);
-    }
-    function canvasMouseUp(evt: MouseEvent) {
-        isMouseDown = false;
-    }
+    async function placeAction() {
+        if (!room) return;
+        let evt = $currentCanvasMouseEvent;
 
-    function canvasMouseLeave(evt: MouseEvent) {
-        placingInst = null;
-        isMouseDown = false;
+
+        let mode = "initial" as "initial"|"place"|"delete";
+        if(evt.type == "drop")
+            mode = "place"
+
+        let prevX = -999;
+        let prevY = -999;
+
+        while(true) {
+            let {x, y, filteredInstances} = processMousePos(evt, !(mode == "initial"));
+            const canDelete = filteredInstances.length != $room.instances.length;
+            let moved = (prevX != x) || (prevY != y);
+
+            if(mode == "initial")
+                mode = canDelete? "delete" : "place";
+
+            if(canDelete && moved) {
+                $room.instances = filteredInstances;
+                $room = $room
+            }
+
+            if(moved) {
+                console.log("moved")
+                console.log(canDelete)
+            }
+
+            if(mode == "place" && moved){
+                if(placingInst == null) {
+                    placingInst = new Instance(currentSpriteUUID, x, y);
+                } else {
+                    placingInst.x = x;
+                    placingInst.y = y;
+                }
+            
+                // place something=
+
+                $room.instances.push(placingInst);
+                $room = $room;
+                placingInst = new Instance(currentSpriteUUID, x, y);
+            }
+
+            prevX = x;
+            prevY = y;
+
+            // refresh(mode == "delete");
+
+            // for drop events: end immediately
+            if(evt.type == "drop")
+                break
+
+            // otherwise: wait for next mouse event
+            let unsub = ()=>{};
+            evt = await new Promise(resolve => {
+                unsub = currentCanvasMouseEvent.subscribe((value) => {
+                    if(value != evt) resolve(value);
+                })
+            })
+            unsub();
+
+            // events
+            // mousedown, mousemove, mouseup, mouseleave, dragover, drop
+
+            if(evt.type == "mouseup" || evt.type == "mouseleave")
+                break
+        }
+        
         refresh(false);
     }
 
-    function canvasDrag(evt: DragEvent, isDrop: boolean) {
+    function processMousePos(evt: MouseEvent, applyGrid) {
+        const inputX = evt.offsetX * (canvas.width / canvasDisplayWidth);
+        const inputY = evt.offsetY * (canvas.height / canvasDisplayHeight);
+
+        const {x, y} = getPlacementPos(inputX, inputY);
+        let mousepos = applyGrid? new DOMRect(x, y, 0, 0) : new DOMRect(inputX, inputY, 0, 0);
+
+        // update the weakset of the instances under the cursor (candidates for deletion)
+        instancesUnderCursor = new WeakSet();
+
+        for (let inst of $room.instances) {
+            const rect = getBBRect(inst);
+            if (rect && rectInside(mousepos, rect))
+                instancesUnderCursor.add(inst);
+        }
+
+        let filteredInstances = $room.instances.filter(
+            (inst) => !instancesUnderCursor.has(inst),
+        );
+
+        return { x, y, filteredInstances };
+    }
+
+    function canvasMouseDown(evt: MouseEvent) {
+        if (evt.button != 0) return;
+        $currentCanvasMouseEvent = evt;
+        placeAction();
+    }
+
+    function canvasMouseMove(evt: MouseEvent) {
+        canvasUpdate(evt);
+        $currentCanvasMouseEvent = evt;
+    }
+    function canvasMouseUp(evt: MouseEvent) {
+        $currentCanvasMouseEvent = evt;
+    }
+
+    function canvasMouseLeave(evt: MouseEvent) {
+        $currentCanvasMouseEvent = evt;
+    }
+
+    function canvasDragOver(evt: DragEvent, isDrop: boolean) {
         let otherUUID = evt.dataTransfer?.getData("text/uuid");
         if (!otherUUID) return;
 
         let resource = $gameData.getResource(otherUUID, Sprite);
         if (resource) {
             currentSpriteUUID = otherUUID;
-            canvasUpdate(evt, isDrop);
             evt.preventDefault();
-            if (isDrop) console.log("sprite dropped!");
+            if (isDrop) {
+                $currentCanvasMouseEvent = evt;
+                placeAction();
+            } else {
+                canvasUpdate(evt);
+            }
         }
     }
+    
 
-    function refresh(canDeleteSomething: boolean) {
-        /** @type {CanvasRenderingContext2D} */
+    function refresh(showCross: boolean) {
+        // console.log(`refresh ${showCross}`)
         if (!$room || !$room) return;
         let ctx = canvas?.getContext("2d")!;
         if (!ctx) return;
@@ -250,12 +296,12 @@
         let isDeleting = false;
         for (let inst of $room.instances) {
             drawInstance(inst, ctx);
-            if (instancesUnderCursor.has(inst) && canDeleteSomething) {
+            if (instancesUnderCursor.has(inst) && showCross) {
                 drawCross(ctx, inst);
                 isDeleting = true;
             }
         }
-        if (placingInst && !isDeleting) drawInstance(placingInst, ctx);
+        if (placingInst && !showCross) drawInstance(placingInst, ctx);
 
         // draw grid
         if ($room.grid.enabled) {
@@ -370,7 +416,7 @@
     isMaximized={data.get().editor.settings.openResourcesMaximized}
      -->
 <Card
-    namePrefix="room - "
+    namePrefix="edit room: "
     {card}
     resourceNeeded={($room && $room)? null : {displayName: "room", resourceConstructor: Room}}
 >
@@ -458,8 +504,8 @@
                 on:mousemove={canvasMouseMove}
                 on:mouseup={canvasMouseUp}
                 on:mouseleave={canvasMouseLeave}
-                on:dragover={(evt) => canvasDrag(evt, false)}
-                on:drop={(evt) => canvasDrag(evt, true)}
+                on:dragover={(evt) => canvasDragOver(evt, false)}
+                on:drop={(evt) => canvasDragOver(evt, true)}
             />
         </div>
 

@@ -193,3 +193,12 @@ export function downloadTextFile(
     element.click();
     document.body.removeChild(element);
 }
+
+export function isValidVariableName(name: string) {
+    try {
+        new Function(`${name} = 1;`);
+        return true;
+    } catch {
+        return false;
+    }
+}

@@ -1,4 +1,16 @@
 <script lang="ts" context="module">
+    // register some names:
+    setDisplayName(BehaviourEditor, "Behaviour Editor");
+    setDisplayName(GamePreview, "Game Preview");
+    setDisplayName(Reference, "Reference");
+    setDisplayName(Resources, "Resources");
+    setDisplayName(RoomEditor, "Room Editor");
+    setDisplayName(Settings, "Settings");
+    setDisplayName(SoundEffectEditor, "Sound Effect Editor");
+    setDisplayName(SpriteEditor, "Sprite Editor");
+    setDisplayName(MainPanel, "Main Panel");
+    setDisplayName(Log, "(Experimental) Log");
+    
     export function openDefaultCards() {
 
         openCard(MainPanel);
@@ -10,11 +22,15 @@ import { setContext, SvelteComponent } from "svelte";
 import { gameData } from "../modules/game/game_data";
 import Room from "../modules/structs/room";
 import { cards, openCard } from "./../modules/cardManager";
-import { getDisplayName } from "./../modules/names";
+import { getDisplayName, setDisplayName } from "./../modules/names";
 import BehaviourEditor from "./Cards/BehaviourEditor.svelte";
+import GamePreview from "./Cards/GamePreview.svelte";
+import Log from "./Cards/Log.svelte";
 import MainPanel from "./Cards/MainPanel.svelte";
+import Reference from "./Cards/Reference.svelte";
 import Resources from "./Cards/Resources.svelte";
 import RoomEditor from "./Cards/RoomEditor.svelte";
+import Settings from "./Cards/Settings.svelte";
 import SoundEffectEditor from "./Cards/SoundEffectEditor.svelte";
 import SpriteEditor from "./Cards/SpriteEditor.svelte";
 

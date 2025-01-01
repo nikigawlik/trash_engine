@@ -1,3 +1,4 @@
+import { setDisplayName } from "../names";
 import type Instance from "./instance";
 import Resource from "./resource";
 
@@ -33,3 +34,4 @@ export default class Room extends Resource {
     }
 }
 
+setDisplayName(Room, "Room")

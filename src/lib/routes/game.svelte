@@ -106,8 +106,12 @@ import * as globalData from "./../modules/globalData";
             currentError = null;
             return result;
         };
+        game.canvasUpdateCallback = () => {
+            canvasWebgl = canvasWebgl;
+            canvas2d = canvas2d;
+        };
         canvasWebgl = canvasWebgl;
-        // canvas2d = canvas2d;
+        canvas2d = canvas2d;
     }
 
     function requestOpenEditor() {

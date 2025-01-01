@@ -8,13 +8,23 @@ import Resource from "../structs/resource";
 import Sprite from "../structs/sprite";
 import { compareBy } from "./utils";
 
-
-const defaultGameSettings = {
-    title: "your game's name here",
-    LICENSE: "No license specified.",
+export class GameSettings {
+    // default settings
+    title = "your game's name here"
+    LICENSE = "No license specified."
+    colorPalette =  [
+        "#000000",
+        "#504050",
+        "#2633df",
+        "#ef4b2e",
+        "#f0ff4d",
+        "#4ccb2a",
+        "#9dab9f",
+        "#ffffff",
+    ]
 }
 
-export type GameSettings = typeof defaultGameSettings
+// export type GameSettings = typeof defaultGameSettings
 
 export const gameData: Writable<GameData|null> = writable(null);
 gameData.subscribe(gd => {
@@ -63,7 +73,7 @@ export default class GameData implements GameData{
     constructor() {
         this.resources = new Map();
         this.engineVersion = version;
-        this.settings = { ...defaultGameSettings }
+        this.settings = new GameSettings();
     }
 
     hasResource(uuid: string) {
@@ -71,6 +81,8 @@ export default class GameData implements GameData{
     }
 
     getResource<T extends typeof Resource>(uuid: string, type?: T): InstanceType<T> {
+        if(!uuid) return null;
+
         let nestedUUID = null;
         if(uuid.includes("/")) {
             [uuid, nestedUUID] = uuid.split("/");

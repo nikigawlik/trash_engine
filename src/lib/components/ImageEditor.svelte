@@ -10,23 +10,11 @@
         await new Promise(resolve => brushesSrcImage!.onload = resolve);
     }
 
-    
-    // more or less primary colors plus some extra
-    let colors = [
-        "#00000000", // eraser
-        "#000000ff",
-        "#504050ff",
-        "#2633dfff",
-        "#ef4b2eff",
-        "#f0ff4dff",
-        "#4ccb2aff",
-        "#9dab9fff",
-        "#ffffffff",
-    ]
-
     let colorUIAdjust: any = {
         "#000000ff": "dark",
+        "#00f": "dark",
         "#ffffffff": "light",
+        "#fff": "light",
     }
 
     // dawnbringers 8 col palette /w pure white
@@ -56,6 +44,11 @@
 
     // silly lil hack (bec. of module hot reloading)
     if(!brushesSrcImage) init();
+
+    
+    // more or less primary colors plus some extra
+    $: gameSettings = asStore($gameData.settings, "gameData.settings");
+    $: colors = ["#00000000"].concat($gameSettings?.colorPalette.map(c => c+"ff"));
 
     export let spriteID: string;
 

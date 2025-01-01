@@ -1,11 +1,14 @@
 <script lang="ts">
     export let tabs: string[] = [];
+    export let labels: string[] = [];
     export let selected = "";
 </script>
 
 <div class="options">
-    {#each tabs as tab}
-        <button on:click={() => selected = tab } class:selected={selected == tab}>{tab}</button>
+    {#each tabs as tab, i}
+        <button on:click={() => selected = tab } class:selected={selected == tab}>
+            {labels[i] || tab}
+        </button>
     {/each}
 </div>
 

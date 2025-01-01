@@ -109,6 +109,15 @@ export function openCard(
         :
             undefined
         ;
+        
+        // const r = get(gameData).getResource(uuid);
+        // if(r) {
+        //     let unsub;
+        //     unsub = asStore(r).subscribe(v => { if(!v) {
+        //         cards.remove(uuid);
+        //         unsub();
+        //     } })
+        // }
 
         const isMax = data.get().editor.settings.openResourcesMaximized;
         cards.add(type, isMax, uuid, replaceUUID);
