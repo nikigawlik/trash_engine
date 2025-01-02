@@ -63,9 +63,9 @@
     $: canvasDisplayWidth = adjustedCanvasSize(canvasWidth);
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
-    // afterUpdate(() => {
-    //     refresh(false);
-    // });
+    $: {
+        if(canvas) refresh(false, false)
+    }
 
     let instancesUnderCursor = new WeakSet<Instance>();
 
@@ -73,7 +73,7 @@
     function canvasUpdate(evt: MouseEvent) {
         if (!room) return;
 
-        let {x, y, filteredInstances} = processMousePos(evt, false);
+        let {x, y, filteredInstances} = processMousePos(evt);
         const canDeleteSomething = 
             $placementState.mode != "place" && 
             filteredInstances.length != $room.instances.length
@@ -180,7 +180,7 @@
         let prevY = -999;
 
         while(true) {
-            let {x, y, filteredInstances} = processMousePos(evt, !(mode == "initial"));
+            let {x, y, filteredInstances} = processMousePos(evt);
             const canDelete = filteredInstances.length != $room.instances.length;
             let moved = (prevX != x) || (prevY != y);
 
