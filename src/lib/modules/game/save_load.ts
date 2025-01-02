@@ -1,17 +1,20 @@
 import defaultProjectData from "../../../assets/engineAssets/default_game.json";
 import { deserialize, requestAsync } from "../serialize";
 import Resource from "../structs/resource";
-import GameData, { gameData } from "./game_data";
+import GameData, { gameData, GameSettings } from "./game_data";
 import { assert, compareBy } from "./utils";
 
+import { cards } from "../cardManager";
 import { db, getDocumentGameData, STORE_NAME_RESOURCES } from "../database";
 import { asStore } from "../store_owner";
+import Behaviour from "../structs/behaviour";
 
 export async function loadDefaultProject() {
     await loadGameData(defaultProjectData);
 }
 
 export async function loadGameData(data: any) {
+    cards.reset();
     let gd: GameData;
     try {
         let additionalProperties = new WeakMap<any, any>();
@@ -38,6 +41,8 @@ export async function loadGameData(data: any) {
         }
 
         fixOrdinals(gd);
+        fixOwners(gd);
+        fixSettings(gd);
 
         // TODO make a backup or sth?
         // if (gd.engineVersion != version)
@@ -82,6 +87,31 @@ function fixOrdinals(data: GameData) {
         if(r.ordinal <= prevValue)
             r.ordinal = prevValue + 1;
         prevValue = r.ordinal;
+    }
+}
+
+//ensures owners are assigned correctly for nested resources
+function fixOwners(data: GameData) {
+    for(let r of data.resources.values()) {
+        if(Object.hasOwn(r, "behaviours")) {
+            let rb = r as {behaviours: Behaviour[]} & Resource;
+            for(let b of rb.behaviours) {
+                b.ownerUUID = r.uuid;
+            }
+        }
+    }
+}
+
+function fixSettings(data: GameData) {
+    // migrating from versions where the game settings where not a class/type
+    if(!(data.settings instanceof GameSettings)) {
+        let settingsObj = data.settings as any;
+        data.settings = new GameSettings();
+        for(let attr in data.settings) {
+            if (settingsObj.hasOwnProperty(attr) && attr[0] != "_" && data.settings.hasOwnProperty(attr)) {
+                data.settings[attr] = settingsObj[attr];
+            }
+        }
     }
 }
 

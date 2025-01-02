@@ -92,6 +92,7 @@
     }
 
     async function importData() {
+        // click hidden file input element
         let element = document.createElement("input");
         element.setAttribute("type", "file");
         element.style.display = "none";
@@ -113,6 +114,7 @@
             let fileTextContent = await result.text();
             let gameDataJSON = "";
 
+            // find game data in the file / read directly
             if (result.type == "text/html") {
                 let parser = new DOMParser();
                 let htmlDoc = parser.parseFromString(
@@ -128,6 +130,8 @@
             let gd = JSON.parse(gameDataJSON);
 
             await loadGameData(gd);
+            cards.reset();
+            openDefaultCards()
         }
     }
 

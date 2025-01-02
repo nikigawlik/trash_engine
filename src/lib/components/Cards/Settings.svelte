@@ -1,5 +1,6 @@
 
 <script lang="ts">
+
 import { version } from "../../../../package.json";
 import { CardInstance, openCard } from "../../modules/cardManager";
 import { deleteDatabase } from "../../modules/database";
@@ -9,6 +10,8 @@ import { data } from "../../modules/globalData";
 import { logger } from "../../modules/logger";
 import { asStore } from "../../modules/store_owner";
 import { asyncGetTextPopup, asyncYesNoPopup } from "../../modules/ui";
+import FColor from "../behaviours/fields/FColor.svelte";
+import FText from "../behaviours/fields/FText.svelte";
 import Card from "../Card.svelte";
 import Log from "./Log.svelte";
 
@@ -45,10 +48,30 @@ import Log from "./Log.svelte";
     }
 
     $: gameSettings = asStore($gameData.settings, "gameData.settings");
+    $: {
+      console.log($gameSettings.colorPalette);
+      }
 </script>
 
 <Card card={card} autoFocus={true}>
     <p>running tash engine version {version}</p>
+
+    <h2>game settings:</h2>
+    
+    {#if $gameSettings}
+    <FText id="licenseText" bind:value={$gameSettings.LICENSE} useTextarea={true}>
+      license info included in the build: 
+    </FText>
+    <details>
+      <summary>sprite colors</summary>
+      <fieldset>
+        {#each $gameSettings.colorPalette as color, i}
+        <FColor bind:value={$gameSettings.colorPalette[i]} id="palette-color-{i}">sprite color {i}</FColor>
+        {/each}
+      </fieldset>
+    </details>
+    {/if}
+
     <h2>editor settings: </h2>
     <p>
       <label for="theme">color theme &nbsp</label>
@@ -69,12 +92,6 @@ import Log from "./Log.svelte";
       <p><button on:click={saveDebugLog}>save debug log</button></p>
       <p><button on:click={() => openCard(Log)}>exp. remote logging</button></p>
     </details>
-
-    <h2>game settings:</h2>
-    <p><label for="licenseText">license info included in the build: </label></p>
-    {#if $gameSettings}
-    <textarea name="licenseText" bind:value={$gameSettings.LICENSE}></textarea>
-    {/if} 
  
 </Card>
 

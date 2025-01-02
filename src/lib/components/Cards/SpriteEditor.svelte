@@ -10,9 +10,9 @@ import AtlasIcon from "../AtlasIcon.svelte";
 import BehaviourPreview from "../BehaviourPreview.svelte";
 import Card from "../Card.svelte";
 import ImageEditor from "../ImageEditor.svelte";
+import MultiSelect from "../MultiSelect.svelte";
 import { openEditorWindow } from "../ResourceTreeResource.svelte";
 import SelectBehaviourPopUp from "../SelectBehaviourPopUp.svelte";
-import TabView from "../TabView.svelte";
 
     export let card: CardInstance;
 
@@ -88,7 +88,22 @@ import TabView from "../TabView.svelte";
     {card}
     resourceNeeded={$sSprite? null : {resourceConstructor: Sprite, displayName: "sprite"}}
 >
-    <TabView bind:selected={mode} tabs={["draw", "script"]} />
+    <!-- <TabView bind:selected={mode} tabs={["draw", "script"]} labels={[,"behaviour"]} /> -->
+    <!-- Mode Select -->
+    <!-- labels={["draw", "behavior"]} -->
+    <MultiSelect
+        bind:value={mode}
+        options={["draw", "script"]}
+        let:label
+        let:option
+    >
+        <AtlasIcon
+            height={20}
+            id={{ draw: 41, script: 42 }[option]}
+        />
+        {label}
+    </MultiSelect>
+    <hr class=spacer/>
     {#if mode=="draw"}
         <ImageEditor spriteID={$sSprite.uuid}/>
     {:else if mode == "script"}
@@ -118,12 +133,14 @@ import TabView from "../TabView.svelte";
         display: flex;
         flex-direction: column;
         align-items: stretch;
+        gap: var(--size-2);
 
         overflow-y: auto;
     }
     
     ul.behaviours>li {
-        margin: .8rem 0;
+        /* margin: .8rem 0; */
+        margin: 0;
         margin-right: .2rem;
         padding: .8rem;
         border: 1px solid var(--main-color);

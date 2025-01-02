@@ -1,6 +1,7 @@
 <script lang="ts">
 
 export let options = [] as string[];
+export let labels = [] as string[];
 export let value = "";
 export let onSelect = (value: string) => {};
 export let style: string = "";
@@ -13,10 +14,10 @@ function selectOption(option: string) {
 </script>
 
 <ul style={style}>
-    {#each options as opt}
+    {#each options as opt,i}
         <li>
             <button on:click={() => selectOption(opt)} class:selected={value == opt}>
-			    <slot option={opt} >{opt}</slot>
+			    <slot option={opt} label={labels[i] || opt}>{opt}</slot>
             </button>
         </li>
     {/each}

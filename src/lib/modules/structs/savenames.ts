@@ -1,6 +1,9 @@
 import BCustomSvelte from "../../components/behaviours/BCustom.svelte";
+import BMoveAndCollide from "../../components/behaviours/BMoveAndCollide.svelte";
 import BPlayerControllerSvelte from "../../components/behaviours/BPlayerController.svelte";
-import GameData from "../game/game_data";
+import BTag from "../../components/behaviours/BTag.svelte";
+import BText from "../../components/behaviours/BText.svelte";
+import GameData, { GameSettings } from "../game/game_data";
 import Behaviour from "./behaviour";
 import BehaviourLink from "./behaviourLink";
 import Instance from "./instance";
@@ -26,8 +29,12 @@ export function nameConstructorMap() {
     mp.set("SoundEffect", SoundEffect);
     mp.set("BehaviourLink", BehaviourLink);
     mp.set("BCustomSvelte", BCustomSvelte);
-    mp.set("BPlayerControllerSvelte", BPlayerControllerSvelte);
     mp.set("GameData", GameData)
+    mp.set("GameSettings", GameSettings)
+    mp.set("BPlayerControllerSvelte", BPlayerControllerSvelte);
+    mp.set("BTag", BTag)
+    mp.set("BMoveAndCollide", BMoveAndCollide)
+    mp.set("BText", BText)
 
     return mp;
 }

@@ -28,8 +28,8 @@ export interface SpriteInstance {
 }
 
 
-const ALL_UUID = "ddf24ad7-6386-4f3e-80a1-a7f18eb01aba";
-const NOONE_UUID = "a33e372b-c773-4a10-9106-83bae17c9626";
+const ALL_UUID = "all";
+const NONE_UUID = "none";
 
 export default class Game {
     tickRate: number;
@@ -68,6 +68,7 @@ export default class Game {
     editorCallback: (() => void) | null
     quitGameCallback: (() => void) | null
     errorCallback: ((e: Error) => Promise<boolean>) | null
+    canvasUpdateCallback: () => void | null
 
 
     constructor(gameData: GameData, canvasWebGL: HTMLCanvasElement, canvas2d: HTMLCanvasElement, htmlOverlay: HTMLDivElement, startRoomID?: string) {
@@ -132,7 +133,7 @@ export default class Game {
                 // sprite._initFunction = new Function(sprite.initCode);
                 // sprite._updateFunction = new Function(sprite.updateCode);
                 sprite.generateCode();
-                console.log()
+                // console.log()
             }
             this.instanceSets.set(sprite.uuid, new WeakSet());
         }
@@ -155,7 +156,7 @@ export default class Game {
 
         // special sets
         this.instanceSets.set(ALL_UUID, new WeakSet());
-        this.instanceSets.set(NOONE_UUID, new WeakSet());
+        this.instanceSets.set(NONE_UUID, new WeakSet());
 
         // make resource accesors
 
@@ -177,7 +178,8 @@ export default class Game {
         defineLibProperty("mouseX", () => this.mouseX);
         defineLibProperty("mouseY", () => this.mouseY);
         defineLibProperty("all", () => ALL_UUID);
-        defineLibProperty("noone", () => NOONE_UUID);
+        defineLibProperty("noone", () => NONE_UUID); //legacy, reads "no-one"
+        defineLibProperty("none", () => NONE_UUID);
         defineLibProperty("currentRoom", () => this.currentRoom.uuid);
 
         defineLibProperty("cameraX", () => this.renderer.cameraX, x => this.renderer.cameraX = x);
@@ -443,8 +445,12 @@ export default class Game {
         this.currentRoom = room;
         this.canvasWebgl.width = room.width;
         this.canvasWebgl.height = room.height;
+        this.canvas2d.width = room.width;
+        this.canvas2d.height = room.height;
         this.renderer.cameraX = room.width/2;
         this.renderer.cameraY = room.height/2;
+
+        if(this.canvasUpdateCallback) this.canvasUpdateCallback();
 
         document.body.style.backgroundColor = room.backgroundColor;
 

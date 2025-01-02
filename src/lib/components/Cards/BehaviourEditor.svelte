@@ -38,17 +38,18 @@
         ; 
     }
 
-    $: card.position.width = 450;
+    // $: card.position.width = ($behaviour.svelteComponent instanceof BCustom)? 450 : 200;
 
     // $: {
     //     console.log($behaviour);
     // }
+
 </script>
 
 
 <Card 
     autoFocus={true} 
-    contentMinWidth={240} 
+    contentMinWidth={40} 
     {card} 
     namePrefix="edit behaviour: "
     resourceNeeded={$behaviour? null : {resourceConstructor: Behaviour, displayName: "behaviour"}}

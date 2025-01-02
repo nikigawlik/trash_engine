@@ -108,6 +108,7 @@
         flex-grow: 1;
         overflow-wrap: normal;
         width: 100%;
+        min-width: 25rem;
         resize: vertical;
     }
     

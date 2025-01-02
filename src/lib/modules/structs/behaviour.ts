@@ -1,6 +1,7 @@
 import type { ComponentType } from "svelte"
 import { SvelteComponent } from "svelte"
 import BCustomSvelte from "../../components/behaviours/BCustom.svelte"
+import { setDisplayName } from "../names"
 import Resource from "./resource"
 
 const defaultCode = `
@@ -30,3 +31,5 @@ export default class Behaviour extends Resource {
         this.svelteComponent = BCustomSvelte;
     }
 }
+
+setDisplayName(Behaviour, "Behaviour");

@@ -141,6 +141,7 @@ export async function deserialize(obj: any | null, additionalProperties: WeakMap
 
             return canvas;
         } else {
+            // maps (stored as objects)
             if(obj._type == "Map") {
                 let copy = new Map();
                 for(let key in obj) {
@@ -149,6 +150,7 @@ export async function deserialize(obj: any | null, additionalProperties: WeakMap
                 }
                 return copy;
             } 
+            // objects with constructor
             else if (obj._type) {
                 if (!constructors.has(obj._type)) throw makeUnrecognizedTypeError(obj._type);
 

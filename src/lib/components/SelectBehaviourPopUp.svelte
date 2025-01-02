@@ -7,7 +7,10 @@
     import type { AbstractPrompt } from "../modules/ui";
     import BlockingPopUp from "./BlockingPopUp.svelte";
     import BCustom from "./behaviours/BCustom.svelte";
+    import BMoveAndCollide from "./behaviours/BMoveAndCollide.svelte";
     import BPlayerController from "./behaviours/BPlayerController.svelte";
+    import BTag from "./behaviours/BTag.svelte";
+    import BText from "./behaviours/BText.svelte";
 
     export let prompt: AbstractPrompt|null;
 
@@ -19,6 +22,9 @@
     
     let defaultOptions: BehOpt[] = [
         { text: "player controller", behaviourComp: BPlayerController },
+        { text: "tag", behaviourComp: BTag },
+        { text: "move/collide", behaviourComp: BMoveAndCollide },
+        { text: "show text", behaviourComp: BText },
         { text: "custom code", behaviourComp: BCustom },
     ];
 

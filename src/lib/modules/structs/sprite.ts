@@ -1,6 +1,7 @@
 import { get } from "svelte/store";
 import { cards } from "../cardManager";
 import { gameData } from "../game/game_data";
+import { setDisplayName } from "../names";
 import type Behaviour from "./behaviour";
 import BehaviourLink from "./behaviourLink";
 import Resource from "./resource";
@@ -168,3 +169,5 @@ ${code}
         }
     }
 }
+
+setDisplayName(Sprite, "Sprite");
