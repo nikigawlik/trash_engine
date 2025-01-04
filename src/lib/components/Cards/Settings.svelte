@@ -101,10 +101,6 @@ import Log from "./Log.svelte";
     text-decoration: underline;
   }
 
-  textarea {
-    resize: vertical;
-  }
-
   p, h2 {
     margin-bottom: var(--size-2);
   }

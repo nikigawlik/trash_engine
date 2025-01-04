@@ -44,8 +44,7 @@ import SpriteEditor from "./Cards/SpriteEditor.svelte";
 
     $: sortedCards = $cards.sort((a, b) => (a.position.x - b.position.x));
 
-    let comps: (typeof SvelteComponent)[] = [MainPanel, Resources, SpriteEditor, RoomEditor, SoundEffectEditor, BehaviourEditor];
-
+    let comps = [MainPanel, Resources, SpriteEditor, RoomEditor, SoundEffectEditor, BehaviourEditor] as (typeof SvelteComponent)[];
 
     $: navBar = comps.concat(sortedCards.map(x => x.componentType).filter(x => !(comps.indexOf(x) >= 0)))
 

@@ -1,6 +1,5 @@
 <script lang="ts">
     import { SvelteComponent } from "svelte";
-    import type { ComponentType } from "svelte/internal";
     import { gameData } from "../modules/game/game_data";
     import Behaviour from "../modules/structs/behaviour";
     import BehaviourLink from "../modules/structs/behaviourLink";
@@ -16,7 +15,7 @@
 
     interface BehOpt {
         text: string,
-        behaviourComp?:  ComponentType<SvelteComponent<{behaviour: Behaviour}>>,
+        behaviourComp?:  typeof SvelteComponent<{behaviour: Behaviour}>,
         linkedBehaviour?: Behaviour
     }
     
