@@ -64,7 +64,8 @@
     $: canvasDisplayHeight = adjustedCanvasSize(canvasHeight);
 
     $: {
-        if(canvas) refresh(false, false)
+        if(canvas && $room) 
+            tick().then(() => refresh(false, false))
     }
 
     let instancesUnderCursor = new WeakSet<Instance>();
@@ -448,7 +449,9 @@
     <MultiSelect
         bind:value={tool}
         options={tools}
+        labels={["edit", tool=="play"? "restart" : "play"]}
         onSelect={onSelectTool}
+        let:label
         let:option
     >
         <AtlasIcon
@@ -456,7 +459,7 @@
             id={{ play: 75, edit: 42, settings: 43 }[option]}
         />
         <!-- <span style:font-size="var(--size-4)" style:line-height="var(--size-4)">{option}</span> -->
-        {option != "settings" ? option : ""}
+        {label}
     </MultiSelect>
 
     {#if tool == "edit"}
