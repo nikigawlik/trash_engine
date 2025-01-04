@@ -70,7 +70,7 @@
         console.log("--- loading start (engine) ---");
         await database.init();
         await globalData.load();
-        await autoLoadGameData();
+        await autoLoadGameData(true);
         assert(!!$gameData, "Critical error: save data did not load");
         await image_editor.init();
         console.log("--- loading done ---");
@@ -439,21 +439,4 @@
         font-family: sans-serif;
     }
 
-    ul.topbar {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: stretch;
-
-        /* border-bottom: 1px solid var(--main-color); */
-        background-color: var(--bg-color);
-        /* padding: 8px; */
-
-        margin-bottom: 4px;
-    }
-
-    ul.topbar > li {
-        /* border-right: 1px solid var(--main-color); */
-        padding: 4px;
-    }
 </style>

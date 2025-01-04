@@ -10,6 +10,13 @@ import { asStore } from "../store_owner";
 import Behaviour from "../structs/behaviour";
 
 export async function loadDefaultProject() {
+    let docData = getDocumentGameData();
+    if (docData != null) {
+        console.log("- load from document data")
+        await loadGameData(JSON.parse(docData));
+        return;
+    }
+
     await loadGameData(defaultProjectData);
 }
 
@@ -115,10 +122,10 @@ function fixSettings(data: GameData) {
     }
 }
 
-export async function autoLoadGameData() {
+export async function autoLoadGameData(skipDocumentData = false) {
     // first check the document data (in exported games)
     let docData = getDocumentGameData();
-    if (docData != null) {
+    if (docData != null && !skipDocumentData) {
         console.log("- load from document data")
         await loadGameData(JSON.parse(docData));
         return;
