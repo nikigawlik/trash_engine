@@ -4,6 +4,7 @@
     import { gameData } from "../../modules/game/game_data";
     import { asStore } from "../../modules/store_owner";
     import Behaviour from "../../modules/structs/behaviour";
+    import BehaviourLink from "../../modules/structs/behaviourLink";
     import Sprite from "../../modules/structs/sprite";
     import Card from "../Card.svelte";
 
@@ -19,14 +20,19 @@
     const isIndependent = !card.uuid.includes("/");
 
     $: {
-        if($gameData)
-        if(isIndependent) {
-            behaviour = asStore($gameData.getResource(uuid, Behaviour) || $gameData.getAllOfResourceType(Behaviour)[0])
-        } else {
-            let [spriteUUID, behaviourUUID] = uuid.split("/");
-            sprite = asStore($gameData.getResource(spriteUUID, Sprite))
-            // behaviour = derived(sprite, $sprite => $sprite.behaviours.find(x => x.uuid == behaviourUUID))
-            behaviour = asStore($sprite.behaviours.find(x => x.uuid == behaviourUUID));
+        if($gameData) {
+            let b: Behaviour = null;
+
+            if(isIndependent) {
+                b = $gameData.getResource(uuid, Behaviour)
+            } else {
+                let [spriteUUID, behaviourUUID] = uuid.split("/");
+                sprite = asStore($gameData.getResource(spriteUUID, Sprite))
+                let b = $sprite.behaviours.find(x => x.uuid == behaviourUUID);
+                if(b instanceof BehaviourLink)
+                    b = $gameData.getResource(b.linkedBehaviourUUID, Behaviour)
+            }
+            behaviour = asStore(b || $gameData.getAllOfResourceType(Behaviour)[0]);
         }
     }
     
