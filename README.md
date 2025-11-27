@@ -14,4 +14,4 @@ Use `npm install` to install dependencies, `npm run dev` for a dev server, `npm 
 
 ## trash
 
-In the spirit of the engine there are no unit tests and insufficient documentation (jk I'll get around to these things it I promise!!)
+In the spirit of the engine there are no unit tests and insufficient documentation (But I will get around to these things, I promise!!)
